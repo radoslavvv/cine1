@@ -1,6 +1,6 @@
 # Cinema Booking Learning Project
 
-A React + TypeScript client connected to an ASP.NET Core controller API. This first scaffold displays three sample movies from an injected, in-memory catalog.
+A React + TypeScript client connected to an ASP.NET Core controller API. The frontend uses a dark cinema-lobby theme, Tailwind CSS, and TanStack Query to load three sample movies from an injected, in-memory catalog.
 
 ## Requirements
 
@@ -66,23 +66,27 @@ The health check returns HTTP 200 and `Healthy`. Both movie URLs return the same
 ]
 ```
 
-The page should display all three titles and durations. To examine loading, use browser network throttling and refresh. To examine failure, stop the backend and refresh; restart it and select **Try again** to recover. To examine the empty state, use the browser's response override for `/api/movies` with `[]`, then reload and remove the override afterward.
+The page should display all three titles and durations. To examine loading, use browser network throttling and reload. To examine initial failure, stop the backend and reload; after one automatic retry the error appears. Restart the backend and select **Try again** to recover. To examine the empty state, use the browser's response override for `/api/movies` with `[]`, then reload and remove the override afterward.
+
+**Refresh movies** explicitly fetches a fresh catalog while keeping existing movies on screen. If that request fails, a notice explains that the displayed catalog is the last successful result. The TanStack Query devtools toggle appears in the bottom-left corner during development only.
 
 ## How the code fits together
 
-- `src/frontend/src/App.tsx`: fetch lifecycle, catalog display, loading/empty/error states, and retry.
-- `src/frontend/src/movies.ts`: the frontend movie type and HTTP request.
+- `src/frontend/src/app/`: app shell, Query provider, and the separate Tailwind theme in `theme.css`.
+- `src/frontend/src/features/movies/`: the movie page, request and query configuration, types, components, and local artwork presentation data.
+- `src/frontend/src/shared/ui/`: reusable UI, currently a button.
 - `src/frontend/vite.config.ts`: fixed development port and API proxy.
 - `src/backend/Controllers/MoviesController.cs`: HTTP endpoint using dependency injection.
 - `src/backend/Movies/`: movie model, catalog interface, and sample implementation.
 - `src/backend/Program.cs`: service registration and endpoint setup.
 
-The request path is React → Vite proxy → controller → catalog. The sample data resets with the process and there are no write endpoints. The poster-like illustrations are decorative CSS artwork, not official movie posters.
+The request path is movie page → TanStack Query → native fetch → Vite proxy → controller → catalog. The sample data resets with the process and there are no write endpoints. Posters and the hero use styled illustrations until you add your own local artwork; see [artwork instructions](src/frontend/src/features/movies/assets/README.md). There are no external image requests. See [the frontend guide](docs/frontend.md) for feature boundaries, Tailwind theme conventions, and a practical introduction to Query.
 
 ## Learning documents
 
 - [ROADMAP.md](ROADMAP.md): six milestones, experiments, and acceptance criteria. The initial scaffold's build and runtime checks have passed; the first full milestone still includes administration, identity, and basic booking.
 - [CONTEXT.md](CONTEXT.md): domain vocabulary, separate from implementation decisions.
+- [docs/frontend.md](docs/frontend.md): frontend organization, visual conventions, and TanStack Query exercises.
 
 Future work introduces PostgreSQL, authentication, booking, Docker infrastructure, and messaging incrementally. Architectural decision records will be added when a consequential tradeoff warrants one.
 

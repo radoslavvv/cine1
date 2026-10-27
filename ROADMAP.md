@@ -35,6 +35,15 @@ Eventually extract **Notifications**, followed by **Payments**, into separate se
 
 This completes the scaffold only. The full first milestone below remains open.
 
+### Frontend foundation — complete
+
+- [x] Organize the client into app setup, a movies feature, and shared UI.
+- [x] Introduce TanStack Query, development-only devtools, and explicit catalog caching/retry settings.
+- [x] Redesign the catalog as a dark cinema lobby with violet surfaces, amber lighting, subtle ceiling lights, and original patterned-carpet accents.
+- [x] Migrate styling to Tailwind v4 with a separate `app/theme.css` for design tokens and atmospheric utilities.
+- [x] Support user-supplied local posters/backdrops with illustrated fallbacks; artwork files are pending user supply.
+- [x] Document feature boundaries and Query learning exercises in `docs/frontend.md`.
+
 ### 1. Build a usable vertical slice — 3–4 weeks
 
 - [ ] Complete milestone 1 and its acceptance criteria.

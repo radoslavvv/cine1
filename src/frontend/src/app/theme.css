@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+
+/* Cinema tokens create utilities such as bg-lobby and text-amber. */
+@theme {
+  --color-lobby: #0e0b15;
+  --color-surface: #18131f;
+  --color-raised: #231c2d;
+  --color-edge: #392e43;
+  --color-ivory: #f5eee1;
+  --color-muted: #b3a9bc;
+  --color-amber: #e9b675;
+  --color-amber-light: #f6d8a7;
+  --color-violet: #a38bd4;
+  --color-rose: #c58a9e;
+  --font-sans: 'Segoe UI', 'Arial', sans-serif;
+  --font-display: 'Georgia', 'Times New Roman', serif;
+  --font-label: 'Courier New', monospace;
+  --shadow-marquee: 0 0 32px #e9b67512, 0 10px 36px #0005;
+  --shadow-screen: 0 24px 90px #0006, 0 -1px 0 #e9b67520;
+  --background-image-carpet: url('/carpet.svg');
+}
+
+@layer base {
+  :root { color-scheme: dark; }
+  body { @apply m-0 min-w-80 bg-lobby font-sans text-ivory antialiased; }
+  html { scroll-padding-top: 28px; }
+  button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  button:not(:disabled), a { cursor: pointer; }
+  button:focus-visible, a:focus-visible { @apply outline-2 outline-offset-4 outline-amber; }
+  ::selection { @apply bg-amber text-lobby; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Atmospheric utilities; component layout and styling stay in JSX. */
+@utility ceiling-lights {
+  background-image:
+    radial-gradient(ellipse at 50% 0%, #8d60d218, transparent 58%),
+    radial-gradient(1px 1px at 12% 24%, #f6d8a790 60%, transparent 100%),
+    radial-gradient(1px 1px at 79% 18%, #b9a0e9a0 60%, transparent 100%),
+    radial-gradient(1px 1px at 44% 48%, #f6d8a780 60%, transparent 100%),
+    radial-gradient(1px 1px at 94% 60%, #b9a0e980 60%, transparent 100%);
+  background-size: 100% 100%, 211px 173px, 307px 241px, 373px 199px, 257px 283px;
+}
+
+@utility aisle-glow {
+  background: linear-gradient(90deg, transparent, #e9b67580 20%, #e9b675b0 50%, #e9b67580 80%, transparent);
+  box-shadow: 0 0 12px #e9b67525;
+}
+
+@utility screen-vignette {
+  background: linear-gradient(90deg, #100d18f5 0%, #100d18e0 35%, #100d1840 75%),
+    linear-gradient(0deg, #100d18f0 0%, transparent 70%);
+}
