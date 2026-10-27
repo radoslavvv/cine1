@@ -21,10 +21,13 @@ export function useAppNavigation() {
 
   const releaseArrival = useCallback(() => setArrivalLocked(false), []);
 
-  const completeEntrance = useCallback((offset: number) => {
-    handoffOffset.current = arrival.current ? 0 : offset;
-    navigate('/schedule');
-  }, [navigate]);
+  const completeEntrance = useCallback(
+    (offset: number) => {
+      handoffOffset.current = arrival.current ? 0 : offset;
+      navigate('/schedule');
+    },
+    [navigate],
+  );
 
   useLayoutEffect(() => {
     const previous = history.scrollRestoration;
@@ -48,9 +51,17 @@ export function useAppNavigation() {
     window.scrollTo({ top: handoffOffset.current ?? 0, behavior: 'instant' });
     handoffOffset.current = null;
     mainRef.current?.focus({ preventScroll: true });
-    document.title = location.pathname === '/schedule' ? 'Movie schedule · cinemaR' : 'cinemaR';
+    document.title =
+      location.pathname === '/schedule'
+        ? 'Movie schedule · cinemaR'
+        : 'cinemaR';
   }, [location.key, location.pathname, scheduleMotion]);
 
-
-  return { mainRef, scheduleMotion, beginArrival, releaseArrival, completeEntrance };
+  return {
+    mainRef,
+    scheduleMotion,
+    beginArrival,
+    releaseArrival,
+    completeEntrance,
+  };
 }

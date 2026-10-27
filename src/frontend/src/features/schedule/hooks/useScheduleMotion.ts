@@ -2,7 +2,11 @@ import { useLayoutEffect, useRef } from 'react';
 import { scheduleMotionTheme } from '../components/SchedulePage/SchedulePage.theme';
 import type { ScheduleMotionSession } from '../model/scheduleMotion';
 
-export function useScheduleMotion(session: ScheduleMotionSession, preview: boolean, selectedDate: string) {
+export function useScheduleMotion(
+  session: ScheduleMotionSession,
+  preview: boolean,
+  selectedDate: string,
+) {
   const rootRef = useRef<HTMLDivElement>(null);
   const previousDate = useRef(selectedDate);
 
@@ -10,7 +14,10 @@ export function useScheduleMotion(session: ScheduleMotionSession, preview: boole
     const root = rootRef.current;
     if (!root) return;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-    const animations = new Map<HTMLElement, { animation: Animation; key: string; delay: number; duration: number }>();
+    const animations = new Map<
+      HTMLElement,
+      { animation: Animation; key: string; delay: number; duration: number }
+    >();
 
     function sync() {
       for (const { animation, key, delay, duration } of animations.values()) {
@@ -37,26 +44,29 @@ export function useScheduleMotion(session: ScheduleMotionSession, preview: boole
           animations.delete(element);
         }
       }
-      root!.querySelectorAll<HTMLElement>('[data-schedule-enter]').forEach((element) => {
-        if (animations.has(element)) return;
-        const kind = element.dataset.scheduleEnter as keyof typeof scheduleMotionTheme;
-        const definition = scheduleMotionTheme[kind];
-        if (!definition) return;
-        const order = Number(element.dataset.scheduleOrder ?? 0);
-        const animation = element.animate(definition.frames, {
-          duration: definition.duration,
-          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-          fill: 'backwards',
+      root!
+        .querySelectorAll<HTMLElement>('[data-schedule-enter]')
+        .forEach((element) => {
+          if (animations.has(element)) return;
+          const kind = element.dataset
+            .scheduleEnter as keyof typeof scheduleMotionTheme;
+          const definition = scheduleMotionTheme[kind];
+          if (!definition) return;
+          const order = Number(element.dataset.scheduleOrder ?? 0);
+          const animation = element.animate(definition.frames, {
+            duration: definition.duration,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            fill: 'backwards',
+          });
+          animation.pause();
+          animation.currentTime = 0;
+          animations.set(element, {
+            animation,
+            key: element.dataset.scheduleKey ?? kind,
+            delay: definition.delay + Math.min(order, 6) * definition.stagger,
+            duration: definition.duration,
+          });
         });
-        animation.pause();
-        animation.currentTime = 0;
-        animations.set(element, {
-          animation,
-          key: element.dataset.scheduleKey ?? kind,
-          delay: definition.delay + Math.min(order, 6) * definition.stagger,
-          duration: definition.duration,
-        });
-      });
       sync();
     }
 
@@ -79,11 +89,16 @@ export function useScheduleMotion(session: ScheduleMotionSession, preview: boole
     if (previousDate.current === selectedDate) return;
     previousDate.current = selectedDate;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const animations = Array.from(rootRef.current?.querySelectorAll('[data-showtimes]') ?? []).map((element) =>
-      element.animate([
-        { opacity: 0.35, transform: 'translateY(4px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ], { duration: 220, easing: 'ease-out' }),
+    const animations = Array.from(
+      rootRef.current?.querySelectorAll('[data-showtimes]') ?? [],
+    ).map((element) =>
+      element.animate(
+        [
+          { opacity: 0.35, transform: 'translateY(4px)' },
+          { opacity: 1, transform: 'translateY(0)' },
+        ],
+        { duration: 220, easing: 'ease-out' },
+      ),
     );
     return () => animations.forEach((animation) => animation.cancel());
   }, [selectedDate]);

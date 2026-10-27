@@ -24,6 +24,10 @@ _Avoid_: Movie catalog, booking list
 A showtime whose scheduled start has passed and whose movie runtime has not yet elapsed.
 _Avoid_: Finished showtime
 
+**Upcoming showtime**:
+A showtime whose scheduled start is still in the future.
+_Avoid_: Started showtime
+
 **Finished showtime**:
 A showtime whose scheduled start plus movie runtime has elapsed. Auditorium turnaround is not part of the screening's runtime.
 _Avoid_: Started showtime

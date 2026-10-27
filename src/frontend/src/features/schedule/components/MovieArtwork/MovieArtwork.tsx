@@ -8,14 +8,22 @@ interface MovieArtworkProps {
   showTitle?: boolean;
 }
 
-export function MovieArtwork({ title, variant = 'poster', showTitle = true }: MovieArtworkProps) {
+export function MovieArtwork({
+  title,
+  variant = 'poster',
+  showTitle = true,
+}: MovieArtworkProps) {
   const presentation = getMoviePresentation(title);
-  const url = variant === 'poster' ? presentation.posterUrl : presentation.backdropUrl;
+  const url =
+    variant === 'poster' ? presentation.posterUrl : presentation.backdropUrl;
   const [failedUrl, setFailedUrl] = useState<string>();
   const isBackdrop = variant === 'backdrop';
 
   return (
-    <div className={`${theme.root} ${theme.backgrounds[presentation.artwork]}`} aria-hidden="true">
+    <div
+      className={`${theme.root} ${theme.backgrounds[presentation.artwork]}`}
+      aria-hidden="true"
+    >
       <div className={theme.lights} />
       {presentation.artwork === 'orbit' && (
         <div className={isBackdrop ? theme.backdropOrbit : theme.posterOrbit}>
@@ -36,14 +44,22 @@ export function MovieArtwork({ title, variant = 'poster', showTitle = true }: Mo
         <div className={theme.hotel}>
           <div className={theme.roof} />
           <div className={theme.windows}>
-            {Array.from({ length: 9 }, (_, index) => <span key={index} className={theme.window} />)}
+            {Array.from({ length: 9 }, (_, index) => (
+              <span key={index} className={theme.window} />
+            ))}
           </div>
         </div>
       )}
       <div className={theme.shade} />
       {!isBackdrop && showTitle && <span className={theme.title}>{title}</span>}
       {url && failedUrl !== url && (
-        <img className={theme.image} src={url} alt="" loading={isBackdrop ? 'eager' : 'lazy'} onError={() => setFailedUrl(url)} />
+        <img
+          className={theme.image}
+          src={url}
+          alt=""
+          loading={isBackdrop ? 'eager' : 'lazy'}
+          onError={() => setFailedUrl(url)}
+        />
       )}
     </div>
   );

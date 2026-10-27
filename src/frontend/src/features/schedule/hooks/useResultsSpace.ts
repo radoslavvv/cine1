@@ -13,7 +13,9 @@ export function useResultsSpace() {
       // Preserve the largest result footprint across dates; remeasure on resize.
       const resized = Math.abs(nextWidth - width.current) > 1;
       width.current = nextWidth;
-      setHeight(previous => resized ? nextHeight : Math.max(previous, nextHeight));
+      setHeight((previous) =>
+        resized ? nextHeight : Math.max(previous, nextHeight),
+      );
     });
     observer.observe(content);
     return () => observer.disconnect();

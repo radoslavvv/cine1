@@ -7,11 +7,16 @@ export function useShowtimeClock(showtimes: Showtime[] | undefined) {
   useEffect(() => setNow(Date.now()), [showtimes]);
   useEffect(() => {
     const current = Date.now();
-    const boundaries = (showtimes ?? []).flatMap(showtime => {
-      const start = Date.parse(showtime.startsAt);
-      return [start, start + showtime.movie.durationMinutes * 60_000];
-    }).filter(time => time > now);
-    const delay = Math.max(1, Math.min(60_000, ...boundaries.map(time => time - current)));
+    const boundaries = (showtimes ?? [])
+      .flatMap((showtime) => {
+        const start = Date.parse(showtime.startsAt);
+        return [start, start + showtime.movie.durationMinutes * 60_000];
+      })
+      .filter((time) => time > now);
+    const delay = Math.max(
+      1,
+      Math.min(60_000, ...boundaries.map((time) => time - current)),
+    );
     const timer = window.setTimeout(() => setNow(Date.now()), delay);
     const sync = () => setNow(Date.now());
     document.addEventListener('visibilitychange', sync);

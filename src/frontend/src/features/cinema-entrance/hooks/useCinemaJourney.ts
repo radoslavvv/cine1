@@ -1,9 +1,16 @@
 import { useLayoutEffect, useRef } from 'react';
-import { getJourneyGeometry, getScheduleScrollOffset } from '../journeyGeometry';
+import {
+  getJourneyGeometry,
+  getScheduleScrollOffset,
+} from '../journeyGeometry';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
-export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onScheduleReveal: () => void, onScheduleArrival: () => void) {
+export function useCinemaJourney(
+  onComplete: (scrollOffset: number) => void,
+  onScheduleReveal: () => void,
+  onScheduleArrival: () => void,
+) {
   const rootRef = useRef<HTMLDivElement>(null);
   const journeyRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -42,12 +49,20 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onS
         onScheduleReveal();
       }
       root.style.setProperty('--travel', String(travel));
-      root.style.setProperty('--schedule-opacity', String(reducedMotion.matches ? 1 : reveal * reveal * (3 - 2 * reveal)));
-      root.style.setProperty('--entrance-hint', String(clamp(1 - progress * 5)));
+      root.style.setProperty(
+        '--schedule-opacity',
+        String(reducedMotion.matches ? 1 : reveal * reveal * (3 - 2 * reveal)),
+      );
+      root.style.setProperty(
+        '--entrance-hint',
+        String(clamp(1 - progress * 5)),
+      );
 
       if (target === 1 && progress === 1) {
         completed = true;
-        onComplete(getScheduleScrollOffset(schedule.getBoundingClientRect().top));
+        onComplete(
+          getScheduleScrollOffset(schedule.getBoundingClientRect().top),
+        );
       } else if (progress !== target) {
         frame = requestAnimationFrame(update);
       } else {
@@ -63,7 +78,10 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onS
       if (!reducedMotion.matches && target === 1 && !arrived) {
         arrived = true;
         // Stop wheel momentum at the schedule boundary while the camera settles.
-        window.scrollTo({ top: window.scrollY + top + distance, behavior: 'instant' });
+        window.scrollTo({
+          top: window.scrollY + top + distance,
+          behavior: 'instant',
+        });
         onScheduleArrival();
       }
       if (reducedMotion.matches) {
@@ -73,14 +91,19 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onS
         root.style.setProperty('--schedule-opacity', '1');
         schedule.inert = false;
         schedule.removeAttribute('aria-hidden');
-        if (!revealed && schedule.getBoundingClientRect().top < stage.offsetHeight) {
+        if (
+          !revealed &&
+          schedule.getBoundingClientRect().top < stage.offsetHeight
+        ) {
           revealed = true;
           onScheduleReveal();
         }
         if (-top >= journey.offsetHeight - 1) {
           completed = true;
           onScheduleArrival();
-          onComplete(getScheduleScrollOffset(schedule.getBoundingClientRect().top));
+          onComplete(
+            getScheduleScrollOffset(schedule.getBoundingClientRect().top),
+          );
         }
       } else {
         schedule.inert = true;
@@ -91,7 +114,10 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onS
 
     function resize() {
       if (!root || !stage) return;
-      const geometry = getJourneyGeometry(stage.clientWidth, stage.clientHeight);
+      const geometry = getJourneyGeometry(
+        stage.clientWidth,
+        stage.clientHeight,
+      );
       root.style.setProperty('--image-width', `${geometry.imageWidth}px`);
       root.style.setProperty('--image-height', `${geometry.imageHeight}px`);
       root.style.setProperty('--image-left', `${geometry.left}px`);

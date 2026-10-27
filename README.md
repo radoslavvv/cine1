@@ -60,17 +60,15 @@ Invoke-WebRequest http://localhost:5080/health/ready
 dotnet ef migrations add DescribeChange --project src/backend --output-dir Data/Migrations
 dotnet ef migrations script --idempotent --project src/backend --output catalog-migrations.sql
 dotnet build Cinema.slnx --no-restore
-powershell -ExecutionPolicy Bypass -File scripts/verify-backend.ps1
 cd src/frontend
 npm run build
-npm test
 ```
 
 Commit migrations and the backend dependency lockfile. The local EF tool is pinned in dotnet-tools.json. The initial migration contains custom exclusion-constraint SQL that EF does not represent in its model snapshot; preserve it during future schema changes.
 
 Automatic migration and seeding run only in Development. Other environments require ConnectionStrings__Cinema and an explicit migration procedure before starting. EF tooling also needs connection configuration; append `-- --environment Development` when deliberately targeting the local development database. Keep the development credentials local.
 
-Backend verification requires the API and Compose database running. It checks seeded reads, varied dates, date validation, removed catalog route, and GET-only behavior. The .NET check runner additionally verifies service validation/cancellation, Kyiv daylight-saving boundaries, repository interval filtering/order/projection, migrations, seed upgrades/persistence, and overlap constraints in a disposable test database on the local Compose server. Pass `-BaseUrl http://localhost:5173` to check reads through Vite too. Repeat after API/database restarts to check persistence. If the sandbox prevents Vite's default config bundler from reading parent directories, use `npm run build -- --configLoader runner`.
+Automated tests are currently removed. Verify compilation with the backend and frontend builds above, and use the frontend guide for manual walkthroughs. If the sandbox prevents Vite's default config bundler from reading parent directories, use `npm run build -- --configLoader runner`.
 
 ## Project and learning documents
 

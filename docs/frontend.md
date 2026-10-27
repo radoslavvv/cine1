@@ -9,34 +9,64 @@ src/
   main.tsx
   app/
     App.tsx
+    App.theme.ts
+    components/NotFoundPage/
+      NotFoundPage.tsx
+      NotFoundPage.theme.ts
+    hooks/useAppNavigation.ts
     providers/AppProviders.tsx
     theme.css
   features/
     cinema-entrance/
       index.ts
-      CinemaEntrance.tsx
-      useCinemaJourney.ts
       components/
-        Auditorium.tsx
-        Auditorium.theme.ts
+        CinemaEntrance/
+          CinemaEntrance.tsx
+          CinemaEntrance.theme.ts
+        Auditorium/
+          Auditorium.tsx
+          Auditorium.theme.ts
+      hooks/useCinemaJourney.ts
+      journeyGeometry.ts
     schedule/
       index.ts
-      SchedulePage.tsx
-      model/scheduleDates.ts
+      components/
+        SchedulePage/
+          SchedulePage.tsx
+          SchedulePage.theme.ts
+        DatePicker/
+          DatePicker.tsx
+          DatePicker.theme.ts
+        MovieArtwork/
+          MovieArtwork.tsx
+          MovieArtwork.theme.ts
+      hooks/
+        useResultsSpace.ts
+        useScheduleMotion.ts
+        useScheduleReady.ts
+        useShowtimeClock.ts
+      model/
+        scheduleDates.ts
+        scheduleMotion.ts
+        showtimeStatus.ts
       api/scheduleQueries.ts
       types.ts
-      components/DatePicker.tsx
       artwork/
-        MovieArtwork.tsx
         presentation.ts
         assets/README.md
   shared/
-    ui/
-      Button.tsx
-      StatusMessage.tsx
+    components/
+      Button/
+        Button.tsx
+        Button.theme.ts
+      StatusMessage/
+        StatusMessage.tsx
+        StatusMessage.theme.ts
+      Wordmark/Wordmark.tsx
+    hooks/usePageScrollLock.ts
 ```
 
-`app` composes features and installs providers. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. Schedule owns its screening response types, dated query, and local movie artwork. There is no standalone Movies feature or unused catalog query; a future catalog browsing screen can establish its own boundary when needed. Shared UI has no knowledge of movies and must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
+`app` composes features and installs providers. `App.tsx` declares routes; `useAppNavigation` owns arrival state, route scroll positioning, focus, document titles, and the shared motion session. Each feature and shared component has its own folder under `components/`, with its theme beside it. Hooks live directly in their owner’s `hooks/` folder without per-hook subfolders. Keep JSX expanded and separate logical blocks with blank lines. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. Schedule owns its screening response types, dated query, and local movie artwork. There is no standalone Movies feature or unused catalog query; a future catalog browsing screen can establish its own boundary when needed. Shared UI has no knowledge of movies and must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
 
 This is pragmatic feature-folder organization, not the formal Feature-Sliced Design layer system. Do not add empty booking/admin directories, generic repositories, or extra layers before there is code that needs them. The imports are conventions, not currently enforced by a lint rule. Substantial Tailwind class groups and visual variants live in adjacent `Component.theme.ts` files and are imported as named theme objects. Global tokens and atmospheric utilities remain in `app/theme.css`; runtime camera values remain inline CSS properties. Tailwind scans the complete utility strings in these TypeScript files.
 
@@ -66,6 +96,10 @@ The schedule preview overlaps the final viewport and fades in over the final 12%
 
 Production hosting must serve index.html for non-file frontend routes such as `/schedule`. Vite's development and preview servers already provide SPA fallback. Keep API routes separate when production hosting is implemented.
 
+## Homepage entrance motion
+
+The auditorium fades from slightly dimmed to full brightness over 600ms. The logo, Schedule link, and Enter cue fade in with a 6px lift, staggered by 80ms and finishing within 600ms. Motion runs on separate wrappers so the scroll journey keeps control of its opacity and camera transforms. Reduced-motion preferences show everything immediately.
+
 ## Schedule motion
 
 The schedule runs one staged entrance sequence when it opens. The header fades, dates stagger by 35ms, and movie rows stagger by 65ms. Posters scale from 0.96 while details shift 6px and showtimes fade. Footer content fades without changing the carpet layout. Durations are 300–520ms. Everything starts from this page-opening timeline, including components below the viewport; scrolling does not trigger additional reveals.
@@ -84,9 +118,9 @@ The schedule loads `/api/showtimes?date=YYYY-MM-DD` through TanStack Query. Movi
 
 The date selector offers seven days starting on the current cinema date in `Europe/Kyiv`. Calendar arithmetic uses UTC noon to preserve consecutive dates over daylight-saving and month/year boundaries. Dates are initialized when the page mounts; reload after midnight to advance the window. Displayed times are Kyiv wall-clock times, including earlier screenings on the selected date. Development seeding creates seven days once, not a rolling schedule. Dates with no stored screenings show an empty state.
 
-Past times remain visible in muted styling. A showtime becomes Started at its stored start instant and Finished when its movie runtime elapses, excluding turnaround. A shared clock wakes at the next start/end boundary, checks at least once per minute, and resynchronizes on focus and visibility changes. Status is based on absolute instants, including across midnight and daylight-saving changes. Showtime chips remain informational; booking is not implemented.
+Showtime chips use soft green for Upcoming, amber for Started, and muted gray for Finished, with matching tinted backgrounds and borders. A showtime becomes Started at its stored start instant and Finished when its movie runtime elapses, excluding turnaround. A shared clock wakes at the next start/end boundary, checks at least once per minute, and resynchronizes on focus and visibility changes. Status is based on absolute instants, including across midnight and daylight-saving changes. Showtime chips remain informational; booking is not implemented.
 
-Run `npm test` in `src/frontend` for date-boundary, camera coverage, handoff-position, and motion-session tests. They use Node's test runner and TypeScript stripping, with no extra test dependency.
+Automated tests are currently removed. Run `npm run build` to check TypeScript and create the production bundle; use the walkthroughs below to verify behavior manually.
 
 ## Tailwind and the theme
 
