@@ -23,7 +23,7 @@ npm ci
 npm run dev
 ```
 
-Open [cinemaR](http://localhost:5173) or [the schedule](http://localhost:5173/schedule). The API listens on port 5080; Vite proxies /api to it. Each selected date fetches that Kyiv day's screenings, including earlier screenings. Movies without screenings on that date are omitted. Loading, empty, error, retry, and failed refresh states are supported; cached results belong to the selected date.
+Open [cinemaR](http://localhost:5173) or [the schedule](http://localhost:5173/schedule). The API listens on port 5080; Vite proxies /api to it. Each selected date fetches that Kyiv day's screenings, including earlier screenings, which appear muted with Started or Finished labels that update while the page is open. Movies without screenings on that date are omitted. Skeleton loading, empty, error, retry, and failed refresh states are supported; cached results belong to the selected date. Results space is preserved across date changes to avoid scroll jumps.
 
 ## PostgreSQL
 

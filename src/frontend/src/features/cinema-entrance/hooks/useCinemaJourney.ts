@@ -1,9 +1,9 @@
 import { useLayoutEffect, useRef } from 'react';
-import { getJourneyGeometry, getScheduleScrollOffset } from './journeyGeometry';
+import { getJourneyGeometry, getScheduleScrollOffset } from '../journeyGeometry';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
-export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onScheduleReveal: () => void) {
+export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onScheduleReveal: () => void, onScheduleArrival: () => void) {
   const rootRef = useRef<HTMLDivElement>(null);
   const journeyRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -23,6 +23,7 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onS
     let target = 0;
     let completed = false;
     let revealed = false;
+    let arrived = false;
 
     function update(time: number) {
       frame = 0;
@@ -59,6 +60,12 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onS
       const distance = journey.offsetHeight - stage.offsetHeight;
       const top = journey.getBoundingClientRect().top;
       target = reducedMotion.matches ? 0 : clamp(-top / Math.max(1, distance));
+      if (!reducedMotion.matches && target === 1 && !arrived) {
+        arrived = true;
+        // Stop wheel momentum at the schedule boundary while the camera settles.
+        window.scrollTo({ top: window.scrollY + top + distance, behavior: 'instant' });
+        onScheduleArrival();
+      }
       if (reducedMotion.matches) {
         progress = 0;
         root.style.setProperty('--travel', '0');
@@ -72,6 +79,7 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onS
         }
         if (-top >= journey.offsetHeight - 1) {
           completed = true;
+          onScheduleArrival();
           onComplete(getScheduleScrollOffset(schedule.getBoundingClientRect().top));
         }
       } else {
@@ -114,7 +122,7 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onS
       removeEventListener('pageshow', resize);
       reducedMotion.removeEventListener('change', measure);
     };
-  }, [onComplete, onScheduleReveal]);
+  }, [onComplete, onScheduleReveal, onScheduleArrival]);
 
   return { rootRef, journeyRef, stageRef, scheduleRef };
 }

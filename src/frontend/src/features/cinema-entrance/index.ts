@@ -1,1 +1,1 @@
-export { CinemaEntrance } from './CinemaEntrance';
+export { CinemaEntrance } from './components/CinemaEntrance/CinemaEntrance';

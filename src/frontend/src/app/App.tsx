@@ -1,42 +1,43 @@
-import { appTheme as theme } from './App.theme';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { CinemaEntrance } from '../features/cinema-entrance';
-import { SchedulePage, createScheduleMotionSession } from '../features/schedule';
+import { SchedulePage } from '../features/schedule';
+import { NotFoundPage } from './components/NotFoundPage/NotFoundPage';
+import { useAppNavigation } from './hooks/useAppNavigation';
+import { appTheme as theme } from './App.theme';
 
 export function App() {
-  const location = useLocation();
-  const mainRef = useRef<HTMLElement>(null);
-  const navigate = useNavigate();
-  const [scheduleMotion] = useState(createScheduleMotionSession);
-  const handoffOffset = useRef<number | null>(null);
-  const completeEntrance = useCallback((offset: number) => {
-    handoffOffset.current = offset;
-    navigate('/schedule');
-  }, [navigate]);
-
-  useLayoutEffect(() => {
-    const previous = history.scrollRestoration;
-    history.scrollRestoration = 'manual';
-    return () => { history.scrollRestoration = previous; };
-  }, []);
-
-  useLayoutEffect(() => {
-    if (location.pathname === '/') scheduleMotion.reset();
-    // The preview may already have scrolled above the viewport during damping.
-    // Consume its offset before paint instead of snapping the schedule to zero.
-    window.scrollTo({ top: handoffOffset.current ?? 0, behavior: 'instant' });
-    handoffOffset.current = null;
-    mainRef.current?.focus({ preventScroll: true });
-    document.title = location.pathname === '/schedule' ? 'Movie schedule · cinemaR' : 'cinemaR';
-  }, [location.key, location.pathname, scheduleMotion]);
+  const {
+    mainRef,
+    scheduleMotion,
+    beginArrival,
+    releaseArrival,
+    completeEntrance,
+  } = useAppNavigation();
 
   return (
     <main ref={mainRef} tabIndex={-1} className={theme.main}>
       <Routes>
-        <Route path="/" element={<CinemaEntrance onComplete={completeEntrance} onScheduleReveal={scheduleMotion.start}><SchedulePage preview motion={scheduleMotion} /></CinemaEntrance>} />
-        <Route path="/schedule" element={<SchedulePage motion={scheduleMotion} />} />
-        <Route path="*" element={<div className={theme.notFound}><h1 className={theme.heading}>Page not found</h1><Link className={theme.link} to="/schedule">View schedule</Link></div>} />
+        <Route
+          path="/"
+          element={
+            <CinemaEntrance
+              onComplete={completeEntrance}
+              onScheduleReveal={scheduleMotion.start}
+              onScheduleArrival={beginArrival}
+            >
+              <SchedulePage preview motion={scheduleMotion} />
+            </CinemaEntrance>
+          }
+        />
+
+        <Route
+          path="/schedule"
+          element={
+            <SchedulePage motion={scheduleMotion} onReady={releaseArrival} />
+          }
+        />
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </main>
   );

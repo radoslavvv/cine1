@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Showtime } from './types';
+import type { Showtime } from '../types';
 
 // Wake at the next start/end boundary rather than polling every row.
 export function useShowtimeClock(showtimes: Showtime[] | undefined) {
@@ -10,7 +10,7 @@ export function useShowtimeClock(showtimes: Showtime[] | undefined) {
     const boundaries = (showtimes ?? []).flatMap(showtime => {
       const start = Date.parse(showtime.startsAt);
       return [start, start + showtime.movie.durationMinutes * 60_000];
-    }).filter(time => time > current);
+    }).filter(time => time > now);
     const delay = Math.max(1, Math.min(60_000, ...boundaries.map(time => time - current)));
     const timer = window.setTimeout(() => setNow(Date.now()), delay);
     const sync = () => setNow(Date.now());

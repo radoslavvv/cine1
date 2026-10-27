@@ -1,12 +1,12 @@
 import { type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Auditorium } from './components/Auditorium';
-import { useCinemaJourney } from './useCinemaJourney';
+import { Auditorium } from '../Auditorium/Auditorium';
+import { useCinemaJourney } from '../../hooks/useCinemaJourney';
 import { cinemaEntranceTheme as theme } from './CinemaEntrance.theme';
-import { Wordmark } from '../../shared/ui/Wordmark';
+import { Wordmark } from '../../../../shared/components/Wordmark/Wordmark';
 
-export function CinemaEntrance({ children, onComplete, onScheduleReveal }: { children: ReactNode; onComplete: (scrollOffset: number) => void; onScheduleReveal: () => void }) {
-  const { rootRef, journeyRef, stageRef, scheduleRef } = useCinemaJourney(onComplete, onScheduleReveal);
+export function CinemaEntrance({ children, onComplete, onScheduleReveal, onScheduleArrival }: { children: ReactNode; onComplete: (scrollOffset: number) => void; onScheduleReveal: () => void; onScheduleArrival: () => void }) {
+  const { rootRef, journeyRef, stageRef, scheduleRef } = useCinemaJourney(onComplete, onScheduleReveal, onScheduleArrival);
 
   return (
     <div ref={rootRef} id="entrance" style={{ '--travel': 0, '--schedule-opacity': 0, '--entrance-hint': 1 } as CSSProperties}>

@@ -2,20 +2,21 @@ import { schedulePageTheme as theme } from './SchedulePage.theme';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { MovieArtwork } from './artwork/MovieArtwork';
-import { Button } from '../../shared/ui/Button';
-import { StatusMessage } from '../../shared/ui/StatusMessage';
-import { DatePicker } from './components/DatePicker';
-import { formatShowtime, getScheduleDates } from './model/scheduleDates';
-import { scheduleQueries } from './api/scheduleQueries';
-import type { ScheduleMotionSession } from './model/scheduleMotion';
-import { useScheduleMotion } from './useScheduleMotion';
-import { Wordmark } from '../../shared/ui/Wordmark';
-import { getShowtimeStatus } from './model/showtimeStatus';
-import { useShowtimeClock } from './useShowtimeClock';
-import { useResultsSpace } from './useResultsSpace';
+import { MovieArtwork } from '../MovieArtwork/MovieArtwork';
+import { Button } from '../../../../shared/components/Button/Button';
+import { StatusMessage } from '../../../../shared/components/StatusMessage/StatusMessage';
+import { DatePicker } from '../DatePicker/DatePicker';
+import { formatShowtime, getScheduleDates } from '../../model/scheduleDates';
+import { scheduleQueries } from '../../api/scheduleQueries';
+import type { ScheduleMotionSession } from '../../model/scheduleMotion';
+import { useScheduleMotion } from '../../hooks/useScheduleMotion';
+import { Wordmark } from '../../../../shared/components/Wordmark/Wordmark';
+import { getShowtimeStatus } from '../../model/showtimeStatus';
+import { useShowtimeClock } from '../../hooks/useShowtimeClock';
+import { useResultsSpace } from '../../hooks/useResultsSpace';
+import { useScheduleReady } from '../../hooks/useScheduleReady';
 
-export function SchedulePage({ preview = false, motion }: { preview?: boolean; motion: ScheduleMotionSession }) {
+export function SchedulePage({ preview = false, motion, onReady }: { preview?: boolean; motion: ScheduleMotionSession; onReady?: () => void }) {
   const [dates] = useState(() => getScheduleDates());
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedDate = dates[selectedIndex];
@@ -25,6 +26,7 @@ export function SchedulePage({ preview = false, motion }: { preview?: boolean; m
   const rootRef = useScheduleMotion(motion, preview, selectedDate.key);
   const now = useShowtimeClock(showtimes);
   const { contentRef, height } = useResultsSpace();
+  useScheduleReady(rootRef, scheduleQuery.isPending && !scheduleQuery.isPaused, onReady);
 
   return (
     <div ref={rootRef} id={preview ? undefined : 'schedule-top'} className={theme.page}>
@@ -38,7 +40,7 @@ export function SchedulePage({ preview = false, motion }: { preview?: boolean; m
         <DatePicker dates={dates} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
         <p className="sr-only" role="status">{selectedDate.fullLabel}{scheduleQuery.isPending ? ' — loading schedule' : movies?.length === 0 ? ' — no screenings' : ''}</p>
 
-        <div className={theme.results} style={{ minHeight: height || undefined }} aria-busy={scheduleQuery.isPending && !scheduleQuery.isPaused}>
+        <div className={theme.results} style={{ minHeight: height ? `max(32rem, ${height}px)` : undefined }} aria-busy={scheduleQuery.isPending && !scheduleQuery.isPaused}>
           <div ref={contentRef}>
           {movies === undefined && scheduleQuery.isPending && (
             scheduleQuery.isPaused ? <StatusMessage title="You’re offline."><p>The schedule will load when you reconnect.</p></StatusMessage> :
@@ -78,7 +80,7 @@ export function SchedulePage({ preview = false, motion }: { preview?: boolean; m
                         <div className={theme.poster} data-schedule-enter="poster" data-schedule-key={`poster:${movie.id}`} data-schedule-order={index}><MovieArtwork title={movie.title} showTitle={false} /></div>
                         <div data-schedule-enter="details" data-schedule-key={`details:${movie.id}`} data-schedule-order={index}>
                           <p className={theme.category}>{movie.genres.join(' / ').toUpperCase()}</p>
-                          <h2 className={theme.movieTitle}>{movie.title}</h2>
+                          {preview ? <h3 className={theme.movieTitle}>{movie.title}</h3> : <h2 className={theme.movieTitle}>{movie.title}</h2>}
                           <p className={theme.metadata}>{movie.durationMinutes} min</p>
                           <p className={theme.synopsis}>{movie.synopsis}</p>
                         </div>

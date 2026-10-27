@@ -22,8 +22,8 @@ export const schedulePageTheme = {
   emptyState: "border-t border-ivory/10 py-16 text-center",
   emptyTitle: "font-display text-3xl text-ivory",
   emptyHint: "mt-2 text-sm text-muted",
-  footer: "w-full shrink-0 border-t border-amber/15 bg-carpet",
-  footerDetails: "mx-auto flex h-16 w-full items-center justify-between gap-5 bg-lobby/40 px-5 text-ivory sm:h-20 sm:px-10 [@media(min-width:1152px)]:px-[max(2.5rem,calc((100%-1072px)/2))]",
+  footer: "relative w-full shrink-0 border-t border-amber/15 bg-carpet before:pointer-events-none before:absolute before:inset-0 before:bg-lobby/40",
+  footerDetails: "relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-5 px-5 text-ivory sm:h-20 sm:px-10",
   footerBrand: "font-display text-2xl font-semibold tracking-[-0.055em]",
   footerLink: "inline-flex min-h-11 items-center gap-4 text-xs text-ivory/80 transition-colors hover:text-amber-light",
 };

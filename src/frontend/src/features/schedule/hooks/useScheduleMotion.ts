@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
-import { scheduleMotionTheme } from './SchedulePage.theme';
-import type { ScheduleMotionSession } from './model/scheduleMotion';
+import { scheduleMotionTheme } from '../components/SchedulePage/SchedulePage.theme';
+import type { ScheduleMotionSession } from '../model/scheduleMotion';
 
 export function useScheduleMotion(session: ScheduleMotionSession, preview: boolean, selectedDate: string) {
   const rootRef = useRef<HTMLDivElement>(null);

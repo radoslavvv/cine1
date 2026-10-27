@@ -20,6 +20,14 @@ _Avoid_: Movie, session
 The collection of showtimes offered by a cinema on a given date.
 _Avoid_: Movie catalog, booking list
 
+**Started showtime**:
+A showtime whose scheduled start has passed and whose movie runtime has not yet elapsed.
+_Avoid_: Finished showtime
+
+**Finished showtime**:
+A showtime whose scheduled start plus movie runtime has elapsed. Auditorium turnaround is not part of the screening's runtime.
+_Avoid_: Started showtime
+
 **Turnaround**:
 The time reserved in an auditorium after a screening for cleaning and preparing for the next screening. A screening occupies its auditorium for the film's scheduled runtime plus this turnaround.
 _Avoid_: Runtime, intermission
