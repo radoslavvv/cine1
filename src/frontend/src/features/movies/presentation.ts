@@ -23,21 +23,21 @@ function localArtwork(name: string): string | undefined {
 const presentations: Record<string, MoviePresentation> = {
   Interstellar: {
     category: 'SCI-FI / ADVENTURE',
-    note: 'Some journeys need a bigger screen.',
+    note: 'A space exploration film directed by Christopher Nolan.',
     artwork: 'orbit',
     posterUrl: localArtwork('interstellar-poster'),
     backdropUrl: localArtwork('interstellar-backdrop'),
   },
   'Spirited Away': {
     category: 'ANIMATION / FANTASY',
-    note: 'A little wonder goes a long way.',
+    note: 'An animated fantasy directed by Hayao Miyazaki.',
     artwork: 'lantern',
     posterUrl: localArtwork('spirited-away-poster'),
     backdropUrl: localArtwork('spirited-away-backdrop'),
   },
   'The Grand Budapest Hotel': {
     category: 'COMEDY / ADVENTURE',
-    note: 'Impeccable service. Delightful chaos.',
+    note: 'A comedy adventure directed by Wes Anderson.',
     artwork: 'hotel',
     posterUrl: localArtwork('grand-budapest-poster'),
     backdropUrl: localArtwork('grand-budapest-backdrop'),
@@ -46,8 +46,8 @@ const presentations: Record<string, MoviePresentation> = {
 
 export function getMoviePresentation(title: string): MoviePresentation {
   return presentations[title] ?? {
-    category: 'THE FRAME COLLECTION',
-    note: 'A story worth stepping out for.',
+    category: 'MOVIE',
+    note: '',
     artwork: 'orbit',
   };
 }

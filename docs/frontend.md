@@ -2,7 +2,7 @@
 
 ## Organize by feature
 
-Product areas own their code. The app composes an auditorium entrance and a schedule; the schedule consumes the movie feature's public API. Booking and admin can become sibling features when we build them.
+Product areas own their code. The app routes between an auditorium entrance and a schedule; the schedule consumes the movie feature's public API. Booking and admin can become sibling features when we build them.
 
 ```text
 src/
@@ -18,8 +18,7 @@ src/
       useCinemaJourney.ts
       components/
         Auditorium.tsx
-        ScreenProjection.tsx
-        SeatRows.tsx
+        Auditorium.theme.ts
     schedule/
       index.ts
       SchedulePage.tsx
@@ -43,25 +42,31 @@ src/
 
 `app` composes features and installs providers. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. The schedule imports movie types, query options, artwork, and presentation helpers through `features/movies/index.ts`, never through internal paths. Movies owns those backend calls and presentation mappings. Shared UI has no knowledge of movies and must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
 
-This is pragmatic feature-folder organization, not the formal Feature-Sliced Design layer system. Do not add empty booking/admin directories, generic repositories, or extra layers before there is code that needs them. The imports are conventions, not currently enforced by a lint rule. Tailwind utilities style components directly in JSX; the separate `app/theme.css` owns the theme.
+This is pragmatic feature-folder organization, not the formal Feature-Sliced Design layer system. Do not add empty booking/admin directories, generic repositories, or extra layers before there is code that needs them. The imports are conventions, not currently enforced by a lint rule. Substantial Tailwind class groups and visual variants live in adjacent `Component.theme.ts` files and are imported as named theme objects. Global tokens and atmospheric utilities remain in `app/theme.css`; runtime camera values remain inline CSS properties. Tailwind scans the complete utility strings in these TypeScript files.
 
 ## Visual direction
 
-Frame opens inside a layered auditorium: dim ceiling panels, warm pleated walls, patterned carpet, seat banks around a central aisle, and a projected mountain scene. Scroll forward through the rows until the screen fills the viewport and becomes the schedule. Near-black violet surfaces, amber lighting, warm ivory typography, and small playful details carry into the schedule. The theme stays dark regardless of system preference.
+The app is named **cinemaR**. The homepage uses an original photorealistic auditorium image: upholstered burgundy seats, dark wood acoustic panels, warm aisle lights, and a dim charcoal screen. Illustrated room layers were replaced after visual review because they felt cartoonish. The centered wordmark, slogans, and mountain projection have been removed. Copy uses direct cinema language throughout, including loading, error, and empty states.
 
-Artwork is local only. Until the user supplies movie posters and backdrops, `MovieArtwork` draws decorative placeholders with Tailwind utilities. Add the documented files to `features/movies/assets/` and Vite discovers them; see [artwork instructions](../src/frontend/src/features/movies/assets/README.md). Load failures retain the illustration rather than a broken image. `presentation.ts` maps sample movie titles to artwork, genre labels, and short editorial notes; these are frontend presentation metadata, not backend fields. Unknown titles use a generic illustration and label. Small schedule thumbnails omit decorative titles to avoid cramped lettering. The auditorium projection is original local SVG/DOM artwork, independent of movie availability. There are no external font or image requests.
+Inter is bundled locally through Fontsource in weights 400, 500, and 600 for body text and controls. Cormorant Garamond in weights 500 and 600 supplies the wordmark and headings. Body text is 18px; supporting text is generally at least 14px. A pair of thin, static chevrons replaces the scroll sentence and fades as the journey begins; it is also a keyboard-accessible link with a descriptive accessible name. The theme retains near-black violet surfaces, amber accents, warm ivory text, and a dark color scheme regardless of system preference. No external font or image requests are required.
 
-Interactive elements must perform a real action. Preserve visible keyboard focus, readable text, mobile layouts, and reduced-motion support. Decoration is hidden from assistive technology. Showtime chips are read-only times, not misleading booking buttons. Booking and seat availability are not implemented yet.
+Movie artwork remains local only. Until posters and backdrops are supplied, MovieArtwork draws decorative placeholders. See [artwork instructions](../src/frontend/src/features/movies/assets/README.md). Showtime chips display sample times; booking and seat availability are not implemented. Keyboard focus, mobile layouts, and reduced-motion support remain required.
 
-## Auditorium journey
+## Routes and auditorium journey
 
-The entrance occupies 300 small viewport heights (`svh`), with a one-viewport sticky stage. Its two-viewport scroll range drives normalized progress from 0 to 1. A smoothstep curve supplies `--travel`; seat rows use different translation speeds and scales while walls and ceiling exit in opposite directions. The screen rectangle expands to cover the stage. This is a stylized 2.5D scene inspired by the reference, not a photo zoom or a WebGL simulation.
+React Router's BrowserRouter provides Home at `/` and Schedule at `/schedule`. The schedule can be opened directly or refreshed without playing the entrance. Unknown URLs show a page-not-found view with a schedule link. Direct navigation resets the scroll position, focuses the main region, and sets the document title. Automatic entrance completion carries the preview’s current scroll offset into the schedule before paint, so overscrolling during damping does not snap the content upward. The offset is consumed once in memory; refresh and direct visits start at the top. Native history restoration is disabled while this app owns route scroll positioning. The Query provider stays above the router, preserving cached movie data across navigation.
 
-`useCinemaJourney` reads native scroll position through a passive listener and schedules at most one update per animation frame. It updates CSS properties on the wrapper instead of rendering React on every scroll tick. ResizeObserver, resize, pageshow, and motion-preference changes recalculate the geometry. The hook removes listeners and cancels pending frames on unmount; native scrolling is never intercepted.
+The home route composes the entrance with a schedule preview. The entrance remains 300svh with a one-viewport sticky stage and two viewports of scroll travel. Passive native scrolling drives a target progress; requestAnimationFrame applies a short, time-based damping step (65ms) and smoothstep easing. There is no intercepted scrolling, nested scroller, or additional scroll distance.
 
-The real schedule overlaps the final viewport of the journey. During the final 4% it fades into the enlarged screen; its controls remain `inert` and hidden from assistive technology until the handoff. It then scrolls as ordinary page content, with no nested scrolling area. Scrolling back reverses the effect. The screen itself never contains a tiny interactive copy of the schedule.
+The realistic scene has three registered photographic layers: a room clean plate, transparent middle seats, and transparent foreground seats. Nearer seats translate and scale faster than the room, exposing reconstructed floor rather than duplicate seats. A shared camera aims at the screen center. Geometry is recalculated on resize from the image cover fit and measured source screen rectangle; its final scale covers every viewport edge with 3% overscan on portrait and wide screens. Camera arrival completes at 84% progress, before schedule reveal starts at 88%. The dim screen remains visible until the schedule appears. See [layer assets and generation prompts](auditorium-layers.md), and the [original reference](auditorium-asset.md).
 
-**Skip to schedule** jumps directly to the schedule, updates the fragment, and moves focus there. With `prefers-reduced-motion: reduce`, the auditorium is a static single-viewport introduction followed by the fully accessible schedule; there is no zoom or hidden multi-viewport gap. Mobile uses wider screen proportions and fewer seats per bank. Use the main back link to revisit the auditorium.
+The schedule uses a full-width carpet footer below its centered content container. A flex-column page with minimum viewport height pushes the footer to the bottom when content is short; longer pages place it after their content. Footer text retains the same content alignment and dark backing for legibility. The carpet covers the whole footer, with no separate decorative strip.
+
+The schedule preview overlaps the final viewport and fades in over the final 12% of scroll progress, after the camera has fully arrived. It remains inert and hidden from assistive technology until navigation, so partially revealed controls cannot be focused. When the camera reaches the end, the app pushes `/schedule` into history and displays the real schedule at the same visible content position. Scroll travel can reverse before completion; after completion, browser Back returns to the start of the entrance and Forward returns to the schedule. The schedule brand links Home.
+
+**Skip to schedule** is a normal router link and works with keyboard navigation and modified clicks. With reduced motion, the auditorium is a static one-viewport introduction followed by the accessible schedule; scrolling to the schedule navigates to its route without a zoom. The skip link also remains available. All animation frames, observers, and listeners are cleaned up on unmount.
+
+Production hosting must serve index.html for non-file frontend routes such as `/schedule`. Vite's development and preview servers already provide SPA fallback. Keep API routes separate when production hosting is implemented.
 
 ## Demo schedule boundary
 
@@ -69,7 +74,7 @@ Movie titles and durations still come from `/api/movies` through TanStack Query.
 
 The date selector offers seven days starting on the current cinema date in `Europe/Kyiv`. Calendar arithmetic uses UTC noon to preserve consecutive dates over daylight-saving and month/year boundaries. Dates are initialized when the page mounts; reload after midnight to advance the demo window. Displayed times are Kyiv wall-clock times, including any earlier sample times on the current date; this is a browsing prototype, not a live availability filter. Adjacent demo days have different times so selection has an observable effect.
 
-Run `npm test` in `src/frontend` for the date-boundary tests. They use Node's test runner and TypeScript stripping, with no extra test dependency.
+Run `npm test` in `src/frontend` for date-boundary, camera coverage, and handoff-position tests. They use Node's test runner and TypeScript stripping, with no extra test dependency.
 
 ## Tailwind and the theme
 
@@ -77,9 +82,9 @@ Tailwind v4 runs through `@tailwindcss/vite` in `vite.config.ts`. `main.tsx` imp
 
 For example, `--color-lobby` creates `bg-lobby`, while `--color-amber` creates `text-amber`, `border-amber`, and opacity variants such as `bg-amber/10`. Typography tokens create `font-display` and `font-label`. Shadow and background-image tokens expose `shadow-screen` and `bg-carpet`.
 
-Use utilities in JSX for layout, spacing, responsive rules, and component states. Keep recurring visual choices in the theme instead of scattering color literals through components. The placeholder illustrations use a few art-specific colors and dimensions that are not interface tokens.
+Use adjacent component theme objects for layout, spacing, responsive rules, and visual states. Keep complete Tailwind utility strings in those objects; do not construct class names from fragments. Tiny one-off class uses may remain inline. Keep recurring visual choices in the theme instead of scattering color literals through components. The placeholder illustrations use a few art-specific colors and dimensions that are not interface tokens.
 
-`@layer base` sets the dark color scheme, body defaults, keyboard focus, and reduced-motion behavior. Theme `@utility` definitions supply atmospheric effects, including `ceiling-lights`, `auditorium-curtain`, and `ceiling-panels`. The carpet is an original local SVG tile in `public/carpet.svg`. Per-frame camera values are inline CSS properties; layout and responsive styles stay in Tailwind utilities. Nothing requires an external stylesheet or a runtime styling library.
+`@layer base` sets the dark color scheme, body defaults, keyboard focus, and reduced-motion behavior. Theme `@utility` definitions supply atmospheric effects, including `ceiling-lights`, `auditorium-curtain`, and `ceiling-panels`. The carpet is an original local SVG tile in `public/carpet.svg`. Per-frame camera values are inline CSS properties; layout and responsive styles stay in Tailwind utilities in component theme files. Nothing requires an external stylesheet or a runtime styling library.
 
 ## Learn TanStack Query through this catalog
 

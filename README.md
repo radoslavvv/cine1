@@ -1,6 +1,6 @@
-# Cinema Booking Learning Project
+# cinemaR
 
-A React + TypeScript client connected to an ASP.NET Core controller API. Scroll through a layered auditorium toward the cinema screen, then browse a demo movie schedule. The frontend uses Tailwind CSS and TanStack Query; movies come from the API, while showtimes are frontend fixtures.
+A React + TypeScript client connected to an ASP.NET Core controller API. Scroll through a realistic auditorium entrance, then browse a demo movie schedule. The frontend uses React Router, Tailwind CSS, and TanStack Query; movies come from the API, while showtimes are frontend fixtures.
 
 ## Requirements
 
@@ -43,7 +43,7 @@ cd src/frontend
 npm run dev
 ```
 
-Open [Frame Cinema](http://localhost:5173). Scroll toward the screen or use **Skip to schedule**, then select a date to browse sample showtimes. The backend listens on `http://localhost:5080`. Vite uses port 5173 with `strictPort`, so it fails clearly if that port is occupied. Stop each process with Ctrl+C.
+Open [cinemaR](http://localhost:5173). Scroll toward the screen or use **Skip to schedule**, then select a date to browse sample showtimes. The schedule is also available directly at [Movie schedule](http://localhost:5173/schedule). The backend listens on `http://localhost:5080`. Vite uses port 5173 with `strictPort`, so it fails clearly if that port is occupied. Stop each process with Ctrl+C.
 
 The browser calls the relative URL `/api/movies`. Vite forwards `/api` requests to the backend, so local development needs no cross-origin configuration. `/health` is called directly on the backend. HTTP is intentional for this local scaffold; production HTTPS and hosting are future work. `npm run preview` serves built frontend assets on port 4173 but does not configure a backend proxy; use `npm run dev` for the connected app until production hosting is added.
 
@@ -74,7 +74,7 @@ The schedule should display all three titles and durations, with clearly labeled
 ## How the code fits together
 
 - `src/frontend/src/app/`: app shell, Query provider, and the separate Tailwind theme in `theme.css`.
-- `src/frontend/src/features/cinema-entrance/`: auditorium layers, reversible scroll journey, skip link, and reduced-motion handoff.
+- `src/frontend/src/features/cinema-entrance/`: auditorium layers, scroll journey and route handoff, skip link, and reduced-motion handoff.
 - `src/frontend/src/features/schedule/`: date selector and demo showtimes, consuming the movie feature's public API.
 - `src/frontend/src/features/movies/`: request and query configuration, movie types, artwork, and local presentation data.
 - `src/frontend/src/shared/ui/`: reusable button and request-status panel.
@@ -91,7 +91,7 @@ The request path is schedule → movie query → native fetch → Vite proxy →
 - [CONTEXT.md](CONTEXT.md): domain vocabulary, separate from implementation decisions.
 - [docs/frontend.md](docs/frontend.md): frontend organization, visual conventions, and TanStack Query exercises.
 
-Future work introduces PostgreSQL, real showtimes, authentication, booking, Docker infrastructure, and messaging incrementally. See [the auditorium decision](docs/adr/0001-layered-auditorium-entrance.md) for the 2.5D approach and accessibility tradeoffs.
+Future work introduces PostgreSQL, real showtimes, authentication, booking, Docker infrastructure, and messaging incrementally. See [the auditorium decision](docs/adr/0001-layered-auditorium-entrance.md) for the visual approach and accessibility tradeoffs.
 
 ## References
 
