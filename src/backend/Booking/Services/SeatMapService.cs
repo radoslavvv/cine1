@@ -13,6 +13,6 @@ public sealed class SeatMapService(ISeatMapRepository repository, TimeProvider c
         return new SeatMapResponse(map.ShowtimeId, map.StartsAt, now, map.StartsAt > now,
             new SeatMapMovie(map.MovieId, map.MovieTitle, map.DurationMinutes, map.Genres),
             new SeatMapAuditorium(map.AuditoriumId, map.AuditoriumName),
-            map.Seats.Select(seat => new SeatResponse(seat.Id, seat.RowLabel, seat.Number, seat.GridRow, seat.GridColumn)).ToArray());
+            map.Seats.Select(seat => new SeatResponse(seat.Id, seat.RowLabel, seat.Number, seat.GridRow, seat.GridColumn, seat.Taken)).ToArray());
     }
 }

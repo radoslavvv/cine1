@@ -24,6 +24,65 @@ namespace Cinema.Api.Data.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "btree_gist");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Cinema.Api.Booking.BookedSeat", b =>
+                {
+                    b.Property<int>("ShowtimeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("showtime_id");
+
+                    b.Property<int>("SeatId")
+                        .HasColumnType("integer")
+                        .HasColumnName("seat_id");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("booking_id");
+
+                    b.HasKey("ShowtimeId", "SeatId");
+
+                    b.HasIndex("SeatId");
+
+                    b.HasIndex("BookingId", "ShowtimeId");
+
+                    b.ToTable("booked_seats", "booking");
+                });
+
+            modelBuilder.Entity("Cinema.Api.Booking.ConfirmedBooking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConfirmationToken")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("confirmation_token");
+
+                    b.Property<DateTime>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
+                        .HasColumnName("email");
+
+                    b.Property<int>("ShowtimeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("showtime_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConfirmationToken")
+                        .IsUnique();
+
+                    b.HasIndex("ShowtimeId");
+
+                    b.ToTable("bookings", "booking");
+                });
+
             modelBuilder.Entity("Cinema.Api.Data.SeedHistory", b =>
                 {
                     b.Property<string>("Name")
@@ -189,6 +248,37 @@ namespace Cinema.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Cinema.Api.Booking.BookedSeat", b =>
+                {
+                    b.HasOne("Cinema.Api.Schedule.Seat", "Seat")
+                        .WithMany()
+                        .HasForeignKey("SeatId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Cinema.Api.Booking.ConfirmedBooking", "Booking")
+                        .WithMany("Seats")
+                        .HasForeignKey("BookingId", "ShowtimeId")
+                        .HasPrincipalKey("Id", "ShowtimeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Seat");
+                });
+
+            modelBuilder.Entity("Cinema.Api.Booking.ConfirmedBooking", b =>
+                {
+                    b.HasOne("Cinema.Api.Schedule.Showtime", "Showtime")
+                        .WithMany()
+                        .HasForeignKey("ShowtimeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Showtime");
+                });
+
             modelBuilder.Entity("Cinema.Api.Schedule.Seat", b =>
                 {
                     b.HasOne("Cinema.Api.Schedule.Auditorium", "Auditorium")
@@ -217,6 +307,11 @@ namespace Cinema.Api.Data.Migrations
                     b.Navigation("Auditorium");
 
                     b.Navigation("Movie");
+                });
+
+            modelBuilder.Entity("Cinema.Api.Booking.ConfirmedBooking", b =>
+                {
+                    b.Navigation("Seats");
                 });
 #pragma warning restore 612, 618
         }

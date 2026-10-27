@@ -25,6 +25,8 @@ builder.Services.AddScoped<IShowtimeRepository, ShowtimeRepository>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<ISeatMapRepository, SeatMapRepository>();
 builder.Services.AddScoped<ISeatMapService, SeatMapService>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddSingleton(TimeProvider.System);
 
 var app = builder.Build();

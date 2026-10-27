@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { bookingQueries, SeatMapError } from '../../api/bookingQueries';
-import type { SeatMap as SeatMapData } from '../../types';
+import type { Seat, SeatMap as SeatMapData } from '../../types';
+import { Checkout } from '../Checkout/Checkout';
 import { MAX_SEATS, useSeatSelection } from '../../hooks/useSeatSelection';
 import { SeatMap } from '../SeatMap/SeatMap';
 import { Wordmark } from '../../../../shared/components/Wordmark/Wordmark';
@@ -72,7 +74,17 @@ function BookingPageForShowtime({ showtimeId }: { showtimeId: string }) {
 }
 
 function SeatSelection({ map, clockOffsetMs }: { map: SeatMapData; clockOffsetMs: number }) {
+  const queryClient = useQueryClient();
   const { selectedSeats, isOpen, toggle, clear } = useSeatSelection(map, clockOffsetMs);
+  const [checkoutSeats, setCheckoutSeats] = useState<Seat[] | null>(null);
+  const [notice, setNotice] = useState('');
+
+  async function handleConflict(message: string) {
+    setNotice(message);
+    clear();
+    await queryClient.invalidateQueries({ queryKey: ['seat-map', String(map.showtimeId)] });
+    setCheckoutSeats(null);
+  }
 
   return (
     <>
@@ -82,7 +94,7 @@ function SeatSelection({ map, clockOffsetMs }: { map: SeatMapData; clockOffsetMs
         </div>
 
         <div className={theme.details}>
-          <p className={theme.eyebrow}>CHOOSE YOUR SEATS</p>
+          <p className={theme.eyebrow}>{checkoutSeats ? 'REVIEW YOUR BOOKING' : 'CHOOSE YOUR SEATS'}</p>
           <h1 className={theme.title}>{map.movie.title}</h1>
           <p className={theme.genres}>{map.movie.genres.join(' / ')}</p>
           <div className={theme.metadata}>
@@ -97,7 +109,10 @@ function SeatSelection({ map, clockOffsetMs }: { map: SeatMapData; clockOffsetMs
 
       {!isOpen && <p role="status" className={theme.status}>This showtime has started. Seat selection is closed.</p>}
 
-      {map.seats.length === 0 ? (
+      {notice && <p role="alert" className={theme.status}>{notice}</p>}
+
+      {checkoutSeats ? <Checkout map={map} seats={checkoutSeats} isOpen={isOpen}
+        onBack={() => setCheckoutSeats(null)} onConflict={handleConflict} /> : map.seats.length === 0 ? (
         <StatusMessage title="Seat layout unavailable"><p>Please choose another showtime.</p></StatusMessage>
       ) : (
         <div className={theme.layout}>
@@ -132,7 +147,14 @@ function SeatSelection({ map, clockOffsetMs }: { map: SeatMapData; clockOffsetMs
               ) : <p className={theme.empty}>{isOpen ? 'Select a seat on the map to get started.' : 'Choose an upcoming showtime to select seats.'}</p>}
               {selectedSeats.length === MAX_SEATS && <p className={theme.empty}>Eight-seat limit reached. Deselect a seat to choose another.</p>}
             </div>
-            <p className={theme.note}>Selected seats aren’t reserved. Your selection clears when you leave or refresh this page.</p>
+            <div className={theme.checkoutAction}>
+              <button type="button" className={theme.checkoutButton} disabled={!isOpen || selectedSeats.length === 0}
+                onClick={() => { setNotice(''); setCheckoutSeats(selectedSeats); }}>
+                Continue to checkout <span aria-hidden="true">→</span>
+              </button>
+              <p className={theme.note}>Your seats are reserved once you confirm your booking.</p>
+              <p className={theme.refreshNote}>Leaving or refreshing clears your selection.</p>
+            </div>
           </aside>
         </div>
       )}

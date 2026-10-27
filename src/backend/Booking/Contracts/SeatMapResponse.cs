@@ -5,4 +5,4 @@ public sealed record SeatMapResponse(
     SeatMapMovie Movie, SeatMapAuditorium Auditorium, IReadOnlyList<SeatResponse> Seats);
 public sealed record SeatMapMovie(int Id, string Title, int DurationMinutes, string[] Genres);
 public sealed record SeatMapAuditorium(int Id, string Name);
-public sealed record SeatResponse(int Id, string RowLabel, int Number, int GridRow, int GridColumn);
+public sealed record SeatResponse(int Id, string RowLabel, int Number, int GridRow, int GridColumn, bool Taken);

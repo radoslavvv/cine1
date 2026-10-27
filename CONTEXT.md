@@ -53,8 +53,16 @@ The seats a customer has chosen for a showtime. A selection alone does not reser
 _Avoid_: Hold, booking, ticket
 
 **Booking**:
-A customer's purchase record for selected seats at one showtime. It may be pending, confirmed, or failed; only a confirmed booking grants admission through tickets.
+A customer's record for selected seats at one showtime. Only a confirmed booking grants admission through tickets; confirmation does not itself imply that a payment was collected.
 _Avoid_: Hold, ticket, reservation
+
+**Checkout**:
+The step where a guest customer reviews selected seats and supplies an email address before confirming a booking.
+_Avoid_: Payment, hold
+
+**Taken seat**:
+A seat assigned to a confirmed booking for a particular showtime and unavailable for another booking at that showtime. The same physical seat can remain available at other showtimes.
+_Avoid_: Held seat, globally occupied seat
 
 **Ticket**:
 An admission entitlement for one seat at one showtime, issued for a confirmed booking.

@@ -4,6 +4,18 @@ export interface Seat {
   number: number;
   gridRow: number;
   gridColumn: number;
+  taken: boolean;
+}
+
+export interface BookingConfirmation {
+  confirmationToken: string;
+  confirmedAt: string;
+  email: string;
+  showtimeId: number;
+  startsAt: string;
+  movieTitle: string;
+  auditoriumName: string;
+  tickets: { seatId: number; rowLabel: string; number: number }[];
 }
 
 export interface SeatMap {

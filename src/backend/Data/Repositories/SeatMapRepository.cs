@@ -19,7 +19,8 @@ public sealed class SeatMapRepository(CatalogDbContext db) : ISeatMapRepository
         var seats = await db.Seats.AsNoTracking()
             .Where(seat => seat.AuditoriumId == showtime.AuditoriumId)
             .OrderBy(seat => seat.GridRow).ThenBy(seat => seat.GridColumn)
-            .Select(seat => new SeatReadModel(seat.Id, seat.RowLabel, seat.Number, seat.GridRow, seat.GridColumn))
+            .Select(seat => new SeatReadModel(seat.Id, seat.RowLabel, seat.Number, seat.GridRow, seat.GridColumn,
+                db.BookedSeats.Any(booked => booked.ShowtimeId == showtimeId && booked.SeatId == seat.Id)))
             .ToListAsync(cancellationToken);
         return new SeatMapReadModel(showtime.Id, showtime.StartsAt, showtime.MovieId,
             showtime.Title, showtime.DurationMinutes, showtime.Genres,

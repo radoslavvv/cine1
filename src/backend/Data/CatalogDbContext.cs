@@ -1,4 +1,5 @@
 using Cinema.Api.Movies;
+using Cinema.Api.Booking;
 using Cinema.Api.Schedule;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
     public DbSet<Showtime> Showtimes => Set<Showtime>();
     public DbSet<Seat> Seats => Set<Seat>();
+    public DbSet<ConfirmedBooking> Bookings => Set<ConfirmedBooking>();
+    public DbSet<BookedSeat> BookedSeats => Set<BookedSeat>();
     public DbSet<SeedHistory> SeedHistory => Set<SeedHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -55,6 +58,26 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             entity.HasOne(seat => seat.Auditorium).WithMany().HasForeignKey(seat => seat.AuditoriumId).OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(seat => new { seat.AuditoriumId, seat.GridRow, seat.GridColumn }).IsUnique();
             entity.HasIndex(seat => new { seat.AuditoriumId, seat.RowLabel, seat.Number }).IsUnique();
+        });
+        modelBuilder.Entity<ConfirmedBooking>(entity =>
+        {
+            entity.ToTable("bookings", "booking");
+            entity.HasKey(booking => booking.Id);
+            entity.Property(booking => booking.Id).ValueGeneratedNever();
+            entity.Property(booking => booking.Email).HasMaxLength(254).IsRequired();
+            entity.Property(booking => booking.ConfirmationToken).HasMaxLength(64).IsRequired();
+            entity.HasIndex(booking => booking.ConfirmationToken).IsUnique();
+            entity.HasOne(booking => booking.Showtime).WithMany().HasForeignKey(booking => booking.ShowtimeId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasAlternateKey(booking => new { booking.Id, booking.ShowtimeId });
+        });
+        modelBuilder.Entity<BookedSeat>(entity =>
+        {
+            entity.ToTable("booked_seats", "booking");
+            entity.HasKey(seat => new { seat.ShowtimeId, seat.SeatId });
+            entity.HasOne(seat => seat.Booking).WithMany(booking => booking.Seats)
+                .HasForeignKey(seat => new { seat.BookingId, seat.ShowtimeId })
+                .HasPrincipalKey(booking => new { booking.Id, booking.ShowtimeId }).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(seat => seat.Seat).WithMany().HasForeignKey(seat => seat.SeatId).OnDelete(DeleteBehavior.Restrict);
         });
         modelBuilder.Entity<SeedHistory>(entity =>
         {
