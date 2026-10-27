@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { getScheduleDates } from '../src/features/schedule/model/demoSchedule.ts';
+import { getScheduleDates, formatShowtime } from '../src/features/schedule/model/scheduleDates.ts';
+
+test('screening instants are formatted in Kyiv across daylight saving', () => {
+  assert.equal(formatShowtime('2026-10-24T10:30:00Z'), '13:30');
+  assert.equal(formatShowtime('2026-10-25T11:30:00Z'), '13:30');
+});
 
 test('schedule starts on the cinema date when UTC is still the previous day', () => {
   const dates = getScheduleDates(new Date('2026-10-27T23:30:00Z'));

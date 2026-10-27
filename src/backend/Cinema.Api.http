@@ -4,7 +4,12 @@ GET {{Cinema.Api_HostAddress}}/health
 
 ###
 
-GET {{Cinema.Api_HostAddress}}/api/movies
+# Replace with a date in the initialized seven-day schedule.
+GET {{Cinema.Api_HostAddress}}/api/showtimes?date=2026-10-27
 Accept: application/json
+
+###
+
+GET {{Cinema.Api_HostAddress}}/health/ready
 
 ###

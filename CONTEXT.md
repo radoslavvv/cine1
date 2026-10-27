@@ -20,6 +20,10 @@ _Avoid_: Movie, session
 The collection of showtimes offered by a cinema on a given date.
 _Avoid_: Movie catalog, booking list
 
+**Turnaround**:
+The time reserved in an auditorium after a screening for cleaning and preparing for the next screening. A screening occupies its auditorium for the film's scheduled runtime plus this turnaround.
+_Avoid_: Runtime, intermission
+
 **Seat**:
 A numbered place in an auditorium. Its availability is specific to a showtime.
 _Avoid_: Ticket, reservation

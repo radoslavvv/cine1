@@ -2,7 +2,7 @@
 
 ## Organize by feature
 
-Product areas own their code. The app routes between an auditorium entrance and a schedule; the schedule consumes the movie feature's public API. Booking and admin can become sibling features when we build them.
+Product areas own their code. The app routes between an auditorium entrance and a schedule; Schedule owns the current browsing UI and API query. Booking and admin can become sibling features when we build them.
 
 ```text
 src/
@@ -22,25 +22,21 @@ src/
     schedule/
       index.ts
       SchedulePage.tsx
-      model/demoSchedule.ts
-      components/DatePicker.tsx
-    movies/
-      index.ts
+      model/scheduleDates.ts
+      api/scheduleQueries.ts
       types.ts
-      presentation.ts
-      assets/README.md
-      api/
-        getMovies.ts
-        movieQueries.ts
-      components/
+      components/DatePicker.tsx
+      artwork/
         MovieArtwork.tsx
+        presentation.ts
+        assets/README.md
   shared/
     ui/
       Button.tsx
       StatusMessage.tsx
 ```
 
-`app` composes features and installs providers. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. The schedule imports movie types, query options, artwork, and presentation helpers through `features/movies/index.ts`, never through internal paths. Movies owns those backend calls and presentation mappings. Shared UI has no knowledge of movies and must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
+`app` composes features and installs providers. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. Schedule owns its screening response types, dated query, and local movie artwork. There is no standalone Movies feature or unused catalog query; a future catalog browsing screen can establish its own boundary when needed. Shared UI has no knowledge of movies and must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
 
 This is pragmatic feature-folder organization, not the formal Feature-Sliced Design layer system. Do not add empty booking/admin directories, generic repositories, or extra layers before there is code that needs them. The imports are conventions, not currently enforced by a lint rule. Substantial Tailwind class groups and visual variants live in adjacent `Component.theme.ts` files and are imported as named theme objects. Global tokens and atmospheric utilities remain in `app/theme.css`; runtime camera values remain inline CSS properties. Tailwind scans the complete utility strings in these TypeScript files.
 
@@ -50,7 +46,7 @@ The app is named **cinemaR**. The homepage uses an original photorealistic audit
 
 Inter is bundled locally through Fontsource in weights 400, 500, and 600 for body text and controls. Cormorant Garamond in weights 500 and 600 supplies the wordmark and headings. Body text is 18px; supporting text is generally at least 14px. A pair of thin, static chevrons replaces the scroll sentence and fades as the journey begins; it is also a keyboard-accessible link with a descriptive accessible name. The theme retains near-black violet surfaces, amber accents, warm ivory text, and a dark color scheme regardless of system preference. No external font or image requests are required.
 
-Movie artwork remains local only. Until posters and backdrops are supplied, MovieArtwork draws decorative placeholders. See [artwork instructions](../src/frontend/src/features/movies/assets/README.md). Showtime chips display sample times; booking and seat availability are not implemented. Keyboard focus, mobile layouts, and reduced-motion support remain required.
+Movie artwork remains local only. Until posters and backdrops are supplied, MovieArtwork draws decorative placeholders. See [artwork instructions](../src/frontend/src/features/schedule/artwork/assets/README.md). Showtime chips display stored screening instants in Kyiv time and label each auditorium. Booking and seat availability are not implemented. Keyboard focus, mobile layouts, and reduced-motion support remain required.
 
 ## Routes and auditorium journey
 
@@ -78,11 +74,11 @@ The app owns a motion session shared between the hidden preview and real schedul
 
 Date selection transitions color, border, shadow and slight scale over 200ms. A date change gives the new showtimes a 220ms fade and 4px lift. Movie rows keep their identity and do not replay during date changes or background refresh. Mutation observation registers newly inserted movie elements without restarting existing components. No animation dependency or scroll observer is required.
 
-## Demo schedule boundary
+## Persistent schedule boundary
 
-Movie titles and durations still come from `/api/movies` through TanStack Query. Dates, auditorium labels, and times are frontend fixtures in `schedule/model/demoSchedule.ts`, not available inventory. The interface explicitly labels the schedule as a demo; no reservation or payment request is made.
+The schedule loads `/api/showtimes?date=YYYY-MM-DD` through TanStack Query. Movie titles, durations, genres, synopses, auditorium labels, and UTC screening instants come from PostgreSQL. The response includes movie and auditorium details, avoiding a second catalog request. One row groups a movie's screenings across auditoriums; every chip identifies its room. No reservation or payment request is made.
 
-The date selector offers seven days starting on the current cinema date in `Europe/Kyiv`. Calendar arithmetic uses UTC noon to preserve consecutive dates over daylight-saving and month/year boundaries. Dates are initialized when the page mounts; reload after midnight to advance the demo window. Displayed times are Kyiv wall-clock times, including any earlier sample times on the current date; this is a browsing prototype, not a live availability filter. Adjacent demo days have different times so selection has an observable effect.
+The date selector offers seven days starting on the current cinema date in `Europe/Kyiv`. Calendar arithmetic uses UTC noon to preserve consecutive dates over daylight-saving and month/year boundaries. Dates are initialized when the page mounts; reload after midnight to advance the window. Displayed times are Kyiv wall-clock times, including earlier screenings on the selected date. Development seeding creates seven days once, not a rolling schedule. Dates with no stored screenings show an empty state.
 
 Run `npm test` in `src/frontend` for date-boundary, camera coverage, handoff-position, and motion-session tests. They use Node's test runner and TypeScript stripping, with no extra test dependency.
 
@@ -98,22 +94,22 @@ Use adjacent component theme objects for layout, spacing, responsive rules, and 
 
 ## Learn TanStack Query through this catalog
 
-The provider creates one stable `QueryClient` for the mounted app. It stores server data and query state in memory. It does not replace the .NET API, perform HTTP by itself, or persist the cache across full page reloads. `getMovies` still uses native `fetch` and throws for non-success HTTP responses.
+The provider creates one stable `QueryClient` for the mounted app. It stores server data and query state in memory. It does not replace the .NET API, perform HTTP by itself, or persist the cache across full page reloads. The schedule query uses native `fetch` and throws for non-success HTTP responses.
 
-The schedule consumes the movie feature's query definition:
+The schedule consumes a dated screening query:
 
 ```tsx
-const moviesQuery = useQuery(movieQueries.list());
+const scheduleQuery = useQuery(scheduleQueries.forDate(selectedDate.key));
 ```
 
 The definition uses `queryOptions` to keep the key, request function, and settings together with TypeScript inference. The request receives TanStack Query's `AbortSignal`, so an abandoned request can be cancelled.
 
-- **Query key:** `['movies', 'list']` identifies this cache entry. Components requesting the same key share its result; future filter parameters that change the backend response belong in the key.
+- **Query key:** `['showtimes', selectedDate.key]` identifies this cache entry. Components requesting the same date share its result. Different dates never share results or placeholder data.
 - **Freshness:** `staleTime: 60_000` means the loaded catalog is fresh for one minute. Becoming stale does not itself trigger a timed request.
-- **Refetching:** stale data can refetch on mount, window visibility/focus changes, or network reconnection. **Refresh movies** calls `refetch()` even while data is fresh. This page does not poll.
-- **Retries:** the movie query retries once after one second, then shows the initial error or a failed-refresh notice. This policy is scoped to movies; it must not be assumed suitable for seat holds or payment mutations.
+- **Refetching:** stale data can refetch on mount, window visibility/focus changes, or network reconnection. **Refresh schedule** calls `refetch()` even while data is fresh. This page does not poll.
+- **Retries:** the schedule query retries once after one second, then shows the initial error or a failed-refresh notice. This policy must not be assumed suitable for seat holds or payment mutations.
 - **Cache lifetime:** the default inactive cache lifetime is five minutes. That differs from freshness: stale cached data can still be displayed. A full reload creates a new in-memory cache.
-- **Invalidation:** later, after editing a movie successfully, `queryClient.invalidateQueries({ queryKey: movieQueries.all })` can mark movie queries stale and refetch active consumers. There are no write operations in this milestone.
+- **Invalidation:** future movie/showtime mutations must invalidate affected schedule entries, including embedded movie details. There are no write operations in this increment.
 
 Use `isPending` to identify a query with no result yet, and `isFetching` to identify an active request, including background updates. An offline request may be pending but paused; the UI explains that it is waiting for connectivity. After a successful fetch, a failed refresh retains `data`, so checking `isError` alone must not replace that data with a full-page error.
 
@@ -121,13 +117,13 @@ Server data belongs in Query. Local interactions, such as a dialog or search inp
 
 ## Try it yourself
 
-1. Run both projects and open the devtools toggle at the bottom-left. Inspect `['movies', 'list']` and the cached movie array.
+1. Run both projects and open the devtools toggle at the bottom-left. Inspect `['showtimes', selectedDate]` and the cached screening array.
 2. Use browser network throttling and reload. Observe the loading state, then the cached result. Development Strict Mode can cancel the first mount's request; a cancelled request is expected.
-3. Select **Refresh movies**. Watch `isFetching` and the network request while the cards stay visible. The button prevents duplicate manual refreshes while a request is active.
+3. Select **Refresh schedule**. Watch `isFetching` and the network request while the cards stay visible. The button prevents duplicate manual refreshes while a request is active.
 4. Wait more than one minute, switch to another browser tab, and return. Observe a background refresh of stale data. The one-minute timer alone does not cause polling.
-5. Stop the API after a successful load and select **Refresh movies**. After the retry, the previous cards remain alongside a failure notice. Restart the API and refresh again.
+5. Stop the API after a successful load and select **Refresh schedule**. After the retry, the previous cards remain alongside a failure notice. Restart the API and refresh again.
 6. Stop the API and fully reload, then skip to the schedule to exercise an initial failure with no cached result. Restart it and use **Try again**.
-7. Override the movie response with `[]` using browser response overrides, then reload. Observe the empty state and remove the override afterward.
+7. Override the showtime response with `[]` using browser response overrides, then reload. Observe the empty state and remove the override afterward.
 8. Toggle offline mode in Query devtools to inspect a paused request. Restore connectivity and observe recovery.
 
 Use **Skip to schedule** before these exercises when inspecting query UI. The API is loaded while entering the auditorium, so its loading indicator may finish before the scroll journey does.
@@ -141,3 +137,4 @@ Devtools are lazy-loaded only under `import.meta.env.DEV`; Vite's production bui
 - [Devtools](https://tanstack.com/query/latest/docs/framework/react/devtools)
 - [Tailwind with Vite](https://tailwindcss.com/docs/installation/using-vite)
 - [Tailwind theme variables](https://tailwindcss.com/docs/theme)
+

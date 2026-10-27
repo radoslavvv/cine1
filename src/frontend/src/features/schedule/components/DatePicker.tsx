@@ -1,5 +1,5 @@
 import { datePickerTheme as theme } from './DatePicker.theme';
-import type { ScheduleDate } from '../model/demoSchedule';
+import type { ScheduleDate } from '../model/scheduleDates';
 
 interface DatePickerProps {
   dates: ScheduleDate[];

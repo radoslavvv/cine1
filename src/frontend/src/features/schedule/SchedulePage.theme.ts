@@ -24,6 +24,7 @@ export const schedulePageTheme = {
   timesLabel: "mb-2 font-label text-sm tracking-widest text-muted",
   times: "flex flex-wrap gap-2",
   time: "block rounded-md border border-amber/25 bg-amber/5 px-3 py-2 font-label text-sm text-amber-light",
+  timeAuditorium: "mt-1 block text-xs text-muted",
   footer: "w-full shrink-0 border-t border-edge bg-carpet",
   footerDetails: "mx-auto flex min-h-40 w-full max-w-6xl flex-wrap items-center justify-between gap-5 px-5 py-10 text-base text-ivory sm:min-h-48 sm:px-10",
   footerBrand: "rounded-md bg-lobby/90 px-3 py-2 font-display text-3xl font-medium",

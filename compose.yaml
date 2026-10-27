@@ -1,0 +1,20 @@
+name: cinemar
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: cinemar
+      POSTGRES_USER: cinemar
+      POSTGRES_PASSWORD: cinemar_local
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cinemar -d cinemar"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+volumes:
+  postgres_data:

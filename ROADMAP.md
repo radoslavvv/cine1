@@ -46,7 +46,10 @@ This completes the scaffold only. The full first milestone below remains open.
 
 ### 1. Build a usable vertical slice — 3–4 weeks
 
-The frontend now includes a reversible layered-auditorium entrance and a seven-day demo schedule with date navigation. The schedule uses API movie data but frontend-only sample showtimes; real showtime administration and availability remain part of this milestone. Reduced-motion and skip-link alternatives are implemented. See `docs/frontend.md` and `docs/adr/0001-layered-auditorium-entrance.md`.
+The frontend includes a reversible layered-auditorium entrance and a seven-day schedule with date navigation. Movies, displayed metadata, auditoriums, and showtimes now come from PostgreSQL through EF Core GET endpoints. Docker Compose, migrations, one-time development seeding, database readiness, and backend integration checks are implemented. Administration, identity, availability, and CI remain open. Reduced-motion and skip-link alternatives are implemented. See `docs/frontend.md` and `docs/adr/0002-persistent-catalog.md`.
+
+- [x] Add PostgreSQL in Docker Compose, EF Core migrations, and one-time catalog/showtime seeding.
+- [x] Replace generated frontend times and local movie text with database-backed reads.
 
 - [ ] Complete milestone 1 and its acceptance criteria.
 - [ ] Set up React, the .NET API, PostgreSQL, migrations, Docker Compose, and CI.

@@ -3,4 +3,7 @@
   <Folder Name="/src/backend/">
     <Project Path="src/backend/Cinema.Api.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Cinema.Api.Checks/Cinema.Api.Checks.csproj" />
+  </Folder>
 </Solution>

@@ -1,99 +1,90 @@
 # cinemaR
 
-A React + TypeScript client connected to an ASP.NET Core controller API. Scroll through a realistic auditorium entrance, then browse a demo movie schedule. The frontend uses React Router, Tailwind CSS, and TanStack Query; movies come from the API, while showtimes are frontend fixtures.
+React + TypeScript cinema schedule backed by ASP.NET Core 10, EF Core, and PostgreSQL. Movie details, auditoriums, and screenings come from the database. Artwork remains local. This increment exposes GET endpoints only; administration and booking follow later.
 
-## Requirements
+## Requirements and startup
 
-- .NET 10 SDK (the solution uses the `.slnx` format).
-- Node.js 22.12+ and npm; Node.js 24 LTS is recommended.
-- Two terminals. PostgreSQL and Docker are not needed for this milestone.
-
-## Install and build
-
-Run from the project root:
+Install .NET 10 SDK (see global.json), Node.js 22.12+, and Docker Desktop with Linux containers. From the repository root:
 
 ```powershell
+docker compose up -d --wait
+dotnet tool restore
 dotnet restore Cinema.slnx --locked-mode
-dotnet build Cinema.slnx --no-restore
+dotnet run --project src/backend --launch-profile http
 ```
 
-Then install and build the client:
+Development startup applies committed EF migrations and seeds an empty catalog once: eight movies, three auditoriums, and 84 screenings across seven Kyiv calendar dates beginning on the initialization date. Each date offers six films from the rotating eight-film catalog, with twelve screenings and date/room-specific times. Initial data intentionally includes earlier screenings today. The versioned v2 seed upgrades the original v1 catalog by replacing unchanged seeded screenings, preserving existing movie text and custom/edited screenings, and skipping conflicting slots. Preserved custom data can reduce the number of new slots. Subsequent starts preserve all stored data and dates. The seed is not a rolling schedule; after seven days an empty schedule is expected until more screenings are deliberately added.
+
+In another terminal:
 
 ```powershell
 cd src/frontend
 npm ci
+npm run dev
+```
+
+Open [cinemaR](http://localhost:5173) or [the schedule](http://localhost:5173/schedule). The API listens on port 5080; Vite proxies /api to it. Each selected date fetches that Kyiv day's screenings, including earlier screenings. Movies without screenings on that date are omitted. Loading, empty, error, retry, and failed refresh states are supported; cached results belong to the selected date.
+
+## PostgreSQL
+
+Compose publishes the database on **127.0.0.1:5433**, avoiding the usual host PostgreSQL port. Database/user: `cinemar`; password: `cinemar_local`. These are local development credentials, also configured in src/backend/appsettings.Development.json. Override the API connection with `ConnectionStrings__Cinema` when needed. The postgres:18 image keeps durable data in the named cinemar_postgres_data volume mounted at /var/lib/postgresql.
+
+```powershell
+docker compose ps
+docker compose exec postgres psql -U cinemar -d cinemar
+docker compose stop
+docker compose start --wait
+```
+
+Container stops and recreation preserve data. **docker compose down --volumes permanently deletes this project's database.** Use that command only for a deliberate local reset; the next Development startup creates and seeds a new database with new dates.
+
+The Catalog-owned schema contains movies, auditoriums, showtimes, seed_history, and EF migration history. Screenings use UTC timestamptz instants and restrictive foreign keys. Each screening's occupied interval captures scheduled runtime plus a 15-minute turnaround. A PostgreSQL exclusion constraint prevents overlapping intervals in the same auditorium; different auditoriums can screen movies simultaneously. Later runtime edits must deliberately reschedule existing screenings.
+
+## Read API
+
+- GET /api/showtimes?date=2026-10-27: screenings starting on that Europe/Kyiv date, ordered by instant then ID. Each item includes id, UTC startsAt, movie, and auditorium (id/name). Empty dates return []. Missing, malformed, and out-of-range dates return 400 Problem Details; accepted years are 1900–9998.
+- GET /health: process liveness.
+- GET /health/ready: PostgreSQL connectivity, returning 503 when unavailable.
+
+The unused /api/movies endpoint was removed; the schedule response supplies all displayed movie information. No write endpoints exist. Cancellation flows into database reads, and unhandled request errors use Problem Details. There is no fallback to an in-memory catalog or generated times.
+
+```powershell
+$cinemaDate = [TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'Europe/Kyiv').ToString('yyyy-MM-dd')
+Invoke-RestMethod "http://localhost:5080/api/showtimes?date=$cinemaDate"
+Invoke-WebRequest http://localhost:5080/health/ready
+```
+
+## Migrations and verification
+
+```powershell
+dotnet ef migrations add DescribeChange --project src/backend --output-dir Data/Migrations
+dotnet ef migrations script --idempotent --project src/backend --output catalog-migrations.sql
+dotnet build Cinema.slnx --no-restore
+powershell -ExecutionPolicy Bypass -File scripts/verify-backend.ps1
+cd src/frontend
 npm run build
 npm test
 ```
 
-`package-lock.json` and the backend's `packages.lock.json` record dependency resolution. Commit both when placing this project under source control. The backend currently has no external NuGet packages.
+Commit migrations and the backend dependency lockfile. The local EF tool is pinned in dotnet-tools.json. The initial migration contains custom exclusion-constraint SQL that EF does not represent in its model snapshot; preserve it during future schema changes.
 
-## Run locally
+Automatic migration and seeding run only in Development. Other environments require ConnectionStrings__Cinema and an explicit migration procedure before starting. EF tooling also needs connection configuration; append `-- --environment Development` when deliberately targeting the local development database. Keep the development credentials local.
 
-In terminal 1, from the project root:
+Backend verification requires the API and Compose database running. It checks seeded reads, varied dates, date validation, removed catalog route, and GET-only behavior. The .NET check runner additionally verifies service validation/cancellation, Kyiv daylight-saving boundaries, repository interval filtering/order/projection, migrations, seed upgrades/persistence, and overlap constraints in a disposable test database on the local Compose server. Pass `-BaseUrl http://localhost:5173` to check reads through Vite too. Repeat after API/database restarts to check persistence. If the sandbox prevents Vite's default config bundler from reading parent directories, use `npm run build -- --configLoader runner`.
 
-```powershell
-dotnet run --project src/backend --launch-profile http
-```
+## Project and learning documents
 
-In terminal 2, from the project root:
+- src/backend/Data: EF context, migrations, one-time seed, readiness check.
+- src/backend/Movies: movie domain model (independent of showtimes).
+- src/backend/Schedule: auditorium/showtime models and Kyiv calendar boundaries.
+- src/backend/Controllers: HTTP binding and responses. Schedule/Services owns date rules and DTO composition; Schedule/Repositories defines the materialized query contract; Data/Repositories implements EF reads. Flow: Controller → IScheduleService → IShowtimeRepository → EF Core. EF entities and IQueryable never cross the repository boundary.
+- src/frontend/src/features/schedule: dated queries and schedule presentation.
+- src/frontend/src/features/schedule/artwork: local movie illustrations and optional artwork files.
+- [CONTEXT.md](CONTEXT.md): domain glossary.
+- [ROADMAP.md](ROADMAP.md): learning milestones.
+- [Frontend guide](docs/frontend.md): entrance and frontend conventions.
+- [Persistent catalog decision](docs/adr/0002-persistent-catalog.md): calendar rules, occupied intervals, and read-only scope.
+- [Artwork instructions](src/frontend/src/features/schedule/artwork/assets/README.md): optional local posters.
 
-```powershell
-cd src/frontend
-npm run dev
-```
+References: [Npgsql EF Core 10](https://www.npgsql.org/efcore/release-notes/10.0.html), [PostgreSQL exclusion constraints](https://www.postgresql.org/docs/18/ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION).
 
-Open [cinemaR](http://localhost:5173). Scroll toward the screen or use **Skip to schedule**, then select a date to browse sample showtimes. The schedule is also available directly at [Movie schedule](http://localhost:5173/schedule). The backend listens on `http://localhost:5080`. Vite uses port 5173 with `strictPort`, so it fails clearly if that port is occupied. Stop each process with Ctrl+C.
-
-The browser calls the relative URL `/api/movies`. Vite forwards `/api` requests to the backend, so local development needs no cross-origin configuration. `/health` is called directly on the backend. HTTP is intentional for this local scaffold; production HTTPS and hosting are future work. `npm run preview` serves built frontend assets on port 4173 but does not configure a backend proxy; use `npm run dev` for the connected app until production hosting is added.
-
-## Verify the connection
-
-With both processes running:
-
-```powershell
-Invoke-WebRequest http://localhost:5080/health
-Invoke-RestMethod http://localhost:5080/api/movies
-Invoke-RestMethod http://localhost:5173/api/movies
-```
-
-The health check returns HTTP 200 and `Healthy`. Both movie URLs return the same JSON array:
-
-```json
-[
-  { "id": 1, "title": "Interstellar", "durationMinutes": 169 },
-  { "id": 2, "title": "Spirited Away", "durationMinutes": 125 },
-  { "id": 3, "title": "The Grand Budapest Hotel", "durationMinutes": 99 }
-]
-```
-
-The schedule should display all three titles and durations, with clearly labeled sample times. Use **Skip to schedule** to inspect request states. To examine loading, use browser network throttling and reload. To examine initial failure, stop the backend and reload; after one automatic retry the error appears. Restart the backend and select **Try again** to recover. To examine the empty state, use the browser's response override for `/api/movies` with `[]`, then reload and remove the override afterward.
-
-**Refresh movies** explicitly fetches a fresh catalog while keeping existing movies on screen. If that request fails, a notice explains that the displayed catalog is the last successful result. The TanStack Query devtools toggle appears in the bottom-left corner during development only.
-
-## How the code fits together
-
-- `src/frontend/src/app/`: app shell, Query provider, and the separate Tailwind theme in `theme.css`.
-- `src/frontend/src/features/cinema-entrance/`: auditorium layers, scroll journey and route handoff, skip link, and reduced-motion handoff.
-- `src/frontend/src/features/schedule/`: date selector and demo showtimes, consuming the movie feature's public API.
-- `src/frontend/src/features/movies/`: request and query configuration, movie types, artwork, and local presentation data.
-- `src/frontend/src/shared/ui/`: reusable button and request-status panel.
-- `src/frontend/vite.config.ts`: fixed development port and API proxy.
-- `src/backend/Controllers/MoviesController.cs`: HTTP endpoint using dependency injection.
-- `src/backend/Movies/`: movie model, catalog interface, and sample implementation.
-- `src/backend/Program.cs`: service registration and endpoint setup.
-
-The request path is schedule → movie query → native fetch → Vite proxy → controller → catalog. The API has no showtime or write endpoints yet. Dates, auditorium labels, and showtimes are frontend-only demo data, with times displayed in Kyiv local time. Posters use styled illustrations until you add local artwork; see [artwork instructions](src/frontend/src/features/movies/assets/README.md). There are no external image requests. See [the frontend guide](docs/frontend.md) for the scroll transition, feature boundaries, Tailwind theme conventions, and Query exercises.
-
-## Learning documents
-
-- [ROADMAP.md](ROADMAP.md): six milestones, experiments, and acceptance criteria. The initial scaffold's build and runtime checks have passed; the first full milestone still includes administration, identity, and basic booking.
-- [CONTEXT.md](CONTEXT.md): domain vocabulary, separate from implementation decisions.
-- [docs/frontend.md](docs/frontend.md): frontend organization, visual conventions, and TanStack Query exercises.
-
-Future work introduces PostgreSQL, real showtimes, authentication, booking, Docker infrastructure, and messaging incrementally. See [the auditorium decision](docs/adr/0001-layered-auditorium-entrance.md) for the visual approach and accessibility tradeoffs.
-
-## References
-
-- [React: building from scratch](https://react.dev/learn/build-a-react-app-from-scratch)
-- [Vite getting started](https://vite.dev/guide/)

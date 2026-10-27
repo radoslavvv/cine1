@@ -30,14 +30,8 @@ export function getScheduleDates(now = new Date()): ScheduleDate[] {
   });
 }
 
-export function getDemoShowtimes(movieIndex: number, dateIndex: number) {
-  const times = dateIndex % 2 === 0 ? ['13:30', '17:00', '20:30'] : ['14:00', '17:30', '21:00'];
-  return {
-    auditorium: `Auditorium ${movieIndex + 1}`,
-    times: times.map((time) => {
-      const [hour, minute] = time.split(':').map(Number);
-      const totalMinutes = hour * 60 + minute + movieIndex * 15;
-      return `${String(Math.floor(totalMinutes / 60)).padStart(2, '0')}:${String(totalMinutes % 60).padStart(2, '0')}`;
-    }),
-  };
+export function formatShowtime(startsAt: string): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: CINEMA_TIME_ZONE, hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).format(new Date(startsAt));
 }
