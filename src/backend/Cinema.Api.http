@@ -1,0 +1,10 @@
+@Cinema.Api_HostAddress = http://localhost:5080
+
+GET {{Cinema.Api_HostAddress}}/health
+
+###
+
+GET {{Cinema.Api_HostAddress}}/api/movies
+Accept: application/json
+
+###
