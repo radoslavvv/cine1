@@ -16,6 +16,10 @@ _Avoid_: Cinema, theater
 A scheduled screening of one movie in one auditorium at a particular date and time.
 _Avoid_: Movie, session
 
+**Schedule**:
+The collection of showtimes offered by a cinema on a given date.
+_Avoid_: Movie catalog, booking list
+
 **Seat**:
 A numbered place in an auditorium. Its availability is specific to a showtime.
 _Avoid_: Ticket, reservation

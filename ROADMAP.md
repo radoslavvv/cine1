@@ -46,6 +46,8 @@ This completes the scaffold only. The full first milestone below remains open.
 
 ### 1. Build a usable vertical slice — 3–4 weeks
 
+The frontend now includes a reversible layered-auditorium entrance and a seven-day demo schedule with date navigation. The schedule uses API movie data but frontend-only sample showtimes; real showtime administration and availability remain part of this milestone. Reduced-motion and skip-link alternatives are implemented. See `docs/frontend.md` and `docs/adr/0001-layered-auditorium-entrance.md`.
+
 - [ ] Complete milestone 1 and its acceptance criteria.
 - [ ] Set up React, the .NET API, PostgreSQL, migrations, Docker Compose, and CI.
 - [ ] Implement movie/showtime administration and customer browsing.

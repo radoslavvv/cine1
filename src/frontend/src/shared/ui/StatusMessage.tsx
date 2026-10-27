@@ -1,12 +1,6 @@
 import type { ReactNode } from 'react';
 
-interface CatalogMessageProps {
-  title: string;
-  children: ReactNode;
-  isError?: boolean;
-}
-
-export function CatalogMessage({ title, children, isError = false }: CatalogMessageProps) {
+export function StatusMessage({ title, children, isError = false }: { title: string; children: ReactNode; isError?: boolean }) {
   return (
     <div className="flex gap-4 rounded-xl border border-edge bg-surface p-6 sm:gap-6 sm:p-9" role={isError ? 'alert' : 'status'}>
       <span className="font-label text-3xl text-amber" aria-hidden="true">{isError ? '◌' : '✳'}</span>

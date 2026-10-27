@@ -4,9 +4,10 @@ import { getMoviePresentation } from '../presentation';
 interface MovieArtworkProps {
   title: string;
   variant?: 'poster' | 'backdrop';
+  showTitle?: boolean;
 }
 
-export function MovieArtwork({ title, variant = 'poster' }: MovieArtworkProps) {
+export function MovieArtwork({ title, variant = 'poster', showTitle = true }: MovieArtworkProps) {
   const presentation = getMoviePresentation(title);
   const url = variant === 'poster' ? presentation.posterUrl : presentation.backdropUrl;
   const [failedUrl, setFailedUrl] = useState<string>();
@@ -39,7 +40,7 @@ export function MovieArtwork({ title, variant = 'poster' }: MovieArtworkProps) {
         </div>
       )}
       <div className="absolute inset-0 bg-linear-to-t from-lobby/90 via-transparent to-transparent" />
-      {!isBackdrop && <span className="absolute inset-x-5 bottom-6 font-display text-3xl leading-tight text-ivory/85 sm:text-4xl">{title}</span>}
+      {!isBackdrop && showTitle && <span className="absolute inset-x-5 bottom-6 font-display text-3xl leading-tight text-ivory/85 sm:text-4xl">{title}</span>}
       {url && failedUrl !== url && (
         <img className="absolute inset-0 size-full object-cover" src={url} alt="" loading={isBackdrop ? 'eager' : 'lazy'} onError={() => setFailedUrl(url)} />
       )}
