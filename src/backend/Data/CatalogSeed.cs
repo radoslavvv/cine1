@@ -13,6 +13,7 @@ public static class CatalogSeed
         await RunCatalogAsync(db, cancellationToken);
         await RunFormatsAsync(db, cancellationToken);
         await SeatLayoutSeed.RunAsync(db, cancellationToken);
+        await ExpandedCatalogSeed.RunAsync(db, cancellationToken);
     }
 
     private static async Task RunCatalogAsync(CatalogDbContext db, CancellationToken cancellationToken)
@@ -36,17 +37,7 @@ public static class CatalogSeed
             await db.SaveChangesAsync(cancellationToken);
         }
 
-        Movie[] samples =
-        [
-            new() { Title = "Interstellar", DurationMinutes = 169, Genres = ["Sci-Fi", "Adventure"], Synopsis = "A team of explorers travels beyond the solar system in search of a future for humanity." },
-            new() { Title = "Spirited Away", DurationMinutes = 125, Genres = ["Animation", "Fantasy"], Synopsis = "A young girl enters a spirit world and must find the courage to bring her family home." },
-            new() { Title = "The Grand Budapest Hotel", DurationMinutes = 99, Genres = ["Comedy", "Adventure"], Synopsis = "A concierge and his lobby boy become entangled in a stolen painting and a family fortune." },
-            new() { Title = "Arrival", DurationMinutes = 116, Genres = ["Sci-Fi", "Drama"], Synopsis = "A linguist seeks a shared language with mysterious visitors as the world grows anxious." },
-            new() { Title = "Dune", DurationMinutes = 155, Genres = ["Sci-Fi", "Adventure"], Synopsis = "Paul Atreides arrives on a desert planet where power, prophecy, and survival collide." },
-            new() { Title = "Past Lives", DurationMinutes = 106, Genres = ["Drama", "Romance"], Synopsis = "Childhood friends reunite years later and consider the lives they might have shared." },
-            new() { Title = "The Batman", DurationMinutes = 176, Genres = ["Crime", "Thriller"], Synopsis = "A masked detective follows a trail of riddles through Gotham's corruption." },
-            new() { Title = "Perfect Days", DurationMinutes = 124, Genres = ["Drama"], Synopsis = "A quiet routine of work, music, and small encounters reveals an unexpectedly rich life in Tokyo." }
-        ];
+        var samples = CreateSampleMovies();
         var lineup = samples.Select(sample =>
         {
             var movie = movies.FirstOrDefault(movie => movie.Title == sample.Title);
@@ -89,6 +80,17 @@ public static class CatalogSeed
         if (transaction is not null) await transaction.CommitAsync(cancellationToken);
     }
 
+    internal static Movie[] CreateSampleMovies() =>
+        [
+            new() { Title = "Interstellar", DurationMinutes = 169, Genres = ["Sci-Fi", "Adventure"], Synopsis = "A team of explorers travels beyond the solar system in search of a future for humanity." },
+            new() { Title = "Spirited Away", DurationMinutes = 125, Genres = ["Animation", "Fantasy"], Synopsis = "A young girl enters a spirit world and must find the courage to bring her family home." },
+            new() { Title = "The Grand Budapest Hotel", DurationMinutes = 99, Genres = ["Comedy", "Adventure"], Synopsis = "A concierge and his lobby boy become entangled in a stolen painting and a family fortune." },
+            new() { Title = "Arrival", DurationMinutes = 116, Genres = ["Sci-Fi", "Drama"], Synopsis = "A linguist seeks a shared language with mysterious visitors as the world grows anxious." },
+            new() { Title = "Dune", DurationMinutes = 155, Genres = ["Sci-Fi", "Adventure"], Synopsis = "Paul Atreides arrives on a desert planet where power, prophecy, and survival collide." },
+            new() { Title = "Past Lives", DurationMinutes = 106, Genres = ["Drama", "Romance"], Synopsis = "Childhood friends reunite years later and consider the lives they might have shared." },
+            new() { Title = "The Batman", DurationMinutes = 176, Genres = ["Crime", "Thriller"], Synopsis = "A masked detective follows a trail of riddles through Gotham's corruption." },
+            new() { Title = "Perfect Days", DurationMinutes = 124, Genres = ["Drama"], Synopsis = "A quiet routine of work, music, and small encounters reveals an unexpectedly rich life in Tokyo." }
+        ];
     private static string SampleFormat(int day, int roomIndex, int slot) =>
         new[] { "2D", "3D", "IMAX 2D", "IMAX 3D" }[(day + roomIndex + slot) % 4];
 

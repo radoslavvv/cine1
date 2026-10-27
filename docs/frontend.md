@@ -122,7 +122,7 @@ The app owns a motion session shared between the hidden preview and real schedul
 
 Date selection transitions color, border, and background over 200ms. A date change gives the new showtimes a 220ms fade and 4px lift. Movie rows keep their identity and do not replay during date changes or background refresh. Mutation observation registers newly inserted movie elements without restarting existing components. No animation dependency or scroll observer is required.
 
-Uncached filter combinations show three skeleton rows, with pulsing disabled under reduced motion. A ResizeObserver preserves the largest results height for the current page visit, with a 32rem minimum, so loading and empty results do not collapse the page or clamp its scroll position. A width change resets the measured footprint for the new layout. Different filter combinations never display one another's films while loading. An empty result says No screenings match these filters only after the request resolves. Background refreshes keep existing matching rows visible without inserting a progress sentence.
+Uncached filter combinations show three skeleton rows, with pulsing disabled under reduced motion. A ResizeObserver preserves the previous results height while a request is pending or fetching, with a 32rem minimum, so loading skeletons do not collapse the page. When the request settles, the reserved height shrinks to the current content, preventing blank space below shorter filtered lists or empty results. A width change resets the measured footprint for the new layout. Different filter combinations never display one another's films while loading. An empty result says No screenings match these filters only after the request resolves. Background refreshes keep existing matching rows visible without inserting a progress sentence. Run `node scripts/check-schedule-space.cjs` to verify loading stability and release of excess height.
 
 ## Persistent schedule boundary
 
@@ -161,7 +161,9 @@ The provider creates one stable `QueryClient` for the mounted app. It stores ser
 The schedule consumes a dated screening query:
 
 ```tsx
-const scheduleQuery = useQuery(scheduleQueries.forFilters(selectedDate.key, genre, format));
+const scheduleQuery = useQuery(
+  scheduleQueries.forFilters(selectedDate.key, genre, format),
+);
 ```
 
 The definition uses `queryOptions` to keep the key, request function, and settings together with TypeScript inference. The request receives TanStack Query's `AbortSignal`, so an abandoned request can be cancelled.

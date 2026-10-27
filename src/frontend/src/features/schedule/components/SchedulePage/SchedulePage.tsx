@@ -72,7 +72,9 @@ export function SchedulePage({
         ];
   const rootRef = useScheduleMotion(motion, preview, selectedDate.key);
   const now = useShowtimeClock(scheduleQuery.data);
-  const { contentRef, height } = useResultsSpace();
+  const { contentRef, height } = useResultsSpace(
+    scheduleQuery.isPending || scheduleQuery.isFetching,
+  );
   useScheduleReady(
     rootRef,
     scheduleQuery.isPending && !scheduleQuery.isPaused,
@@ -152,11 +154,11 @@ export function SchedulePage({
                           className={`${theme.skeleton} hidden h-3 w-5/6 sm:block`}
                         />
                       </div>
-                      <div className={theme.times}>
+                      <div className={`${theme.showtimes} ${theme.times}`}>
                         {[0, 1, 2].map((time) => (
                           <div
                             key={time}
-                            className={`${theme.skeleton} h-[78px] w-[84px]`}
+                            className={`${theme.skeleton} size-26`}
                           />
                         ))}
                       </div>
@@ -253,6 +255,7 @@ export function SchedulePage({
                             <p className={theme.synopsis}>{movie.synopsis}</p>
                           </div>
                           <div
+                            className={theme.showtimes}
                             data-schedule-enter="times"
                             data-schedule-key={`times:${movie.id}`}
                             data-schedule-order={index}
@@ -273,7 +276,10 @@ export function SchedulePage({
                                     <time dateTime={showtime.startsAt}>
                                       {formatShowtime(showtime.startsAt)}
                                     </time>
-                                    <span className={theme.timeAuditorium}>
+                                    <span
+                                      className={theme.timeAuditorium}
+                                      title={showtime.auditorium.name}
+                                    >
                                       {showtime.auditorium.name}
                                     </span>
                                     <span className={theme.timeFormat}>
