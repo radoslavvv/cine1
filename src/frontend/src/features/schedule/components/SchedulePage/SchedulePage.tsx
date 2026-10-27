@@ -2,7 +2,7 @@ import { schedulePageTheme as theme } from './SchedulePage.theme';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { MovieArtwork } from '../MovieArtwork/MovieArtwork';
+import { MovieArtwork } from '../../../../shared/components/MovieArtwork/MovieArtwork';
 import { Button } from '../../../../shared/components/Button/Button';
 import { StatusMessage } from '../../../../shared/components/StatusMessage/StatusMessage';
 import { DatePicker } from '../DatePicker/DatePicker';
@@ -222,27 +222,28 @@ export function SchedulePage({
                                   movie.durationMinutes,
                                   now,
                                 );
+                                const details = (
+                                  <>
+                                    <time dateTime={showtime.startsAt}>
+                                      {formatShowtime(showtime.startsAt)}
+                                    </time>
+                                    <span className={theme.timeAuditorium}>{showtime.auditorium.name}</span>
+                                    <span className={theme.timeStatus}>
+                                      {status === 'Upcoming' ? <span className="sr-only">Upcoming — choose seats</span> : status}
+                                    </span>
+                                  </>
+                                );
                                 return (
                                   <li key={showtime.id}>
-                                    <div
-                                      className={`${theme.time} ${status === 'Upcoming' ? theme.timeUpcoming : status === 'Started' ? theme.timeStarted : theme.timeFinished}`}
-                                    >
-                                      <time dateTime={showtime.startsAt}>
-                                        {formatShowtime(showtime.startsAt)}
-                                      </time>
-                                      <span className={theme.timeAuditorium}>
-                                        {showtime.auditorium.name}
-                                      </span>
-                                      <span className={theme.timeStatus}>
-                                        {status === 'Upcoming' ? (
-                                          <span className="sr-only">
-                                            Upcoming
-                                          </span>
-                                        ) : (
-                                          status
-                                        )}
-                                      </span>
-                                    </div>
+                                    {status === 'Upcoming' ? (
+                                      <Link to={`/booking/${showtime.id}`} className={`${theme.time} ${theme.timeUpcoming} ${theme.timeLink}`}>
+                                        {details}
+                                      </Link>
+                                    ) : (
+                                      <div className={`${theme.time} ${status === 'Started' ? theme.timeStarted : theme.timeFinished}`}>
+                                        {details}
+                                      </div>
+                                    )}
                                   </li>
                                 );
                               })}

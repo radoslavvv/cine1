@@ -9,6 +9,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public DbSet<Movie> Movies => Set<Movie>();
     public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
     public DbSet<Showtime> Showtimes => Set<Showtime>();
+    public DbSet<Seat> Seats => Set<Seat>();
     public DbSet<SeedHistory> SeedHistory => Set<SeedHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,6 +43,18 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             entity.HasOne(showtime => showtime.Movie).WithMany().HasForeignKey(showtime => showtime.MovieId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(showtime => showtime.Auditorium).WithMany().HasForeignKey(showtime => showtime.AuditoriumId).OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(showtime => showtime.StartsAt);
+        });
+        modelBuilder.Entity<Seat>(entity =>
+        {
+            entity.ToTable("seats", table =>
+            {
+                table.HasCheckConstraint("ck_seat_position", "grid_row >= 0 AND grid_column >= 0");
+                table.HasCheckConstraint("ck_seat_label", "length(btrim(row_label)) > 0 AND number > 0");
+            });
+            entity.HasKey(seat => seat.Id);
+            entity.HasOne(seat => seat.Auditorium).WithMany().HasForeignKey(seat => seat.AuditoriumId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(seat => new { seat.AuditoriumId, seat.GridRow, seat.GridColumn }).IsUnique();
+            entity.HasIndex(seat => new { seat.AuditoriumId, seat.RowLabel, seat.Number }).IsUnique();
         });
         modelBuilder.Entity<SeedHistory>(entity =>
         {

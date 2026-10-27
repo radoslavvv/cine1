@@ -5,6 +5,7 @@ import {
 } from '../journeyGeometry';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
+const scheduleRevealStart = 0.88;
 
 export function useCinemaJourney(
   onComplete: (scrollOffset: number) => void,
@@ -22,6 +23,7 @@ export function useCinemaJourney(
     const stage = stageRef.current;
     const schedule = scheduleRef.current;
     if (!root || !journey || !stage || !schedule) return;
+    const entranceControls = root.querySelectorAll<HTMLElement>('[data-entrance-controls]');
 
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
@@ -43,7 +45,7 @@ export function useCinemaJourney(
       // Arrive at the screen before revealing any of the schedule.
       const camera = clamp(progress / 0.84);
       const travel = camera * camera * (3 - 2 * camera);
-      const reveal = clamp((progress - 0.88) / 0.12);
+      const reveal = clamp((progress - scheduleRevealStart) / (1 - scheduleRevealStart));
       if (reveal > 0 && !revealed) {
         revealed = true;
         onScheduleReveal();
@@ -57,6 +59,7 @@ export function useCinemaJourney(
         '--entrance-hint',
         String(clamp(1 - progress * 5)),
       );
+      entranceControls.forEach((control) => { control.inert = progress >= 0.2; });
 
       if (target === 1 && progress === 1) {
         completed = true;
@@ -74,20 +77,27 @@ export function useCinemaJourney(
       if (!journey || !stage || !root || !schedule || completed) return;
       const distance = journey.offsetHeight - stage.offsetHeight;
       const top = journey.getBoundingClientRect().top;
-      target = reducedMotion.matches ? 0 : clamp(-top / Math.max(1, distance));
-      if (!reducedMotion.matches && target === 1 && !arrived) {
-        arrived = true;
-        // Stop wheel momentum at the schedule boundary while the camera settles.
+      const scrollProgress = clamp(-top / Math.max(1, distance));
+      target = reducedMotion.matches ? 0 : arrived ? 1 : scrollProgress;
+      if (!reducedMotion.matches && (arrived || scrollProgress >= scheduleRevealStart)) {
+        if (!arrived) {
+          arrived = true;
+          // Lock input before the preview becomes visible, including wheel momentum.
+          onScheduleArrival();
+        }
+        // Finish the remaining fade automatically with the preview pinned at its top.
+        // The route handoff will then show the schedule at this same position.
+        target = 1;
         window.scrollTo({
           top: window.scrollY + top + distance,
           behavior: 'instant',
         });
-        onScheduleArrival();
       }
       if (reducedMotion.matches) {
         progress = 0;
         root.style.setProperty('--travel', '0');
         root.style.setProperty('--entrance-hint', '1');
+        entranceControls.forEach((control) => { control.inert = false; });
         root.style.setProperty('--schedule-opacity', '1');
         schedule.inert = false;
         schedule.removeAttribute('aria-hidden');
@@ -96,11 +106,13 @@ export function useCinemaJourney(
           schedule.getBoundingClientRect().top < stage.offsetHeight
         ) {
           revealed = true;
-          onScheduleReveal();
-        }
-        if (-top >= journey.offsetHeight - 1) {
           completed = true;
           onScheduleArrival();
+          onScheduleReveal();
+          window.scrollTo({
+            top: window.scrollY + schedule.getBoundingClientRect().top,
+            behavior: 'instant',
+          });
           onComplete(
             getScheduleScrollOffset(schedule.getBoundingClientRect().top),
           );

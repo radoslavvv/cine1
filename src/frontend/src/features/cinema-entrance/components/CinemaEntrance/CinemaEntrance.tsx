@@ -36,32 +36,48 @@ export function CinemaEntrance({
     >
       <div ref={journeyRef} data-cinema-journey className={theme.journey}>
         <div ref={stageRef} className={theme.stage}>
+          <h1 className="sr-only">cinemaR — Your next story starts here.</h1>
           <div className={theme.scene}>
             <Auditorium />
           </div>
-          <header
-            className={theme.header}
+          <div
+            aria-hidden="true"
+            className={theme.frame}
             style={{ opacity: 'var(--entrance-hint)' }}
           >
-            <h1 className={theme.brand}>
-              <span className="sr-only">cinemaR</span>
-              <span aria-hidden="true">
-                <Wordmark />
-              </span>
-            </h1>
-            <Link className={theme.skip} to="/schedule">
-              Schedule <span aria-hidden="true">↗</span>
+            <span className={theme.cornerTopLeft} />
+            <span className={theme.cornerTopRight} />
+            <span className={theme.cornerBottomLeft} />
+            <span className={theme.cornerBottomRight} />
+          </div>
+          <header
+            className={theme.header}
+            data-entrance-controls
+            style={{ opacity: 'var(--entrance-hint)' }}
+          >
+            <Link to="/" aria-label="cinemaR home" className={theme.brand}>
+              <svg className={theme.emblem} viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <path d="M12 3H3v9m25-9h9v9M3 28v9h9m25-9v9h-9" stroke="currentColor" strokeWidth="1" />
+                <path d="M24 11a11 11 0 1 0 0 18" stroke="currentColor" strokeWidth="1.5" />
+                <path d="m20 13 10 7-10 7V13Z" fill="currentColor" fillOpacity=".8" />
+              </svg>
+              <span aria-hidden="true"><Wordmark /></span>
             </Link>
+
+            <nav aria-label="Movie schedule" className={theme.rightNav}>
+              <Link className={theme.skip} to="/schedule">
+                Schedule <span aria-hidden="true">↗</span>
+              </Link>
+            </nav>
           </header>
-          <Link
-            to="/schedule"
-            aria-label="View movie schedule"
+          <div
+            aria-hidden="true"
             className={theme.hint}
             style={{ opacity: 'var(--entrance-hint)' }}
           >
             <span className={theme.hintContent}>
               <span className={theme.hintLabel} aria-hidden="true">
-                Enter
+                Scroll to discover
               </span>
               <svg
                 width="16"
@@ -77,7 +93,7 @@ export function CinemaEntrance({
                 />
               </svg>
             </span>
-          </Link>
+          </div>
         </div>
       </div>
       <section

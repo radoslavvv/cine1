@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createScheduleMotionSession } from '../../features/schedule';
-import { usePageScrollLock } from '../../shared/hooks/usePageScrollLock';
+import { lockPageScroll } from '../../shared/hooks/usePageScrollLock';
 
 export function useAppNavigation() {
   const location = useLocation();
@@ -10,16 +10,20 @@ export function useAppNavigation() {
   const [scheduleMotion] = useState(createScheduleMotionSession);
   const handoffOffset = useRef<number | null>(null);
   const arrival = useRef(false);
-  const [arrivalLocked, setArrivalLocked] = useState(false);
-
-  usePageScrollLock(arrivalLocked);
+  const unlockArrival = useRef<(() => void) | null>(null);
 
   const beginArrival = useCallback(() => {
     arrival.current = true;
-    setArrivalLocked(true);
+    // The native scroll event must acquire the lock synchronously, before paint.
+    unlockArrival.current ??= lockPageScroll(document.documentElement, window);
   }, []);
 
-  const releaseArrival = useCallback(() => setArrivalLocked(false), []);
+  const releaseArrival = useCallback(() => {
+    unlockArrival.current?.();
+    unlockArrival.current = null;
+  }, []);
+
+  useLayoutEffect(() => releaseArrival, [releaseArrival]);
 
   const completeEntrance = useCallback(
     (offset: number) => {
@@ -40,7 +44,7 @@ export function useAppNavigation() {
   useLayoutEffect(() => {
     if (location.pathname !== '/schedule') {
       arrival.current = false;
-      setArrivalLocked(false);
+      releaseArrival();
     }
 
     if (location.pathname === '/') {
@@ -54,8 +58,10 @@ export function useAppNavigation() {
     document.title =
       location.pathname === '/schedule'
         ? 'Movie schedule · cinemaR'
-        : 'cinemaR';
-  }, [location.key, location.pathname, scheduleMotion]);
+        : location.pathname.startsWith('/booking/')
+          ? 'Choose seats · cinemaR'
+          : 'cinemaR';
+  }, [location.key, location.pathname, scheduleMotion, releaseArrival]);
 
   return {
     mainRef,

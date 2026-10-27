@@ -1,4 +1,6 @@
 using Cinema.Api.Data;
+using Cinema.Api.Booking.Repositories;
+using Cinema.Api.Booking.Services;
 using Cinema.Api.Data.Repositories;
 using Cinema.Api.Schedule.Repositories;
 using Cinema.Api.Schedule.Services;
@@ -21,6 +23,9 @@ builder.Services.AddDbContext<CatalogDbContext>(options =>
 });
 builder.Services.AddScoped<IShowtimeRepository, ShowtimeRepository>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<ISeatMapRepository, SeatMapRepository>();
+builder.Services.AddScoped<ISeatMapService, SeatMapService>();
+builder.Services.AddSingleton(TimeProvider.System);
 
 var app = builder.Build();
 app.UseExceptionHandler();

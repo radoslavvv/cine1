@@ -28,6 +28,27 @@ export function Auditorium() {
               opacity: 'min(1, max(0, calc(var(--travel) * 2.5 - 0.5)))',
             }}
           />
+          <div
+            className={theme.projection}
+            style={{
+              opacity: 'min(1, max(0, calc((var(--travel) - 0.4) * 8)), max(0, calc((0.97 - var(--travel)) * 8)))',
+            }}
+          >
+            <div className={theme.projectionCopy}>
+              <span
+                className={theme.firstLine}
+                style={{ clipPath: 'inset(0 calc((1 - clamp(0, calc((var(--travel) - 0.42) * 4.55), 1)) * 100%) 0 0)' }}
+              >
+                Your next story
+              </span>
+              <span
+                className={theme.secondLine}
+                style={{ clipPath: 'inset(0 calc((1 - clamp(0, calc((var(--travel) - 0.57) * 4.55), 1)) * 100%) 0 0)' }}
+              >
+                starts here.
+              </span>
+            </div>
+          </div>
           <img
             className={theme.layer}
             data-parallax-layer="middle"
@@ -57,6 +78,9 @@ export function Auditorium() {
             }}
           />
         </div>
+      </div>
+      <div className={theme.lights} style={{ opacity: 'calc(1 - var(--travel))' }}>
+        <div className={theme.loadDimmer} />
       </div>
       <div
         className={theme.shade}

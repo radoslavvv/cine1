@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { CinemaEntrance } from '../features/cinema-entrance';
 import { SchedulePage } from '../features/schedule';
+import { BookingPage } from '../features/booking';
 import { NotFoundPage } from './components/NotFoundPage/NotFoundPage';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { appTheme as theme } from './App.theme';
@@ -37,6 +38,7 @@ export function App() {
           }
         />
 
+        <Route path="/booking/:showtimeId" element={<BookingPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </main>

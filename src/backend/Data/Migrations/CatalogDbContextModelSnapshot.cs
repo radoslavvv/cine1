@@ -104,6 +104,52 @@ namespace Cinema.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Cinema.Api.Schedule.Seat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuditoriumId")
+                        .HasColumnType("integer")
+                        .HasColumnName("auditorium_id");
+
+                    b.Property<int>("GridColumn")
+                        .HasColumnType("integer")
+                        .HasColumnName("grid_column");
+
+                    b.Property<int>("GridRow")
+                        .HasColumnType("integer")
+                        .HasColumnName("grid_row");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer")
+                        .HasColumnName("number");
+
+                    b.Property<string>("RowLabel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("row_label");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuditoriumId", "GridRow", "GridColumn")
+                        .IsUnique();
+
+                    b.HasIndex("AuditoriumId", "RowLabel", "Number")
+                        .IsUnique();
+
+                    b.ToTable("seats", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("ck_seat_label", "length(btrim(row_label)) > 0 AND number > 0");
+
+                            t.HasCheckConstraint("ck_seat_position", "grid_row >= 0 AND grid_column >= 0");
+                        });
+                });
+
             modelBuilder.Entity("Cinema.Api.Schedule.Showtime", b =>
                 {
                     b.Property<int>("Id")
@@ -141,6 +187,17 @@ namespace Cinema.Api.Data.Migrations
                         {
                             t.HasCheckConstraint("ck_showtime_interval", "occupied_until > starts_at");
                         });
+                });
+
+            modelBuilder.Entity("Cinema.Api.Schedule.Seat", b =>
+                {
+                    b.HasOne("Cinema.Api.Schedule.Auditorium", "Auditorium")
+                        .WithMany()
+                        .HasForeignKey("AuditoriumId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Auditorium");
                 });
 
             modelBuilder.Entity("Cinema.Api.Schedule.Showtime", b =>

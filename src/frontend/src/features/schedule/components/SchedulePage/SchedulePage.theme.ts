@@ -1,8 +1,8 @@
 export const schedulePageTheme = {
   page: "flex min-h-svh flex-col bg-lobby",
   container: "mx-auto w-full max-w-6xl flex-1 px-5 pt-4 pb-10 sm:px-10 sm:pt-6 sm:pb-14",
-  header: "flex min-h-12 items-center border-b border-ivory/10 pb-4",
-  brand: "inline-flex min-h-11 items-center text-ivory transition-colors hover:text-amber-light",
+  header: "grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-ivory/10 pb-4",
+  brand: "col-start-2 inline-flex min-h-11 items-center justify-self-center text-ivory transition-colors hover:text-amber-light",
   results: "mt-7 min-h-[32rem]",
   catalogStatus: "mb-5 text-sm leading-relaxed text-muted",
   movieList: "divide-y divide-ivory/10 border-t border-ivory/10",
@@ -15,6 +15,7 @@ export const schedulePageTheme = {
   times: "flex flex-wrap gap-2",
   time: "block min-w-[84px] rounded-sm border px-3 py-2 font-label text-base leading-6 tabular-nums",
   timeUpcoming: "border-sage/30 bg-sage/[0.07] text-sage",
+  timeLink: "transition-colors hover:border-sage/70 hover:bg-sage/15",
   timeStarted: "border-amber/35 bg-amber/[0.08] text-amber-light",
   timeFinished: "border-ivory/8 bg-ivory/[0.02] text-muted",
   timeAuditorium: "mt-0.5 block text-[10px] leading-4 text-muted",

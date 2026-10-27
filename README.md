@@ -1,6 +1,6 @@
 # cinemaR
 
-React + TypeScript cinema schedule backed by ASP.NET Core 10, EF Core, and PostgreSQL. Movie details, auditoriums, and screenings come from the database. Artwork remains local. This increment exposes GET endpoints only; administration and booking follow later.
+React + TypeScript cinema schedule and seat selection backed by ASP.NET Core 10, EF Core, and PostgreSQL. Movie details, auditoriums, screenings, and seat layouts come from the database. Artwork remains local. The API exposes GET endpoints only; checkout and administration follow later.
 
 ## Requirements and startup
 
@@ -44,6 +44,7 @@ The Catalog-owned schema contains movies, auditoriums, showtimes, seed_history, 
 
 - GET /api/showtimes?date=2026-10-27: screenings starting on that Europe/Kyiv date, ordered by instant then ID. Each item includes id, UTC startsAt, movie, and auditorium (id/name). Empty dates return []. Missing, malformed, and out-of-range dates return 400 Problem Details; accepted years are 1900–9998.
 - GET /health: process liveness.
+- GET /api/showtimes/{showtimeId}/seats: movie, auditorium, ordered seats with labels and zero-based grid positions, UTC startsAt/serverNow, and selectionOpen. Unknown showtimes return 404 Problem Details; started showtimes return a layout with selectionOpen=false. HTTP caching is disabled. Development seeding adds distinct layouts for the three sample auditoriums, preserving existing custom seats.
 - GET /health/ready: PostgreSQL connectivity, returning 503 when unavailable.
 
 The unused /api/movies endpoint was removed; the schedule response supplies all displayed movie information. No write endpoints exist. Cancellation flows into database reads, and unhandled request errors use Problem Details. There is no fallback to an in-memory catalog or generated times.
@@ -77,12 +78,13 @@ Automated tests are currently removed. Verify compilation with the backend and f
 - src/backend/Schedule: auditorium/showtime models and Kyiv calendar boundaries.
 - src/backend/Controllers: HTTP binding and responses. Schedule/Services owns date rules and DTO composition; Schedule/Repositories defines the materialized query contract; Data/Repositories implements EF reads. Flow: Controller → IScheduleService → IShowtimeRepository → EF Core. EF entities and IQueryable never cross the repository boundary.
 - src/frontend/src/features/schedule: dated queries and schedule presentation.
-- src/frontend/src/features/schedule/artwork: local movie illustrations and optional artwork files.
+- src/frontend/src/shared/components/MovieArtwork: shared movie illustrations and optional local artwork files.
 - [CONTEXT.md](CONTEXT.md): domain glossary.
 - [ROADMAP.md](ROADMAP.md): learning milestones.
 - [Frontend guide](docs/frontend.md): entrance and frontend conventions.
+- [Seat selection](docs/seat-selection.md): feature scope, API behavior, and manual verification. Choose an upcoming showtime to select up to eight seats; selection stays local and does not reserve seats.
 - [Persistent catalog decision](docs/adr/0002-persistent-catalog.md): calendar rules, occupied intervals, and read-only scope.
-- [Artwork instructions](src/frontend/src/features/schedule/artwork/assets/README.md): optional local posters.
+- [Artwork instructions](src/frontend/src/shared/components/MovieArtwork/artwork/assets/README.md): optional local posters.
 
 References: [Npgsql EF Core 10](https://www.npgsql.org/efcore/release-notes/10.0.html), [PostgreSQL exclusion constraints](https://www.postgresql.org/docs/18/ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION).
 

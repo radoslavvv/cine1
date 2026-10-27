@@ -4,6 +4,10 @@ A cinema offers scheduled screenings of movies. Customers select seats for a scr
 
 ## Language
 
+**Guest customer**:
+A customer who purchases tickets without registering or signing into an account.
+_Avoid_: Anonymous user, registered customer
+
 **Movie**:
 A film in the cinema's catalog, independent of when or where it is screened.
 _Avoid_: Showtime, screening
@@ -43,6 +47,10 @@ _Avoid_: Ticket, reservation
 **Hold**:
 A temporary, exclusive claim on selected seats for a showtime while a customer prepares to check out. It has an expiration time and is not a confirmed booking.
 _Avoid_: Booking, reservation
+
+**Seat selection**:
+The seats a customer has chosen for a showtime. A selection alone does not reserve seats or grant admission.
+_Avoid_: Hold, booking, ticket
 
 **Booking**:
 A customer's purchase record for selected seats at one showtime. It may be pending, confirmed, or failed; only a confirmed booking grants admission through tickets.

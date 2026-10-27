@@ -10,6 +10,12 @@ public static class CatalogSeed
 
     public static async Task RunAsync(CatalogDbContext db, CancellationToken cancellationToken)
     {
+        await RunCatalogAsync(db, cancellationToken);
+        await SeatLayoutSeed.RunAsync(db, cancellationToken);
+    }
+
+    private static async Task RunCatalogAsync(CatalogDbContext db, CancellationToken cancellationToken)
+    {
         if (await db.SeedHistory.AnyAsync(seed => seed.Name == Version, cancellationToken)) return;
         // EF's migration lock serializes this operation; the transaction makes upgrades atomic too.
         await using var transaction = db.Database.CurrentTransaction is null

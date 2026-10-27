@@ -1,6 +1,6 @@
 import { movieArtworkTheme as theme } from './MovieArtwork.theme';
 import { useState } from 'react';
-import { getMoviePresentation } from '../../artwork/presentation';
+import { getMoviePresentation } from './artwork/presentation';
 
 interface MovieArtworkProps {
   title: string;

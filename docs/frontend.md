@@ -2,7 +2,7 @@
 
 ## Organize by feature
 
-Product areas own their code. The app routes between an auditorium entrance and a schedule; Schedule owns the current browsing UI and API query. Booking and admin can become sibling features when we build them.
+Product areas own their code. The app routes between an auditorium entrance, a schedule, and seat selection. Schedule owns dated browsing; Booking owns the showtime seat-map query and local selection. Admin can become a sibling feature when needed.
 
 ```text
 src/
@@ -37,9 +37,6 @@ src/
         DatePicker/
           DatePicker.tsx
           DatePicker.theme.ts
-        MovieArtwork/
-          MovieArtwork.tsx
-          MovieArtwork.theme.ts
       hooks/
         useResultsSpace.ts
         useScheduleMotion.ts
@@ -51,11 +48,26 @@ src/
         showtimeStatus.ts
       api/scheduleQueries.ts
       types.ts
-      artwork/
-        presentation.ts
-        assets/README.md
+    booking/
+      index.ts
+      api/bookingQueries.ts
+      types.ts
+      hooks/useSeatSelection.ts
+      components/
+        BookingPage/
+          BookingPage.tsx
+          BookingPage.theme.ts
+        SeatMap/
+          SeatMap.tsx
+          SeatMap.theme.ts
   shared/
     components/
+      MovieArtwork/
+        MovieArtwork.tsx
+        MovieArtwork.theme.ts
+        artwork/
+          presentation.ts
+          assets/README.md
       Button/
         Button.tsx
         Button.theme.ts
@@ -66,23 +78,23 @@ src/
     hooks/usePageScrollLock.ts
 ```
 
-`app` composes features and installs providers. `App.tsx` declares routes; `useAppNavigation` owns arrival state, route scroll positioning, focus, document titles, and the shared motion session. Each feature and shared component has its own folder under `components/`, with its theme beside it. Hooks live directly in their owner’s `hooks/` folder without per-hook subfolders. Keep JSX expanded and separate logical blocks with blank lines. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. Schedule owns its screening response types, dated query, and local movie artwork. There is no standalone Movies feature or unused catalog query; a future catalog browsing screen can establish its own boundary when needed. Shared UI has no knowledge of movies and must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
+`app` composes features and installs providers. `App.tsx` declares routes; `useAppNavigation` owns arrival state, route scroll positioning, focus, document titles, and the shared motion session. Each feature and shared component has its own folder under `components/`, with its theme beside it. Hooks live directly in their owner’s `hooks/` folder without per-hook subfolders. Keep JSX expanded and separate logical blocks with blank lines. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. Schedule owns its screening response types and dated query. MovieArtwork and its local assets are shared by Schedule and Booking. There is no standalone Movies feature or unused catalog query; a future catalog browsing screen can establish its own boundary when needed. Shared UI must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
 
 This is pragmatic feature-folder organization, not the formal Feature-Sliced Design layer system. Do not add empty booking/admin directories, generic repositories, or extra layers before there is code that needs them. The imports are conventions, not currently enforced by a lint rule. Substantial Tailwind class groups and visual variants live in adjacent `Component.theme.ts` files and are imported as named theme objects. Global tokens and atmospheric utilities remain in `app/theme.css`; runtime camera values remain inline CSS properties. Tailwind scans the complete utility strings in these TypeScript files.
 
 ## Visual direction
 
-The app is named **cinemaR**. The homepage uses an original photorealistic auditorium image: upholstered burgundy seats, dark wood acoustic panels, warm aisle lights, and a dim charcoal screen. Illustrated room layers were replaced after visual review because they felt cartoonish. The centered wordmark, slogans, and mountain projection have been removed. Copy uses direct cinema language throughout, including loading, error, and empty states.
+The app is named **cinemaR**. The homepage uses an original photorealistic auditorium image: upholstered burgundy seats, dark wood acoustic panels, warm aisle lights, and a dim charcoal screen. Illustrated room layers were replaced after visual review because they felt cartoonish. A thin inset frame with amber corner details surrounds the entrance. The centered brand pairs a screen-and-play emblem with the wordmark and links Home. During the zoom, “Your next story starts here.” reveals across two lines on the cinema screen in muted ivory, without a glow or bright accent color. Copy uses direct cinema language throughout, including loading, error, and empty states.
 
-Inter is bundled locally through Fontsource in weights 400, 500, and 600 for body text and controls. Cormorant Garamond in weights 500 and 600 supplies the wordmark and headings. The shared wordmark uses tight spacing and an italic amber R. A slim entrance header pairs it with a plain Schedule link; a single downward arrow and small Enter label supply the bottom cue. Both controls open the schedule directly. The header and cue fade as the journey begins. The theme retains near-black violet surfaces, amber accents, warm ivory text, and a dark color scheme regardless of system preference. No external font or image requests are required.
+Inter is bundled locally through Fontsource in weights 400, 500, and 600 for body text and controls. Cormorant Garamond in weights 500 and 600 supplies the wordmark and headings. The shared wordmark uses tight spacing and an italic amber R. The entrance header has a centered clickable brand and a Schedule link at the right. The bottom arrow and “Scroll to discover” are decorative cues without click handlers, hover effects, or keyboard focus; Schedule opens the schedule directly. There is no Explore button in the header. The header, frame, and cue fade as the journey begins, and invisible entrance controls become inert. The theme retains near-black violet surfaces, amber accents, warm ivory text, and a dark color scheme regardless of system preference. No external font or image requests are required.
 
 The schedule starts with a compact brand header, a single row of seven dates on mobile and desktop, and the movie list. The page heading and selected-date announcement remain available to screen readers. Repeated schedule labels, introductory instructions, film counts, timezone notes, and the routine refresh button are removed. Movie rows show the title, genre, runtime, synopsis on larger screens, and auditorium-specific times. The schedule background is plain rather than patterned with ceiling lights.
 
-Movie artwork remains local only. Until posters and backdrops are supplied, MovieArtwork draws decorative placeholders. See [artwork instructions](../src/frontend/src/features/schedule/artwork/assets/README.md). Showtime chips display stored screening instants in Kyiv time and label each auditorium. Booking and seat availability are not implemented. Keyboard focus, mobile layouts, and reduced-motion support remain required.
+Movie artwork remains local only. Until posters and backdrops are supplied, MovieArtwork draws decorative placeholders. See [artwork instructions](../src/frontend/src/shared/components/MovieArtwork/artwork/assets/README.md). Showtime chips display stored screening instants in Kyiv time and label each auditorium. Upcoming showtimes link to seat selection. Booking uses a left-side back link, a poster/details card, a wider centered seat map, and a full-width summary beneath the map. Selection stays local and does not reserve seats. Keyboard focus, mobile layouts, and reduced-motion support remain required.
 
 ## Routes and auditorium journey
 
-React Router's BrowserRouter provides Home at `/` and Schedule at `/schedule`. The schedule can be opened directly or refreshed without playing the entrance. Unknown URLs show a page-not-found view with a schedule link. Direct navigation resets the scroll position, focuses the main region, and sets the document title. A scroll arrival clamps at the schedule boundary and temporarily holds scrolling while the camera finishes, then opens `/schedule` at the top. The hold ends once that date's data resolves and its opening animations finish. Error and offline states also release the hold. Clicking Schedule or opening the route directly does not engage the arrival hold. The lock restores the previous overflow and scrollbar-gutter styles on release or unmount. Native history restoration is disabled while this app owns route scroll positioning. The Query provider stays above the router, preserving cached movie data across navigation.
+React Router's BrowserRouter provides Home at `/` and Schedule at `/schedule`. The schedule can be opened directly or refreshed without playing the entrance. Unknown URLs show a page-not-found view with a schedule link. Direct navigation resets the scroll position, focuses the main region, and sets the document title. At the schedule reveal boundary (88% of scroll travel), arrival synchronously locks scrolling and pins the preview to the viewport top before it becomes visible. The remaining camera/fade progress finishes automatically, then opens `/schedule` at the same top position. The lock survives the route handoff and ends once that date's data resolves and its opening animations finish. Error and offline states also release the hold. Reduced motion performs the same pinned handoff when the schedule enters the viewport, without a zoom or fade. Clicking Schedule or opening the route directly does not engage the arrival hold. The lock restores the previous overflow and scrollbar-gutter styles on release, navigation away, or unmount. Native history restoration is disabled while this app owns route scroll positioning. The Query provider stays above the router, preserving cached movie data across navigation.
 
 The home route composes the entrance with a schedule preview. The entrance remains 300svh with a one-viewport sticky stage and two viewports of scroll travel. Passive native scrolling drives a target progress; requestAnimationFrame applies a short, time-based damping step (65ms) and smoothstep easing. There is no intercepted scrolling, nested scroller, or additional scroll distance.
 
@@ -90,7 +102,7 @@ The realistic scene has three registered photographic layers: a room clean plate
 
 The schedule retains a full-width carpet footer, cropped to 64px on mobile and 80px on desktop. A subtle overlay covers the pattern for legibility; there are no individual text plaques. A small wordmark and Back to top link align with the content container. The flex-column page keeps the footer below short and long results alike.
 
-The schedule preview overlaps the final viewport and fades in over the final 12% of scroll progress, after the camera has fully arrived. It remains inert and hidden from assistive technology until navigation, so partially revealed controls cannot be focused. When the camera reaches the end, the app pushes `/schedule` into history and displays the real schedule at the same visible content position. Scroll travel can reverse before completion; after completion, browser Back returns to the start of the entrance and Forward returns to the schedule. The schedule brand links Home.
+The schedule preview overlaps the final viewport and fades in over the final 12% of journey progress, after the camera has fully arrived. Once the reveal boundary is reached, that remaining progress runs automatically while scrolling is held. The preview remains inert and hidden from assistive technology until navigation, so partially revealed controls cannot be focused. When the camera reaches the end, the app pushes `/schedule` into history and displays the real schedule at the same visible content position. Scroll travel can reverse before the reveal boundary; after completion, browser Back returns to the start of the entrance and Forward returns to the schedule. The schedule brand links Home.
 
 **Schedule ↗** is a normal router link and works with keyboard navigation and modified clicks. With reduced motion, the auditorium is a static one-viewport introduction followed by the accessible schedule; scrolling to the schedule navigates to its route without a zoom. The Schedule link also remains available. All animation frames, observers, and listeners are cleaned up on unmount.
 
@@ -98,7 +110,7 @@ Production hosting must serve index.html for non-file frontend routes such as `/
 
 ## Homepage entrance motion
 
-The auditorium fades from slightly dimmed to full brightness over 600ms. The logo, Schedule link, and Enter cue fade in with a 6px lift, staggered by 80ms and finishing within 600ms. Motion runs on separate wrappers so the scroll journey keeps control of its opacity and camera transforms. Reduced-motion preferences show everything immediately.
+On page load, a vignette dims the auditorium over 2.5 seconds, with the strongest dimming around the seats and walls. This replaces the previous 600ms brightness reveal. The logo, Schedule link, and bottom cue fade in with a 6px lift and staggered starts. Motion runs on separate wrappers so the scroll journey keeps control of its opacity and camera transforms. The projected headline stays hidden through the early zoom: its first line begins revealing at 42% of eased camera travel and its second at 57%. It fades away before the schedule handoff and reverses naturally when scrolling back. Reduced-motion preferences show the static introduction and complete headline immediately.
 
 ## Schedule motion
 
@@ -120,7 +132,7 @@ The date selector offers seven days starting on the current cinema date in `Euro
 
 Showtime chips use soft green for Upcoming, amber for Started, and muted gray for Finished, with matching tinted backgrounds and borders. A showtime becomes Started at its stored start instant and Finished when its movie runtime elapses, excluding turnaround. A shared clock wakes at the next start/end boundary, checks at least once per minute, and resynchronizes on focus and visibility changes. Status is based on absolute instants, including across midnight and daylight-saving changes. Showtime chips remain informational; booking is not implemented.
 
-Automated tests are currently removed. Run `npm run build` to check TypeScript and create the production bundle; use the walkthroughs below to verify behavior manually.
+Run `node scripts/check-entrance-scroll.cjs` from the repository root for the entrance handoff regression checks. These exercise the real hooks with simulated scrolling and animation frames, including overshoot, reduced motion, synchronous locking, and release after data and effects finish. Run `npm run build` from `src/frontend` to check TypeScript and create the production bundle; use the walkthroughs below to verify browser behavior manually.
 
 ## Tailwind and the theme
 
