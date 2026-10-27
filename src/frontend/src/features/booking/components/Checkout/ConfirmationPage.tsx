@@ -7,6 +7,7 @@ import { StatusMessage } from '../../../../shared/components/StatusMessage/Statu
 import { Button } from '../../../../shared/components/Button/Button';
 import { bookingPageTheme as page } from '../BookingPage/BookingPage.theme';
 import { checkoutTheme as theme } from './Checkout.theme';
+import { ConfirmationSkeleton } from '../BookingSkeleton/BookingSkeleton';
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Europe/Kyiv',
@@ -128,16 +129,12 @@ export function ConfirmationPage() {
           <StatusMessage title="Couldn’t load your booking" isError>
             <Button onClick={() => void query.refetch()}>Try again</Button>
           </StatusMessage>
-        ) : (
-          <StatusMessage
-            title={query.isPaused ? 'You’re offline.' : 'Loading your tickets…'}
-          >
-            <p role="status">
-              {query.isPaused
-                ? 'Reconnect to view your booking.'
-                : 'Getting your confirmation ready.'}
-            </p>
+        ) : query.isPaused ? (
+          <StatusMessage title="You’re offline.">
+            <p role="status">Reconnect to view your booking.</p>
           </StatusMessage>
+        ) : (
+          <ConfirmationSkeleton />
         )}
       </div>
     </div>

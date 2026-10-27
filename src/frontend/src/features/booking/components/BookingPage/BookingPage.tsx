@@ -11,6 +11,7 @@ import { MovieArtwork } from '../../../../shared/components/MovieArtwork/MovieAr
 import { StatusMessage } from '../../../../shared/components/StatusMessage/StatusMessage';
 import { Button } from '../../../../shared/components/Button/Button';
 import { bookingPageTheme as theme } from './BookingPage.theme';
+import { BookingSkeleton } from '../BookingSkeleton/BookingSkeleton';
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Europe/Kyiv',
@@ -89,16 +90,14 @@ function BookingPageForShowtime({ showtimeId }: { showtimeId: string }) {
             <p>Please try again.</p>
             <Button onClick={() => void query.refetch()}>Try again</Button>
           </StatusMessage>
-        ) : (
-          <StatusMessage
-            title={query.isPaused ? 'You’re offline.' : 'Loading seats…'}
-          >
+        ) : query.isPaused ? (
+          <StatusMessage title="You’re offline.">
             <p role="status">
-              {query.isPaused
-                ? 'The layout will load when you reconnect.'
-                : 'Getting the auditorium ready.'}
+              The layout will load when you reconnect.
             </p>
           </StatusMessage>
+        ) : (
+          <BookingSkeleton />
         )}
       </div>
     </div>
