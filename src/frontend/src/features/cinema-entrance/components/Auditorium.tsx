@@ -8,6 +8,9 @@ export function Auditorium() {
       }}>
         <div className={theme.canvas}>
           <img className={theme.layer} src="/auditorium-room.jpg" alt="" fetchPriority="high" decoding="async" width={1672} height={941} />
+          <div className={theme.screen} data-cinema-screen style={{
+            opacity: 'min(1, max(0, calc(var(--travel) * 2.5 - 0.5)))',
+          }} />
           <img className={theme.layer} data-parallax-layer="middle" src="/auditorium-middle.png" alt="" fetchPriority="high" decoding="async" width={1672} height={941} style={{
             transform: 'translate3d(0, calc(var(--travel) * 10%), 0) scale(calc(1 + var(--travel) * 0.04))',
           }} />

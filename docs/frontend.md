@@ -58,7 +58,7 @@ React Router's BrowserRouter provides Home at `/` and Schedule at `/schedule`. T
 
 The home route composes the entrance with a schedule preview. The entrance remains 300svh with a one-viewport sticky stage and two viewports of scroll travel. Passive native scrolling drives a target progress; requestAnimationFrame applies a short, time-based damping step (65ms) and smoothstep easing. There is no intercepted scrolling, nested scroller, or additional scroll distance.
 
-The realistic scene has three registered photographic layers: a room clean plate, transparent middle seats, and transparent foreground seats. Nearer seats translate and scale faster than the room, exposing reconstructed floor rather than duplicate seats. A shared camera aims at the screen center. Geometry is recalculated on resize from the image cover fit and measured source screen rectangle; its final scale covers every viewport edge with 3% overscan on portrait and wide screens. Camera arrival completes at 84% progress, before schedule reveal starts at 88%. The dim screen remains visible until the schedule appears. See [layer assets and generation prompts](auditorium-layers.md), and the [original reference](auditorium-asset.md).
+The realistic scene has three registered photographic layers: a room clean plate, transparent middle seats, and transparent foreground seats. Nearer seats translate and scale faster than the room, exposing reconstructed floor rather than duplicate seats. A shared camera aims at the screen center. Geometry is recalculated on resize from the image cover fit and measured source screen rectangle; its final scale covers every viewport edge with 3% overscan on portrait and wide screens. Camera arrival completes at 84% progress, before schedule reveal starts at 88%. As the camera approaches, a registered CSS-gradient screen surface replaces the photographic screen texture and dims it progressively. It is fully opaque before the closest zoom, so the full-viewport screen remains smooth rather than enlarging JPEG noise. The dim screen remains visible until the schedule appears. See [layer assets and generation prompts](auditorium-layers.md), and the [original reference](auditorium-asset.md).
 
 The schedule uses a full-width carpet footer below its centered content container. A flex-column page with minimum viewport height pushes the footer to the bottom when content is short; longer pages place it after their content. Footer text retains the same content alignment and dark backing for legibility. The carpet covers the whole footer, with no separate decorative strip.
 
@@ -68,13 +68,23 @@ The schedule preview overlaps the final viewport and fades in over the final 12%
 
 Production hosting must serve index.html for non-file frontend routes such as `/schedule`. Vite's development and preview servers already provide SPA fallback. Keep API routes separate when production hosting is implemented.
 
+## Schedule motion
+
+The schedule runs one staged entrance sequence when it opens. Header and actions fade, the title rises 12px, dates stagger by 35ms, and movie rows stagger by 65ms. Posters scale from 0.96 while details shift 6px and showtimes fade. Footer content fades without changing the full-width carpet layout. Durations are 300–520ms, with the normal three-film sequence finishing in about one second. Everything starts from this page-opening timeline, including components below the viewport; scrolling does not trigger additional reveals.
+
+Motion definitions live in `SchedulePage.theme.ts`. `useScheduleMotion` uses the Web Animations API with opacity and transform only. Base styles stay visible; effects use backwards fill while waiting, then release their styles when finished. Reduced-motion preferences cancel these effects and leave immediate, usable content. Preference changes, unmounting, and removed nodes also clean up active effects. Loading, offline, error and retry messages remain immediately readable.
+
+The app owns a motion session shared between the hidden preview and real schedule. The auditorium starts it when the schedule first becomes visible. Each component keeps its scheduled timestamp across the route handoff, so remounting seeks to the current point instead of restarting or hiding already revealed content. Returning Home clears the session for the next visit. Direct visits start on mount. Newly loaded movies receive a current entrance time if the initial sequence has already elapsed.
+
+Date selection transitions color, border, shadow and slight scale over 200ms. A date change gives the new showtimes a 220ms fade and 4px lift. Movie rows keep their identity and do not replay during date changes or background refresh. Mutation observation registers newly inserted movie elements without restarting existing components. No animation dependency or scroll observer is required.
+
 ## Demo schedule boundary
 
 Movie titles and durations still come from `/api/movies` through TanStack Query. Dates, auditorium labels, and times are frontend fixtures in `schedule/model/demoSchedule.ts`, not available inventory. The interface explicitly labels the schedule as a demo; no reservation or payment request is made.
 
 The date selector offers seven days starting on the current cinema date in `Europe/Kyiv`. Calendar arithmetic uses UTC noon to preserve consecutive dates over daylight-saving and month/year boundaries. Dates are initialized when the page mounts; reload after midnight to advance the demo window. Displayed times are Kyiv wall-clock times, including any earlier sample times on the current date; this is a browsing prototype, not a live availability filter. Adjacent demo days have different times so selection has an observable effect.
 
-Run `npm test` in `src/frontend` for date-boundary, camera coverage, and handoff-position tests. They use Node's test runner and TypeScript stripping, with no extra test dependency.
+Run `npm test` in `src/frontend` for date-boundary, camera coverage, handoff-position, and motion-session tests. They use Node's test runner and TypeScript stripping, with no extra test dependency.
 
 ## Tailwind and the theme
 

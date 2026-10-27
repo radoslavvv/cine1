@@ -3,7 +3,7 @@ import { getJourneyGeometry, getScheduleScrollOffset } from './journeyGeometry';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
-export function useCinemaJourney(onComplete: (scrollOffset: number) => void) {
+export function useCinemaJourney(onComplete: (scrollOffset: number) => void, onScheduleReveal: () => void) {
   const rootRef = useRef<HTMLDivElement>(null);
   const journeyRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -22,6 +22,7 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void) {
     let progress = 0;
     let target = 0;
     let completed = false;
+    let revealed = false;
 
     function update(time: number) {
       frame = 0;
@@ -35,6 +36,10 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void) {
       const camera = clamp(progress / 0.84);
       const travel = camera * camera * (3 - 2 * camera);
       const reveal = clamp((progress - 0.88) / 0.12);
+      if (reveal > 0 && !revealed) {
+        revealed = true;
+        onScheduleReveal();
+      }
       root.style.setProperty('--travel', String(travel));
       root.style.setProperty('--schedule-opacity', String(reducedMotion.matches ? 1 : reveal * reveal * (3 - 2 * reveal)));
       root.style.setProperty('--entrance-hint', String(clamp(1 - progress * 5)));
@@ -61,6 +66,10 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void) {
         root.style.setProperty('--schedule-opacity', '1');
         schedule.inert = false;
         schedule.removeAttribute('aria-hidden');
+        if (!revealed && schedule.getBoundingClientRect().top < stage.offsetHeight) {
+          revealed = true;
+          onScheduleReveal();
+        }
         if (-top >= journey.offsetHeight - 1) {
           completed = true;
           onComplete(getScheduleScrollOffset(schedule.getBoundingClientRect().top));
@@ -105,7 +114,7 @@ export function useCinemaJourney(onComplete: (scrollOffset: number) => void) {
       removeEventListener('pageshow', resize);
       reducedMotion.removeEventListener('change', measure);
     };
-  }, [onComplete]);
+  }, [onComplete, onScheduleReveal]);
 
   return { rootRef, journeyRef, stageRef, scheduleRef };
 }

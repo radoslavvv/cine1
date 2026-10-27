@@ -29,3 +29,20 @@ export const schedulePageTheme = {
   footerBrand: "rounded-md bg-lobby/90 px-3 py-2 font-display text-3xl font-medium",
   footerLabel: "rounded-md bg-lobby/90 px-3 py-2 text-sm font-medium tracking-wider text-amber-light",
 };
+
+// Keep motion with component presentation. Only opacity and transforms animate.
+const fade: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
+const rise: Keyframe[] = [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'translateY(0)' }];
+export const scheduleMotionTheme = {
+  header: { frames: fade, duration: 340, delay: 0, stagger: 0 },
+  title: { frames: rise, duration: 460, delay: 60, stagger: 0 },
+  action: { frames: fade, duration: 360, delay: 120, stagger: 0 },
+  date: { frames: rise, duration: 350, delay: 140, stagger: 35 },
+  note: { frames: fade, duration: 300, delay: 250, stagger: 0 },
+  selectedDate: { frames: fade, duration: 300, delay: 280, stagger: 0 },
+  row: { frames: rise, duration: 420, delay: 320, stagger: 65 },
+  poster: { frames: [{ opacity: 0, transform: 'scale(0.96)' }, { opacity: 1, transform: 'scale(1)' }], duration: 520, delay: 350, stagger: 65 },
+  details: { frames: [{ opacity: 0, transform: 'translateX(6px)' }, { opacity: 1, transform: 'translateX(0)' }], duration: 400, delay: 370, stagger: 65 },
+  times: { frames: fade, duration: 360, delay: 400, stagger: 65 },
+  footer: { frames: fade, duration: 450, delay: 560, stagger: 0 },
+};

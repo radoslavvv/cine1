@@ -4,8 +4,8 @@ import { Auditorium } from './components/Auditorium';
 import { useCinemaJourney } from './useCinemaJourney';
 import { cinemaEntranceTheme as theme } from './CinemaEntrance.theme';
 
-export function CinemaEntrance({ children, onComplete }: { children: ReactNode; onComplete: (scrollOffset: number) => void }) {
-  const { rootRef, journeyRef, stageRef, scheduleRef } = useCinemaJourney(onComplete);
+export function CinemaEntrance({ children, onComplete, onScheduleReveal }: { children: ReactNode; onComplete: (scrollOffset: number) => void; onScheduleReveal: () => void }) {
+  const { rootRef, journeyRef, stageRef, scheduleRef } = useCinemaJourney(onComplete, onScheduleReveal);
 
   return (
     <div ref={rootRef} id="entrance" style={{ '--travel': 0, '--schedule-opacity': 0, '--entrance-hint': 1 } as CSSProperties}>
