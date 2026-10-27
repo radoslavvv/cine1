@@ -16,6 +16,14 @@ _Avoid_: Showtime, screening
 A room in a cinema containing a screen and a defined layout of seats.
 _Avoid_: Cinema, theater
 
+**Genre**:
+A category describing a movie's subject or style. A movie can belong to multiple genres.
+_Avoid_: Format
+
+**Format**:
+The presentation type of a showtime: 2D, 3D, IMAX 2D, or IMAX 3D. The same movie can have showtimes in different formats.
+_Avoid_: Genre, auditorium, room
+
 **Showtime**:
 A scheduled screening of one movie in one auditorium at a particular date and time.
 _Avoid_: Movie, session

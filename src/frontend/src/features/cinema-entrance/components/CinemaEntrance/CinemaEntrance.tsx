@@ -1,5 +1,5 @@
 import { type CSSProperties, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Auditorium } from '../Auditorium/Auditorium';
 import { useCinemaJourney } from '../../hooks/useCinemaJourney';
 import { cinemaEntranceTheme as theme } from './CinemaEntrance.theme';
@@ -16,6 +16,7 @@ export function CinemaEntrance({
   onScheduleReveal: () => void;
   onScheduleArrival: () => void;
 }) {
+  const { search } = useLocation();
   const { rootRef, journeyRef, stageRef, scheduleRef } = useCinemaJourney(
     onComplete,
     onScheduleReveal,
@@ -86,7 +87,7 @@ export function CinemaEntrance({
             </Link>
 
             <nav aria-label="Movie schedule" className={theme.rightNav}>
-              <Link className={theme.skip} to="/schedule">
+              <Link className={theme.skip} to={`/schedule${search}`}>
                 Schedule <span aria-hidden="true">↗</span>
               </Link>
             </nav>

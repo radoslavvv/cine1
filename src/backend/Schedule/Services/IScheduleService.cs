@@ -4,5 +4,5 @@ namespace Cinema.Api.Schedule.Services;
 
 public interface IScheduleService
 {
-    Task<ScheduleResult> GetForDateAsync(DateOnly? date, CancellationToken cancellationToken);
+    Task<ScheduleResult> GetForDateAsync(DateOnly? date, string? genre, string? format, CancellationToken cancellationToken);
 }

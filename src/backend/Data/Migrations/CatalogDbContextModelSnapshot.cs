@@ -231,6 +231,14 @@ namespace Cinema.Api.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("auditorium_id");
 
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("2D")
+                        .HasColumnName("format");
+
                     b.Property<int>("MovieId")
                         .HasColumnType("integer")
                         .HasColumnName("movie_id");
@@ -253,6 +261,8 @@ namespace Cinema.Api.Data.Migrations
 
                     b.ToTable("showtimes", "catalog", t =>
                         {
+                            t.HasCheckConstraint("ck_showtime_format", "format IN ('2D', '3D', 'IMAX 2D', 'IMAX 3D')");
+
                             t.HasCheckConstraint("ck_showtime_interval", "occupied_until > starts_at");
                         });
                 });

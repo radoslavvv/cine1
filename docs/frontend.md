@@ -122,11 +122,21 @@ The app owns a motion session shared between the hidden preview and real schedul
 
 Date selection transitions color, border, and background over 200ms. A date change gives the new showtimes a 220ms fade and 4px lift. Movie rows keep their identity and do not replay during date changes or background refresh. Mutation observation registers newly inserted movie elements without restarting existing components. No animation dependency or scroll observer is required.
 
-Uncached dates show three skeleton rows, with pulsing disabled under reduced motion. A ResizeObserver preserves the largest results height for the current page visit, with a 32rem minimum, so loading and empty dates do not collapse the page or clamp its scroll position. A width change resets the measured footprint for the new layout. Different dates never display one another's films while loading. An empty result says No screenings on this date only after the request resolves. Background refreshes keep existing rows visible without inserting a progress sentence.
+Uncached filter combinations show three skeleton rows, with pulsing disabled under reduced motion. A ResizeObserver preserves the largest results height for the current page visit, with a 32rem minimum, so loading and empty results do not collapse the page or clamp its scroll position. A width change resets the measured footprint for the new layout. Different filter combinations never display one another's films while loading. An empty result says No screenings match these filters only after the request resolves. Background refreshes keep existing matching rows visible without inserting a progress sentence.
 
 ## Persistent schedule boundary
 
-The schedule loads `/api/showtimes?date=YYYY-MM-DD` through TanStack Query. Movie titles, durations, genres, synopses, auditorium labels, and UTC screening instants come from PostgreSQL. The response includes movie and auditorium details, avoiding a second catalog request. One row groups a movie's screenings across auditoriums; every chip identifies its room. No reservation or payment request is made.
+Genre and Format filters sit left-aligned below the date picker in both schedule views. Genre is a single-select dropdown; Format uses selectable pills for 2D, 3D, IMAX 2D, and IMAX 3D. Exactly one format is always selected, defaulting to 2D. A selected pill has an amber border and tint. Native buttons expose their pressed state and remain keyboard accessible; pills wrap on small screens.
+
+The URL stores `date`, `genre`, and `format`, for example `/schedule?date=2026-10-28&genre=Sci-Fi&format=IMAX+3D`. Filters survive date changes, reloads, Back/Forward, and the homepage-to-schedule handoff. Query-only changes preserve scroll and focus. Missing genres mean All genres; missing or invalid formats default to 2D, and dates outside the current seven-day window fall back to today. Reset filters removes genre and selects 2D while retaining the selected date and unrelated query parameters.
+
+Each date, genre, or format change requests matching showtimes from the API. PostgreSQL applies the date interval, exact format, and optional genre predicates before rows are materialized. Genre matches any genre on a movie. The frontend groups the returned screenings into movie rows without filtering them again. Genre options come from the current filtered response, retaining the selected genre during loading or when no results match. They can narrow as selections change; no separate options metadata is requested yet. Each showtime chip displays its stored format and auditorium. Empty results consistently say No screenings match these filters, since the response does not describe the unfiltered day.
+
+PostgreSQL stores the format on each showtime, with a constraint accepting the four supported values. Existing screenings default to 2D. A one-time Development seed assigns varied example formats to recognizable demo slots; these are illustrative schedule data. Custom screenings keep their stored format.
+
+Run `node scripts/check-schedule-filters.cjs` for request parameters, cancellation, cache separation, fresh requests on filter changes, and shared-link parsing; `node scripts/check-entrance-scroll.cjs` also verifies query preservation during the homepage handoff.
+
+The schedule loads `/api/showtimes?date=YYYY-MM-DD&format=2D` with an optional `genre` through TanStack Query. The API requires a valid date and one of the four supported formats; omitted or invalid formats return 400 rather than an unfiltered schedule. Movie titles, durations, genres, synopses, auditorium labels, and UTC screening instants come from PostgreSQL. The response remains a flat showtime array with embedded movie and auditorium details. No genre or date-wide metadata is returned. One row groups a movie's matching screenings across auditoriums; every chip identifies its room. No reservation or payment request is made.
 
 The date selector offers seven days starting on the current cinema date in `Europe/Kyiv`. Calendar arithmetic uses UTC noon to preserve consecutive dates over daylight-saving and month/year boundaries. Dates are initialized when the page mounts; reload after midnight to advance the window. Displayed times are Kyiv wall-clock times, including earlier screenings on the selected date. Development seeding creates seven days once, not a rolling schedule. Dates with no stored screenings show an empty state.
 
@@ -151,13 +161,13 @@ The provider creates one stable `QueryClient` for the mounted app. It stores ser
 The schedule consumes a dated screening query:
 
 ```tsx
-const scheduleQuery = useQuery(scheduleQueries.forDate(selectedDate.key));
+const scheduleQuery = useQuery(scheduleQueries.forFilters(selectedDate.key, genre, format));
 ```
 
 The definition uses `queryOptions` to keep the key, request function, and settings together with TypeScript inference. The request receives TanStack Query's `AbortSignal`, so an abandoned request can be cancelled.
 
-- **Query key:** `['showtimes', selectedDate.key]` identifies this cache entry. Components requesting the same date share its result. Different dates never share results or placeholder data.
-- **Freshness:** `staleTime: 60_000` means the loaded catalog is fresh for one minute. Becoming stale does not itself trigger a timed request.
+- **Query key:** `['showtimes', selectedDate.key, genre, format]` identifies this cache entry. Components requesting the same filters share its result. Different filter combinations never share results or placeholder data.
+- **Freshness:** `staleTime: 0` makes cached results immediately stale. Switching filters starts a fresh request even when that combination is cached. A cached matching result can remain visible during its refresh. No timer polls the API.
 - **Refetching:** stale data can refetch on mount, window visibility/focus changes, or network reconnection. There is no routine manual refresh control. A failed request exposes Try again. This page does not poll the API; the local showtime status clock is independent of fetching.
 - **Retries:** the schedule query retries once after one second, then shows the initial error or a failed-refresh notice. This policy must not be assumed suitable for seat holds or payment mutations.
 - **Cache lifetime:** the default inactive cache lifetime is five minutes. That differs from freshness: stale cached data can still be displayed. A full reload creates a new in-memory cache.
@@ -169,11 +179,11 @@ Server data belongs in Query. Local interactions, such as a dialog or search inp
 
 ## Try it yourself
 
-1. Run both projects and open the devtools toggle at the bottom-left. Inspect `['showtimes', selectedDate]` and the cached screening array.
+1. Run both projects and open the devtools toggle at the bottom-left. Inspect `['showtimes', selectedDate, genre, format]` and the cached screening array. Change each filter and verify the request URL and returned formats/genres.
 2. Use browser network throttling and reload. Observe the loading state, then the cached result. Development Strict Mode can cancel the first mount's request; a cancelled request is expected.
 3. Select an uncached date with throttling enabled. Observe skeleton rows and stable results space, followed by only that date's movies or an empty state.
-4. Wait more than one minute, switch to another browser tab, and return. Observe a background refresh of stale data. The one-minute timer alone does not cause polling.
-5. Stop the API after a successful load, wait for the query to become stale, and switch away and back to trigger refetching. After the retry, the previous rows remain alongside a failure notice. Restart the API and select Try again.
+4. Return to a previously selected filter combination. Observe cached matching results and a fresh filtered request. Switch to another browser tab and return to observe a background refresh.
+5. Stop the API after a successful load, and switch away and back to trigger refetching. After the retry, the previous matching rows remain alongside a failure notice. Restart the API and select Try again.
 6. Stop the API and fully reload, then skip to the schedule to exercise an initial failure with no cached result. Restart it and use **Try again**.
 7. Override the showtime response with `[]` using browser response overrides, then reload. Observe the empty state and remove the override afterward.
 8. Toggle offline mode in Query devtools to inspect a paused request. Restore connectivity and observe recovery.

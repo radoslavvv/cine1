@@ -53,7 +53,7 @@ The Catalog-owned schema contains movies, auditoriums, showtimes, seed_history, 
 
 ## Read API
 
-- GET /api/showtimes?date=2026-10-27: screenings starting on that Europe/Kyiv date, ordered by instant then ID. Each item includes id, UTC startsAt, movie, and auditorium (id/name). Empty dates return []. Missing, malformed, and out-of-range dates return 400 Problem Details; accepted years are 1900–9998.
+- GET /api/showtimes?date=2026-10-28&format=2D&genre=Sci-Fi: matching screenings starting on that Europe/Kyiv date, ordered by instant then ID. Date and format are required; genre is optional and matches any genre on the movie. Filtering happens in PostgreSQL. Each item includes id, UTC startsAt, movie, auditorium (id/name), and format (2D, 3D, IMAX 2D, or IMAX 3D). No matches return []. Missing or invalid date/format returns 400 Problem Details; accepted years are 1900–9998. Date-only requests do not return the full daily schedule.
 - GET /health: process liveness.
 - GET /api/showtimes/{showtimeId}/seats: movie, auditorium, ordered seats with labels and zero-based grid positions, UTC startsAt/serverNow, and selectionOpen. Unknown showtimes return 404 Problem Details; started showtimes return a layout with selectionOpen=false. HTTP caching is disabled. Development seeding adds distinct layouts for the three sample auditoriums, preserving existing custom seats.
 - GET /health/ready: PostgreSQL connectivity, returning 503 when unavailable.
@@ -62,7 +62,7 @@ The unused /api/movies endpoint was removed; the schedule response supplies all 
 
 ```powershell
 $cinemaDate = [TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'Europe/Kyiv').ToString('yyyy-MM-dd')
-Invoke-RestMethod "http://localhost:5080/api/showtimes?date=$cinemaDate"
+Invoke-RestMethod "http://localhost:5080/api/showtimes?date=$cinemaDate&format=2D"
 Invoke-WebRequest http://localhost:5080/health/ready
 ```
 

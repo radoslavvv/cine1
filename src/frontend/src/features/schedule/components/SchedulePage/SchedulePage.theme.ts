@@ -25,6 +25,7 @@ export const schedulePageTheme = {
   timeStarted: 'border-amber/35 bg-amber/[0.08] text-amber-light',
   timeFinished: 'border-ivory/8 bg-ivory/[0.02] text-muted',
   timeAuditorium: 'mt-0.5 block text-[10px] leading-4 text-muted',
+  timeFormat: 'block text-[10px] leading-4 text-current',
   timeStatus: 'block h-3 text-[10px] leading-3 text-current',
   skeleton: 'rounded-sm bg-ivory/[0.06] motion-safe:animate-pulse',
   emptyState: 'border-t border-ivory/10 py-16 text-center',

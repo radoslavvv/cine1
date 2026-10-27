@@ -1,5 +1,5 @@
 import { schedulePageTheme as theme } from './SchedulePage.theme';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MovieArtwork } from '../../../../shared/components/MovieArtwork/MovieArtwork';
@@ -15,6 +15,11 @@ import { getShowtimeStatus } from '../../model/showtimeStatus';
 import { useShowtimeClock } from '../../hooks/useShowtimeClock';
 import { useResultsSpace } from '../../hooks/useResultsSpace';
 import { useScheduleReady } from '../../hooks/useScheduleReady';
+import {
+  DEFAULT_FORMAT,
+  readScheduleFilters,
+} from '../../model/scheduleFilters';
+import { ScheduleFilters } from '../ScheduleFilters/ScheduleFilters';
 
 export function SchedulePage({
   preview = false,
@@ -26,10 +31,37 @@ export function SchedulePage({
   onReady?: () => void;
 }) {
   const [dates] = useState(() => getScheduleDates());
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { selectedIndex, genre, format } = readScheduleFilters(
+    searchParams,
+    dates,
+  );
   const selectedDate = dates[selectedIndex];
-  const scheduleQuery = useQuery(scheduleQueries.forDate(selectedDate.key));
+  const scheduleQuery = useQuery(
+    scheduleQueries.forFilters(selectedDate.key, genre, format),
+  );
   const showtimes = scheduleQuery.data;
+  const genres = [
+    ...new Set([
+      ...(scheduleQuery.data?.flatMap((showtime) => showtime.movie.genres) ??
+        []),
+      ...(genre ? [genre] : []),
+    ]),
+  ].sort();
+  function updateFilters(values: Record<string, string>) {
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set('date', selectedDate.key);
+      next.set('format', format);
+      for (const [key, value] of Object.entries(values)) {
+        if (value) next.set(key, value);
+        else next.delete(key);
+      }
+      return next;
+    });
+  }
+  const clearFilters = () =>
+    updateFilters({ genre: '', format: DEFAULT_FORMAT });
   const movies =
     showtimes === undefined
       ? undefined
@@ -39,7 +71,7 @@ export function SchedulePage({
           ).values(),
         ];
   const rootRef = useScheduleMotion(motion, preview, selectedDate.key);
-  const now = useShowtimeClock(showtimes);
+  const now = useShowtimeClock(scheduleQuery.data);
   const { contentRef, height } = useResultsSpace();
   useScheduleReady(
     rootRef,
@@ -73,15 +105,24 @@ export function SchedulePage({
         <DatePicker
           dates={dates}
           selectedIndex={selectedIndex}
-          onSelect={setSelectedIndex}
+          onSelect={(index) => updateFilters({ date: dates[index].key })}
+        />
+        <ScheduleFilters
+          genres={genres}
+          genre={genre}
+          format={format}
+          onChange={(name, value) => updateFilters({ [name]: value })}
+          onClear={clearFilters}
         />
         <p className="sr-only" role="status">
           {selectedDate.fullLabel}
           {scheduleQuery.isPending
             ? ' — loading schedule'
             : movies?.length === 0
-              ? ' — no screenings'
-              : ''}
+              ? ' — no matching screenings'
+              : movies
+                ? ` — ${movies.length} matching movies`
+                : ''}
         </p>
 
         <div
@@ -155,9 +196,14 @@ export function SchedulePage({
                 {movies.length === 0 ? (
                   <div className={theme.emptyState}>
                     <p className={theme.emptyTitle}>
-                      No screenings on this date.
+                      No screenings match these filters.
                     </p>
-                    <p className={theme.emptyHint}>Try another day.</p>
+                    <p className={theme.emptyHint}>
+                      Try another date, genre, or format.
+                    </p>
+                    {(genre || format !== DEFAULT_FORMAT) && (
+                      <Button onClick={clearFilters}>Reset filters</Button>
+                    )}
                   </div>
                 ) : (
                   <ul className={theme.movieList}>
@@ -229,6 +275,9 @@ export function SchedulePage({
                                     </time>
                                     <span className={theme.timeAuditorium}>
                                       {showtime.auditorium.name}
+                                    </span>
+                                    <span className={theme.timeFormat}>
+                                      {showtime.format}
                                     </span>
                                     <span className={theme.timeStatus}>
                                       {status === 'Upcoming' ? (

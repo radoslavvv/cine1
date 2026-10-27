@@ -41,8 +41,13 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
         });
         modelBuilder.Entity<Showtime>(entity =>
         {
-            entity.ToTable("showtimes", table => table.HasCheckConstraint("ck_showtime_interval", "occupied_until > starts_at"));
+            entity.ToTable("showtimes", table =>
+            {
+                table.HasCheckConstraint("ck_showtime_interval", "occupied_until > starts_at");
+                table.HasCheckConstraint("ck_showtime_format", "format IN ('2D', '3D', 'IMAX 2D', 'IMAX 3D')");
+            });
             entity.HasKey(showtime => showtime.Id);
+            entity.Property(showtime => showtime.Format).HasMaxLength(16).HasDefaultValue("2D").IsRequired();
             entity.HasOne(showtime => showtime.Movie).WithMany().HasForeignKey(showtime => showtime.MovieId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(showtime => showtime.Auditorium).WithMany().HasForeignKey(showtime => showtime.AuditoriumId).OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(showtime => showtime.StartsAt);

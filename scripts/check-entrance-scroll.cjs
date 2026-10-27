@@ -207,7 +207,10 @@ test('navigation acquires its lock synchronously and keeps it through handoff', 
         useLayoutEffect() {},
       },
       'react-router-dom': {
-        useLocation: () => ({ pathname: '/' }),
+        useLocation: () => ({
+          pathname: '/',
+          search: '?genre=Sci-Fi&format=IMAX+3D',
+        }),
         useNavigate: () => (url) => navigations.push(url),
       },
       '../../features/schedule': { createScheduleMotionSession: () => ({}) },
@@ -220,7 +223,7 @@ test('navigation acquires its lock synchronously and keeps it through handoff', 
   navigation.beginArrival();
   assert.equal(html.style.overflow, 'hidden');
   navigation.completeEntrance(0);
-  assert.deepEqual(navigations, ['/schedule']);
+  assert.deepEqual(navigations, ['/schedule?genre=Sci-Fi&format=IMAX+3D']);
   assert.equal(html.style.overflow, 'hidden');
   navigation.releaseArrival();
   assert.equal(html.style.overflow, 'auto');

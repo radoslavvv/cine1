@@ -11,6 +11,7 @@ public static class CatalogSeed
     public static async Task RunAsync(CatalogDbContext db, CancellationToken cancellationToken)
     {
         await RunCatalogAsync(db, cancellationToken);
+        await RunFormatsAsync(db, cancellationToken);
         await SeatLayoutSeed.RunAsync(db, cancellationToken);
     }
 
@@ -79,13 +80,48 @@ public static class CatalogSeed
                     // Preserve existing custom data when it conflicts with a proposed seed slot.
                     if (existing.Any(showtime => ReferenceEquals(showtime.Auditorium, room)
                         && showtime.StartsAt < occupiedUntil && startsAt < showtime.OccupiedUntil)) continue;
-                    var screening = new Showtime { Movie = movie, Auditorium = room, StartsAt = startsAt, OccupiedUntil = occupiedUntil };
+                    var screening = new Showtime { Movie = movie, Auditorium = room, StartsAt = startsAt, OccupiedUntil = occupiedUntil, Format = SampleFormat(day, roomIndex, slot) };
                     db.Showtimes.Add(screening);
                     existing.Add(screening);
                 }
         db.SeedHistory.Add(new SeedHistory { Name = Version, AppliedAt = DateTime.UtcNow });
         await db.SaveChangesAsync(cancellationToken);
         if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+    }
+
+    private static string SampleFormat(int day, int roomIndex, int slot) =>
+        new[] { "2D", "3D", "IMAX 2D", "IMAX 3D" }[(day + roomIndex + slot) % 4];
+
+    private static async Task RunFormatsAsync(CatalogDbContext db, CancellationToken cancellationToken)
+    {
+        const string version = "sample-showtime-formats-v1";
+        if (await db.SeedHistory.AnyAsync(seed => seed.Name == version, cancellationToken)) return;
+        var catalog = await db.SeedHistory.SingleAsync(seed => seed.Name == Version, cancellationToken);
+        var firstDate = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(catalog.AppliedAt, CinemaCalendar.TimeZone));
+        var showtimes = await db.Showtimes.Include(showtime => showtime.Movie).Include(showtime => showtime.Auditorium).ToListAsync(cancellationToken);
+        string[] titles = ["Interstellar", "Spirited Away", "The Grand Budapest Hotel", "Arrival", "Dune", "Past Lives", "The Batman", "Perfect Days"];
+        int[] durations = [169, 125, 99, 116, 155, 106, 176, 124];
+        int[] slotHours = [10, 14, 18, 22];
+        // Upgrade only unchanged demo slots; custom screenings retain their stored format.
+        foreach (var showtime in showtimes.Where(showtime => showtime.Format == "2D"))
+        {
+            var local = TimeZoneInfo.ConvertTimeFromUtc(showtime.StartsAt, CinemaCalendar.TimeZone);
+            var day = DateOnly.FromDateTime(local).DayNumber - firstDate.DayNumber;
+            if (day is < 0 or >= 7) continue;
+            for (var roomIndex = 0; roomIndex < 3; roomIndex++)
+                for (var slot = 0; slot < slotHours.Length; slot++)
+                {
+                    var movieIndex = (day * 3 + roomIndex + slot) % titles.Length;
+                    var minute = ((day + roomIndex * 2 + slot) % 4) * 15;
+                    if ((showtime.Auditorium.Name == $"Auditorium {roomIndex + 1}" || showtime.Auditorium.Name == $"Room {roomIndex + 1}")
+                        && showtime.Movie.Title == titles[movieIndex]
+                        && showtime.StartsAt == CinemaCalendar.ToUtc(firstDate.AddDays(day), new TimeOnly(slotHours[slot], minute))
+                        && showtime.OccupiedUntil == showtime.StartsAt.AddMinutes(durations[movieIndex] + 15))
+                        showtime.Format = SampleFormat(day, roomIndex, slot);
+                }
+        }
+        db.SeedHistory.Add(new SeedHistory { Name = version, AppliedAt = DateTime.UtcNow });
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     private static bool IsUnchangedLegacyShowtime(Showtime showtime, DateOnly firstDate)

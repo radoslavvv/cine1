@@ -5,6 +5,8 @@ import { lockPageScroll } from '../../shared/hooks/usePageScrollLock';
 
 export function useAppNavigation() {
   const location = useLocation();
+  const searchRef = useRef(location.search);
+  searchRef.current = location.search;
   const mainRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const [scheduleMotion] = useState(createScheduleMotionSession);
@@ -28,7 +30,7 @@ export function useAppNavigation() {
   const completeEntrance = useCallback(
     (offset: number) => {
       handoffOffset.current = arrival.current ? 0 : offset;
-      navigate('/schedule');
+      navigate(`/schedule${searchRef.current}`);
     },
     [navigate],
   );
@@ -63,7 +65,7 @@ export function useAppNavigation() {
           : location.pathname.startsWith('/booking/')
             ? 'Choose seats · cinemaR'
             : 'cinemaR';
-  }, [location.key, location.pathname, scheduleMotion, releaseArrival]);
+  }, [location.pathname, scheduleMotion, releaseArrival]);
 
   return {
     mainRef,
