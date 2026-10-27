@@ -15,6 +15,7 @@ public sealed class ConfirmedBooking
 
 public sealed class BookedSeat
 {
+    public required string TicketCode { get; set; }
     public int ShowtimeId { get; set; }
     public int SeatId { get; set; }
     public Seat Seat { get; set; } = null!;

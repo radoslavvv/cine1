@@ -15,7 +15,12 @@ export interface BookingConfirmation {
   startsAt: string;
   movieTitle: string;
   auditoriumName: string;
-  tickets: { seatId: number; rowLabel: string; number: number }[];
+  tickets: {
+    seatId: number;
+    rowLabel: string;
+    number: number;
+    ticketCode: string;
+  }[];
 }
 
 export interface SeatMap {

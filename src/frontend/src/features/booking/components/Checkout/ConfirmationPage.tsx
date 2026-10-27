@@ -71,6 +71,14 @@ export function ConfirmationPage() {
                   <p className={theme.seat}>
                     Row {ticket.rowLabel} · {ticket.number}
                   </p>
+                  <img
+                    src={`/api/bookings/${booking.confirmationToken}/tickets/${ticket.seatId}/qr`}
+                    alt={`Ticket QR code for row ${ticket.rowLabel}, seat ${ticket.number}`}
+                    className={theme.qr}
+                    width={196}
+                    height={196}
+                    referrerPolicy="no-referrer"
+                  />
                 </li>
               ))}
             </ul>

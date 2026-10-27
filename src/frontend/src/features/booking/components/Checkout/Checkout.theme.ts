@@ -19,5 +19,6 @@ export const checkoutTheme = {
   tickets: 'my-7 grid gap-3 sm:grid-cols-2',
   ticket: 'rounded-sm border border-dashed border-amber/40 bg-amber/5 p-5',
   seat: 'mt-2 font-display text-3xl text-amber-light',
+  qr: 'mt-5 aspect-square h-auto w-49 max-w-full bg-white [image-rendering:pixelated]',
   link: 'inline-flex min-h-11 items-center text-sm text-amber underline underline-offset-4',
 };

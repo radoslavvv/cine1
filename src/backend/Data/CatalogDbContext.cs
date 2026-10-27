@@ -74,6 +74,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
         {
             entity.ToTable("booked_seats", "booking");
             entity.HasKey(seat => new { seat.ShowtimeId, seat.SeatId });
+            entity.Property(seat => seat.TicketCode).HasMaxLength(64).IsRequired();
+            entity.HasIndex(seat => seat.TicketCode).IsUnique();
             entity.HasOne(seat => seat.Booking).WithMany(booking => booking.Seats)
                 .HasForeignKey(seat => new { seat.BookingId, seat.ShowtimeId })
                 .HasPrincipalKey(booking => new { booking.Id, booking.ShowtimeId }).OnDelete(DeleteBehavior.Restrict);

@@ -2,6 +2,7 @@ using Cinema.Api.Booking.Contracts;
 using Cinema.Api.Booking.Repositories;
 using Cinema.Api.Booking.Services;
 using Microsoft.AspNetCore.Mvc;
+using QRCoder;
 
 namespace Cinema.Api.Controllers;
 
@@ -30,5 +31,18 @@ public sealed class BookingsController(IBookingService service) : ControllerBase
         Response.Headers["Referrer-Policy"] = "no-referrer";
         var booking = await service.FindAsync(confirmationToken, cancellationToken);
         return booking is null ? Problem(statusCode: 404, title: "Booking not found.") : Ok(booking);
+    }
+
+    [HttpGet("api/bookings/{confirmationToken}/tickets/{seatId:int}/qr")]
+    public async Task<IActionResult> GetTicketQr(string confirmationToken, int seatId, CancellationToken cancellationToken)
+    {
+        Response.Headers["Referrer-Policy"] = "no-referrer";
+        var booking = await service.FindAsync(confirmationToken, cancellationToken);
+        var ticket = booking?.Tickets.SingleOrDefault(item => item.SeatId == seatId);
+        if (ticket is null) return Problem(statusCode: 404, title: "Ticket not found.");
+
+        using var data = QRCodeGenerator.GenerateQrCode(ticket.TicketCode, QRCodeGenerator.ECCLevel.M);
+        using var qr = new PngByteQRCode(data);
+        return File(qr.GetGraphic(8), "image/png");
     }
 }

@@ -67,3 +67,7 @@ _Avoid_: Held seat, globally occupied seat
 **Ticket**:
 An admission entitlement for one seat at one showtime, issued for a confirmed booking.
 _Avoid_: Booking, receipt
+
+**Ticket code**:
+A unique credential for one ticket, presented as a QR code for staff verification. It identifies that ticket rather than the customer's entire booking.
+_Avoid_: Confirmation link, booking code, seat number

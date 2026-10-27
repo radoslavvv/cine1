@@ -38,9 +38,18 @@ namespace Cinema.Api.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("booking_id");
 
+                    b.Property<string>("TicketCode")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ticket_code");
+
                     b.HasKey("ShowtimeId", "SeatId");
 
                     b.HasIndex("SeatId");
+
+                    b.HasIndex("TicketCode")
+                        .IsUnique();
 
                     b.HasIndex("BookingId", "ShowtimeId");
 

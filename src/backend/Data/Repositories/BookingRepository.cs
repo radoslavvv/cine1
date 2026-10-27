@@ -33,7 +33,12 @@ public sealed class BookingRepository(CatalogDbContext db, TimeProvider clock) :
             Email = email,
             ShowtimeId = showtimeId,
             ConfirmedAt = clock.GetUtcNow().UtcDateTime,
-            Seats = seatIds.Select(id => new BookedSeat { ShowtimeId = showtimeId, SeatId = id }).ToList()
+            Seats = seatIds.Select(id => new BookedSeat
+            {
+                ShowtimeId = showtimeId,
+                SeatId = id,
+                TicketCode = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant()
+            }).ToList()
         };
         // Recheck after database reads, in case the screening started while finalization was in flight.
         if (showtime.StartsAt <= booking.ConfirmedAt) return new(BookingOutcome.Started);
@@ -74,5 +79,5 @@ public sealed class BookingRepository(CatalogDbContext db, TimeProvider clock) :
         booking.ConfirmationToken, booking.ConfirmedAt, booking.Email, booking.ShowtimeId,
         booking.Showtime.StartsAt, booking.Showtime.Movie.Title, booking.Showtime.Auditorium.Name,
         booking.Seats.OrderBy(item => item.Seat.GridRow).ThenBy(item => item.Seat.GridColumn)
-            .Select(item => new TicketResponse(item.SeatId, item.Seat.RowLabel, item.Seat.Number)).ToArray());
+            .Select(item => new TicketResponse(item.SeatId, item.Seat.RowLabel, item.Seat.Number, item.TicketCode)).ToArray());
 }

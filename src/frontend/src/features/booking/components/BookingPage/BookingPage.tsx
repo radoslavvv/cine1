@@ -200,7 +200,11 @@ function SeatSelection({
               </button>
             </div>
 
-            <div aria-live="polite" aria-atomic="true">
+            <div
+              className={theme.selectionDetails}
+              aria-live="polite"
+              aria-atomic="true"
+            >
               <p className={theme.count}>
                 {selectedSeats.length} / {MAX_SEATS} selected
               </p>
@@ -236,14 +240,8 @@ function SeatSelection({
                   setCheckoutSeats(selectedSeats);
                 }}
               >
-                Continue to checkout <span aria-hidden="true">→</span>
+                Continue to checkout
               </button>
-              <p className={theme.note}>
-                Your seats are reserved once you confirm your booking.
-              </p>
-              <p className={theme.refreshNote}>
-                Leaving or refreshing clears your selection.
-              </p>
             </div>
           </aside>
         </div>

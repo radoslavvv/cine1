@@ -21,22 +21,20 @@ export const bookingPageTheme = {
   seatMap:
     'min-w-0 motion-safe:animate-entrance-rise motion-safe:[animation-delay:160ms]',
   summary:
-    'w-full rounded-sm border border-ivory/10 bg-gradient-to-b from-surface to-lobby px-5 py-7 text-center motion-safe:animate-entrance-rise motion-safe:[animation-delay:260ms] sm:px-8 sm:py-8',
-  summaryHeader:
-    'relative mx-auto flex max-w-xl flex-col items-center gap-1 sm:flex-row sm:justify-center',
-  summaryTitle: 'font-display text-3xl',
-  count: 'mt-1 text-xs text-muted',
-  selected: 'mt-5 flex flex-wrap justify-center gap-2',
+    'grid w-full gap-x-8 gap-y-3 motion-safe:animate-entrance-rise motion-safe:[animation-delay:260ms] sm:grid-cols-[minmax(0,1fr)_auto]',
+  summaryHeader: 'flex flex-wrap items-center gap-x-5 gap-y-1 sm:col-start-1',
+  summaryTitle: 'font-display text-2xl',
+  selectionDetails: 'min-w-0 sm:col-start-1 sm:row-start-2',
+  count: 'text-xs text-muted',
+  selected: 'mt-3 flex flex-wrap gap-2',
   chip: 'min-w-12 rounded-sm border border-amber/30 bg-amber/10 px-3 py-2 text-sm font-medium text-amber-light',
-  empty: 'mt-5 text-sm leading-relaxed text-muted',
+  empty: 'mt-3 text-sm leading-relaxed text-muted',
   clear:
-    'min-h-11 text-xs text-muted underline underline-offset-4 transition-colors hover:text-amber-light disabled:opacity-40 sm:absolute sm:right-0',
+    'min-h-11 text-xs text-muted underline underline-offset-4 transition-colors hover:text-amber-light disabled:opacity-40',
   checkoutAction:
-    'mx-auto mt-6 flex max-w-xl flex-col items-center border-t border-ivory/10 pt-6',
+    'mt-3 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:mt-0 sm:self-center',
   checkoutButton:
-    'inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-4 rounded-sm border border-amber bg-amber px-6 py-3 text-sm font-semibold text-lobby shadow-[0_4px_24px_#e9b67518] transition-colors hover:border-amber-light hover:bg-amber-light disabled:cursor-default disabled:border-ivory/15 disabled:bg-raised disabled:text-muted disabled:shadow-none',
-  note: 'mt-4 text-xs leading-relaxed text-muted',
-  refreshNote: 'mt-1 text-[11px] leading-relaxed text-muted',
+    'inline-flex min-h-12 w-full items-center justify-center rounded-sm border border-amber bg-amber px-6 py-3 text-sm font-semibold text-lobby transition-colors hover:border-amber-light hover:bg-amber-light disabled:cursor-default disabled:border-ivory/15 disabled:bg-raised disabled:text-muted',
   status:
     'mb-5 rounded-sm border border-amber/25 bg-amber/5 p-4 text-sm text-amber-light',
   error: 'mb-5 text-sm text-muted',
