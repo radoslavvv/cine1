@@ -87,9 +87,9 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
 
         // Keep PostgreSQL identifiers readable without quoted PascalCase names.
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
-        foreach (var property in entity.GetProperties())
-            property.SetColumnName(string.Concat(property.Name.Select((character, index) =>
-                char.IsUpper(character) && index > 0 ? "_" + char.ToLowerInvariant(character) : char.ToLowerInvariant(character).ToString())));
+            foreach (var property in entity.GetProperties())
+                property.SetColumnName(string.Concat(property.Name.Select((character, index) =>
+                    char.IsUpper(character) && index > 0 ? "_" + char.ToLowerInvariant(character) : char.ToLowerInvariant(character).ToString())));
     }
 }
 

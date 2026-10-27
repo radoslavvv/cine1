@@ -227,20 +227,33 @@ export function SchedulePage({
                                     <time dateTime={showtime.startsAt}>
                                       {formatShowtime(showtime.startsAt)}
                                     </time>
-                                    <span className={theme.timeAuditorium}>{showtime.auditorium.name}</span>
+                                    <span className={theme.timeAuditorium}>
+                                      {showtime.auditorium.name}
+                                    </span>
                                     <span className={theme.timeStatus}>
-                                      {status === 'Upcoming' ? <span className="sr-only">Upcoming — choose seats</span> : status}
+                                      {status === 'Upcoming' ? (
+                                        <span className="sr-only">
+                                          Upcoming — choose seats
+                                        </span>
+                                      ) : (
+                                        status
+                                      )}
                                     </span>
                                   </>
                                 );
                                 return (
                                   <li key={showtime.id}>
                                     {status === 'Upcoming' ? (
-                                      <Link to={`/booking/${showtime.id}`} className={`${theme.time} ${theme.timeUpcoming} ${theme.timeLink}`}>
+                                      <Link
+                                        to={`/booking/${showtime.id}`}
+                                        className={`${theme.time} ${theme.timeUpcoming} ${theme.timeLink}`}
+                                      >
                                         {details}
                                       </Link>
                                     ) : (
-                                      <div className={`${theme.time} ${status === 'Started' ? theme.timeStarted : theme.timeFinished}`}>
+                                      <div
+                                        className={`${theme.time} ${status === 'Started' ? theme.timeStarted : theme.timeFinished}`}
+                                      >
                                         {details}
                                       </div>
                                     )}

@@ -11,9 +11,14 @@ public sealed class SeatMapRepository(CatalogDbContext db) : ISeatMapRepository
             .Where(showtime => showtime.Id == showtimeId)
             .Select(showtime => new
             {
-                showtime.Id, showtime.StartsAt, showtime.MovieId,
-                showtime.Movie.Title, showtime.Movie.DurationMinutes, showtime.Movie.Genres,
-                showtime.AuditoriumId, showtime.Auditorium.Name
+                showtime.Id,
+                showtime.StartsAt,
+                showtime.MovieId,
+                showtime.Movie.Title,
+                showtime.Movie.DurationMinutes,
+                showtime.Movie.Genres,
+                showtime.AuditoriumId,
+                showtime.Auditorium.Name
             }).SingleOrDefaultAsync(cancellationToken);
         if (showtime is null) return null;
         var seats = await db.Seats.AsNoTracking()

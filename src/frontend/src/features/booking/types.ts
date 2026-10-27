@@ -23,7 +23,12 @@ export interface SeatMap {
   startsAt: string;
   serverNow: string;
   selectionOpen: boolean;
-  movie: { id: number; title: string; durationMinutes: number; genres: string[] };
+  movie: {
+    id: number;
+    title: string;
+    durationMinutes: number;
+    genres: string[];
+  };
   auditorium: { id: number; name: string };
   seats: Seat[];
 }

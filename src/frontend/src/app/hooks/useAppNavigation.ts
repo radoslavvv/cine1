@@ -60,9 +60,9 @@ export function useAppNavigation() {
         ? 'Movie schedule · cinemaR'
         : location.pathname.startsWith('/booking/confirmation/')
           ? 'Booking confirmed · cinemaR'
-        : location.pathname.startsWith('/booking/')
-          ? 'Choose seats · cinemaR'
-          : 'cinemaR';
+          : location.pathname.startsWith('/booking/')
+            ? 'Choose seats · cinemaR'
+            : 'cinemaR';
   }, [location.key, location.pathname, scheduleMotion, releaseArrival]);
 
   return {

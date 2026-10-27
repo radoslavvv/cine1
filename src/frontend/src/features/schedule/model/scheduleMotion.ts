@@ -21,9 +21,13 @@ export function createScheduleMotionSession(now = () => performance.now()) {
     },
     subscribe(listener: () => void) {
       listeners.add(listener);
-      return () => { listeners.delete(listener); };
+      return () => {
+        listeners.delete(listener);
+      };
     },
   };
 }
 
-export type ScheduleMotionSession = ReturnType<typeof createScheduleMotionSession>;
+export type ScheduleMotionSession = ReturnType<
+  typeof createScheduleMotionSession
+>;

@@ -11,24 +11,33 @@ const sourceRoot = path.join(__dirname, '../src/frontend/src');
 function load(file, imports = {}, globals = {}) {
   const source = readFileSync(path.join(sourceRoot, file), 'utf8');
   const { outputText } = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
   });
   const exports = {};
-  vm.runInNewContext(outputText, {
-    exports,
-    require(name) {
-      assert.ok(name in imports, `Unmocked import: ${name}`);
-      return imports[name];
+  vm.runInNewContext(
+    outputText,
+    {
+      exports,
+      require(name) {
+        assert.ok(name in imports, `Unmocked import: ${name}`);
+        return imports[name];
+      },
+      ...globals,
     },
-    ...globals,
-  }, { filename: file });
+    { filename: file },
+  );
   return exports;
 }
 
 function environment() {
   const window = new EventTarget();
   window.scrollY = 0;
-  window.scrollTo = ({ top }) => { window.scrollY = top; };
+  window.scrollTo = ({ top }) => {
+    window.scrollY = top;
+  };
   const frames = new Map();
   let id = 0;
   let time = 0;
@@ -39,8 +48,13 @@ function environment() {
       window,
       addEventListener: window.addEventListener.bind(window),
       removeEventListener: window.removeEventListener.bind(window),
-      requestAnimationFrame(callback) { frames.set(++id, callback); return id; },
-      cancelAnimationFrame(frame) { frames.delete(frame); },
+      requestAnimationFrame(callback) {
+        frames.set(++id, callback);
+        return id;
+      },
+      cancelAnimationFrame(frame) {
+        frames.delete(frame);
+      },
     },
     flush() {
       let remaining = 200;
@@ -55,7 +69,9 @@ function environment() {
   };
 }
 
-const { lockPageScroll } = load('shared/hooks/usePageScrollLock.ts', { react: {} });
+const { lockPageScroll } = load('shared/hooks/usePageScrollLock.ts', {
+  react: {},
+});
 const geometry = load('features/cinema-entrance/journeyGeometry.ts');
 
 function journey(reduced = false) {
@@ -73,8 +89,14 @@ function journey(reduced = false) {
     getBoundingClientRect: () => ({ top: -env.window.scrollY }),
   };
   const schedule = {
-    getBoundingClientRect: () => ({ top: room.offsetHeight - (reduced ? 0 : stage.offsetHeight) - env.window.scrollY }),
-    setAttribute() {}, removeAttribute() {},
+    getBoundingClientRect: () => ({
+      top:
+        room.offsetHeight -
+        (reduced ? 0 : stage.offsetHeight) -
+        env.window.scrollY,
+    }),
+    setAttribute() {},
+    removeAttribute() {},
   };
   const refs = [root, room, stage, schedule];
   const effects = [];
@@ -82,28 +104,47 @@ function journey(reduced = false) {
   let unlock;
   const media = new EventTarget();
   media.matches = reduced;
-  const { useCinemaJourney } = load('features/cinema-entrance/hooks/useCinemaJourney.ts', {
-    react: {
-      useRef: () => ({ current: refs.shift() }),
-      useLayoutEffect: (effect) => effects.push(effect),
+  const { useCinemaJourney } = load(
+    'features/cinema-entrance/hooks/useCinemaJourney.ts',
+    {
+      react: {
+        useRef: () => ({ current: refs.shift() }),
+        useLayoutEffect: (effect) => effects.push(effect),
+      },
+      '../journeyGeometry': geometry,
     },
-    '../journeyGeometry': geometry,
-  }, {
-    ...env.globals,
-    matchMedia: () => media,
-    ResizeObserver: class { observe() {} disconnect() {} },
-  });
+    {
+      ...env.globals,
+      matchMedia: () => media,
+      ResizeObserver: class {
+        observe() {}
+        disconnect() {}
+      },
+    },
+  );
   useCinemaJourney(
     (offset) => events.push(['complete', offset]),
     () => events.push(['reveal']),
-    () => { events.push(['lock']); unlock = lockPageScroll(html, env.window); },
+    () => {
+      events.push(['lock']);
+      unlock = lockPageScroll(html, env.window);
+    },
   );
   const cleanup = effects[0]();
   env.flush();
   return {
-    ...env, events, style, html,
-    scroll(y) { env.window.scrollY = y; env.window.dispatchEvent(new Event('scroll')); },
-    dispose() { cleanup(); unlock?.(); },
+    ...env,
+    events,
+    style,
+    html,
+    scroll(y) {
+      env.window.scrollY = y;
+      env.window.dispatchEvent(new Event('scroll'));
+    },
+    dispose() {
+      cleanup();
+      unlock?.();
+    },
   };
 }
 
@@ -123,7 +164,11 @@ for (const position of [1760, 2450]) {
     assert.equal(scene.style.get('--schedule-opacity'), '1');
     const wheel = new Event('wheel', { cancelable: true });
     scene.window.dispatchEvent(wheel);
-    assert.equal(wheel.defaultPrevented, true, 'Hold must survive camera completion');
+    assert.equal(
+      wheel.defaultPrevented,
+      true,
+      'Hold must survive camera completion',
+    );
     scene.dispose();
     assert.equal(scene.html.style.overflow, '');
   });
@@ -152,17 +197,24 @@ test('navigation acquires its lock synchronously and keeps it through handoff', 
   const env = environment();
   const html = { style: { overflow: 'auto', scrollbarGutter: '' } };
   const navigations = [];
-  const { useAppNavigation } = load('app/hooks/useAppNavigation.ts', {
-    react: {
-      useRef: (current) => ({ current }),
-      useState: (init) => [init()],
-      useCallback: (callback) => callback,
-      useLayoutEffect() {},
+  const { useAppNavigation } = load(
+    'app/hooks/useAppNavigation.ts',
+    {
+      react: {
+        useRef: (current) => ({ current }),
+        useState: (init) => [init()],
+        useCallback: (callback) => callback,
+        useLayoutEffect() {},
+      },
+      'react-router-dom': {
+        useLocation: () => ({ pathname: '/' }),
+        useNavigate: () => (url) => navigations.push(url),
+      },
+      '../../features/schedule': { createScheduleMotionSession: () => ({}) },
+      '../../shared/hooks/usePageScrollLock': { lockPageScroll },
     },
-    'react-router-dom': { useLocation: () => ({ pathname: '/' }), useNavigate: () => (url) => navigations.push(url) },
-    '../../features/schedule': { createScheduleMotionSession: () => ({}) },
-    '../../shared/hooks/usePageScrollLock': { lockPageScroll },
-  }, { window: env.window, document: { documentElement: html } });
+    { window: env.window, document: { documentElement: html } },
+  );
   const navigation = useAppNavigation();
   navigation.beginArrival();
   navigation.beginArrival();
@@ -182,15 +234,33 @@ test('schedule readiness waits for data and entrance effects before releasing', 
   let effect;
   let ready = 0;
   let finish;
-  const finished = new Promise((resolve) => { finish = resolve; });
-  const root = { current: { querySelectorAll: () => [{ getAnimations: () => [{ finished }] }] } };
-  const { useScheduleReady } = load('features/schedule/hooks/useScheduleReady.ts', {
-    react: { useLayoutEffect: (callback) => { effect = callback; } },
-  }, env.globals);
-  useScheduleReady(root, true, () => { ready++; });
+  const finished = new Promise((resolve) => {
+    finish = resolve;
+  });
+  const root = {
+    current: {
+      querySelectorAll: () => [{ getAnimations: () => [{ finished }] }],
+    },
+  };
+  const { useScheduleReady } = load(
+    'features/schedule/hooks/useScheduleReady.ts',
+    {
+      react: {
+        useLayoutEffect: (callback) => {
+          effect = callback;
+        },
+      },
+    },
+    env.globals,
+  );
+  useScheduleReady(root, true, () => {
+    ready++;
+  });
   effect();
   assert.equal(env.frames.size, 0, 'Pending data must keep the hold');
-  useScheduleReady(root, false, () => { ready++; });
+  useScheduleReady(root, false, () => {
+    ready++;
+  });
   const cleanup = effect();
   env.flush();
   await new Promise(setImmediate);

@@ -40,7 +40,10 @@ export function App() {
         />
 
         <Route path="/booking/:showtimeId" element={<BookingPage />} />
-        <Route path="/booking/confirmation/:token" element={<ConfirmationPage />} />
+        <Route
+          path="/booking/confirmation/:token"
+          element={<ConfirmationPage />}
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </main>

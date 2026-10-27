@@ -25,6 +25,17 @@ npm run dev
 
 Open [cinemaR](http://localhost:5173) or [the schedule](http://localhost:5173/schedule). The API listens on port 5080; Vite proxies /api to it. Each selected date fetches that Kyiv day's screenings, including earlier screenings, which appear muted with Started or Finished labels that update while the page is open. Movies without screenings on that date are omitted. Skeleton loading, empty, error, retry, and failed refresh states are supported; cached results belong to the selected date. Results space is preserved across date changes to avoid scroll jumps.
 
+## Formatting
+
+Format the repository in one pass (Prettier for frontend/configuration/docs and the .NET formatter for C#):
+
+```powershell
+./scripts/format.ps1
+./scripts/format.ps1 -Check
+```
+
+Run `npm ci --prefix src/frontend` first if dependencies are not installed. For frontend-only formatting, run `npm run format --prefix src/frontend`. VS Code and Cursor workspace settings use the same Prettier configuration on save and paste; install the recommended Prettier extension if prompted. Run the repository formatter after bulk edits or generated changes so files are formatted without opening each one.
+
 ## PostgreSQL
 
 Compose publishes the database on **127.0.0.1:5433**, avoiding the usual host PostgreSQL port. Database/user: `cinemar`; password: `cinemar_local`. These are local development credentials, also configured in src/backend/appsettings.Development.json. Override the API connection with `ConnectionStrings__Cinema` when needed. The postgres:18 image keeps durable data in the named cinemar_postgres_data volume mounted at /var/lib/postgresql.
@@ -87,4 +98,3 @@ Automated tests are currently removed. Verify compilation with the backend and f
 - [Artwork instructions](src/frontend/src/shared/components/MovieArtwork/artwork/assets/README.md): optional local posters.
 
 References: [Npgsql EF Core 10](https://www.npgsql.org/efcore/release-notes/10.0.html), [PostgreSQL exclusion constraints](https://www.postgresql.org/docs/18/ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION).
-

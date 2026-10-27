@@ -68,21 +68,21 @@ public static class CatalogSeed
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, CinemaCalendar.TimeZone));
         int[] slotHours = [10, 14, 18, 22];
         for (var day = 0; day < 7; day++)
-        for (var roomIndex = 0; roomIndex < auditoriums.Length; roomIndex++)
-        for (var slot = 0; slot < slotHours.Length; slot++)
-        {
-            var movie = lineup[(day * 3 + roomIndex + slot) % lineup.Length];
-            var room = auditoriums[roomIndex];
-            var minute = ((day + roomIndex * 2 + slot) % 4) * 15;
-            var startsAt = CinemaCalendar.ToUtc(today.AddDays(day), new TimeOnly(slotHours[slot], minute));
-            var occupiedUntil = startsAt.AddMinutes(movie.DurationMinutes + 15);
-            // Preserve existing custom data when it conflicts with a proposed seed slot.
-            if (existing.Any(showtime => ReferenceEquals(showtime.Auditorium, room)
-                && showtime.StartsAt < occupiedUntil && startsAt < showtime.OccupiedUntil)) continue;
-            var screening = new Showtime { Movie = movie, Auditorium = room, StartsAt = startsAt, OccupiedUntil = occupiedUntil };
-            db.Showtimes.Add(screening);
-            existing.Add(screening);
-        }
+            for (var roomIndex = 0; roomIndex < auditoriums.Length; roomIndex++)
+                for (var slot = 0; slot < slotHours.Length; slot++)
+                {
+                    var movie = lineup[(day * 3 + roomIndex + slot) % lineup.Length];
+                    var room = auditoriums[roomIndex];
+                    var minute = ((day + roomIndex * 2 + slot) % 4) * 15;
+                    var startsAt = CinemaCalendar.ToUtc(today.AddDays(day), new TimeOnly(slotHours[slot], minute));
+                    var occupiedUntil = startsAt.AddMinutes(movie.DurationMinutes + 15);
+                    // Preserve existing custom data when it conflicts with a proposed seed slot.
+                    if (existing.Any(showtime => ReferenceEquals(showtime.Auditorium, room)
+                        && showtime.StartsAt < occupiedUntil && startsAt < showtime.OccupiedUntil)) continue;
+                    var screening = new Showtime { Movie = movie, Auditorium = room, StartsAt = startsAt, OccupiedUntil = occupiedUntil };
+                    db.Showtimes.Add(screening);
+                    existing.Add(screening);
+                }
         db.SeedHistory.Add(new SeedHistory { Name = Version, AppliedAt = DateTime.UtcNow });
         await db.SaveChangesAsync(cancellationToken);
         if (transaction is not null) await transaction.CommitAsync(cancellationToken);

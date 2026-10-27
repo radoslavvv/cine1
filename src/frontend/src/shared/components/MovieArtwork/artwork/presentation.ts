@@ -13,8 +13,8 @@ const assets = import.meta.glob<string>('./assets/*.{jpg,jpeg,png,webp,avif}', {
 });
 
 function localArtwork(name: string): string | undefined {
-  return Object.entries(assets).find(([path]) =>
-    path.replace('./assets/', '').replace(/\.[^.]+$/, '') === name,
+  return Object.entries(assets).find(
+    ([path]) => path.replace('./assets/', '').replace(/\.[^.]+$/, '') === name,
   )?.[1];
 }
 
@@ -37,7 +37,9 @@ const presentations: Record<string, MoviePresentation> = {
 };
 
 export function getMoviePresentation(title: string): MoviePresentation {
-  return presentations[title] ?? {
-    artwork: 'orbit',
-  };
+  return (
+    presentations[title] ?? {
+      artwork: 'orbit',
+    }
+  );
 }

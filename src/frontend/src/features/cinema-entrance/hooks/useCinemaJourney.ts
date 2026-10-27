@@ -23,7 +23,9 @@ export function useCinemaJourney(
     const stage = stageRef.current;
     const schedule = scheduleRef.current;
     if (!root || !journey || !stage || !schedule) return;
-    const entranceControls = root.querySelectorAll<HTMLElement>('[data-entrance-controls]');
+    const entranceControls = root.querySelectorAll<HTMLElement>(
+      '[data-entrance-controls]',
+    );
 
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
@@ -45,7 +47,9 @@ export function useCinemaJourney(
       // Arrive at the screen before revealing any of the schedule.
       const camera = clamp(progress / 0.84);
       const travel = camera * camera * (3 - 2 * camera);
-      const reveal = clamp((progress - scheduleRevealStart) / (1 - scheduleRevealStart));
+      const reveal = clamp(
+        (progress - scheduleRevealStart) / (1 - scheduleRevealStart),
+      );
       if (reveal > 0 && !revealed) {
         revealed = true;
         onScheduleReveal();
@@ -59,7 +63,9 @@ export function useCinemaJourney(
         '--entrance-hint',
         String(clamp(1 - progress * 5)),
       );
-      entranceControls.forEach((control) => { control.inert = progress >= 0.2; });
+      entranceControls.forEach((control) => {
+        control.inert = progress >= 0.2;
+      });
 
       if (target === 1 && progress === 1) {
         completed = true;
@@ -79,7 +85,10 @@ export function useCinemaJourney(
       const top = journey.getBoundingClientRect().top;
       const scrollProgress = clamp(-top / Math.max(1, distance));
       target = reducedMotion.matches ? 0 : arrived ? 1 : scrollProgress;
-      if (!reducedMotion.matches && (arrived || scrollProgress >= scheduleRevealStart)) {
+      if (
+        !reducedMotion.matches &&
+        (arrived || scrollProgress >= scheduleRevealStart)
+      ) {
         if (!arrived) {
           arrived = true;
           // Lock input before the preview becomes visible, including wheel momentum.
@@ -97,7 +106,9 @@ export function useCinemaJourney(
         progress = 0;
         root.style.setProperty('--travel', '0');
         root.style.setProperty('--entrance-hint', '1');
-        entranceControls.forEach((control) => { control.inert = false; });
+        entranceControls.forEach((control) => {
+          control.inert = false;
+        });
         root.style.setProperty('--schedule-opacity', '1');
         schedule.inert = false;
         schedule.removeAttribute('aria-hidden');

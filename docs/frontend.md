@@ -189,4 +189,3 @@ Devtools are lazy-loaded only under `import.meta.env.DEV`; Vite's production bui
 - [Devtools](https://tanstack.com/query/latest/docs/framework/react/devtools)
 - [Tailwind with Vite](https://tailwindcss.com/docs/installation/using-vite)
 - [Tailwind theme variables](https://tailwindcss.com/docs/theme)
-
