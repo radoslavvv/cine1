@@ -1,28 +1,24 @@
-import { type CSSProperties, type ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { type CSSProperties, type ReactNode, type RefObject } from 'react';
+import { Link } from 'react-router-dom';
 import { Auditorium } from '../Auditorium/Auditorium';
-import { useCinemaJourney } from '../../hooks/useCinemaJourney';
 import { cinemaEntranceTheme as theme } from './CinemaEntrance.theme';
 import { Wordmark } from '../../../../shared/components/Wordmark/Wordmark';
 
 export function CinemaEntrance({
   children,
-  onComplete,
-  onScheduleReveal,
-  onScheduleArrival,
+  rootRef,
+  journeyRef,
+  stageRef,
+  scheduleRef,
+  scheduleHref,
 }: {
   children: ReactNode;
-  onComplete: (scrollOffset: number) => void;
-  onScheduleReveal: () => void;
-  onScheduleArrival: () => void;
+  rootRef: RefObject<HTMLDivElement | null>;
+  journeyRef: RefObject<HTMLDivElement | null>;
+  stageRef: RefObject<HTMLDivElement | null>;
+  scheduleRef: RefObject<HTMLElement | null>;
+  scheduleHref: string;
 }) {
-  const { search } = useLocation();
-  const { rootRef, journeyRef, stageRef, scheduleRef } = useCinemaJourney(
-    onComplete,
-    onScheduleReveal,
-    onScheduleArrival,
-  );
-
   return (
     <div
       ref={rootRef}
@@ -87,7 +83,7 @@ export function CinemaEntrance({
             </Link>
 
             <nav aria-label="Movie schedule" className={theme.rightNav}>
-              <Link className={theme.skip} to={`/schedule${search}`}>
+              <Link className={theme.skip} to={scheduleHref}>
                 Schedule <span aria-hidden="true">↗</span>
               </Link>
             </nav>

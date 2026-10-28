@@ -1,2 +1,2 @@
-export { SchedulePage } from './components/SchedulePage/SchedulePage';
+export { SchedulePage } from './pages/SchedulePage';
 export { createScheduleMotionSession } from './model/scheduleMotion';

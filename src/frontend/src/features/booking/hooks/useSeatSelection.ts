@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react';
 import type { SeatMap } from '../types';
 
-export const MAX_SEATS = 8;
+import { MAX_SEATS } from '../model/bookingPresentation';
 
-export function useSeatSelection(map: SeatMap, clockOffsetMs: number) {
+export { MAX_SEATS } from '../model/bookingPresentation';
+
+export function useSeatSelection(
+  map: SeatMap | undefined,
+  clockOffsetMs: number,
+) {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [now, setNow] = useState(Date.now);
-  const startsAt = Date.parse(map.startsAt);
-  const isOpen = map.selectionOpen && now + clockOffsetMs < startsAt;
+  const startsAt = map ? Date.parse(map.startsAt) : NaN;
+  const isOpen = !!map?.selectionOpen && now + clockOffsetMs < startsAt;
 
   useEffect(() => {
+    if (!Number.isFinite(startsAt)) return;
     const update = () => setNow(Date.now());
     update();
     const interval = window.setInterval(update, 1_000);
@@ -32,13 +38,14 @@ export function useSeatSelection(map: SeatMap, clockOffsetMs: number) {
 
   // A closed showtime has no active selection, even if it was selected before start.
   const selectedSeats = isOpen
-    ? map.seats.filter((seat) => !seat.taken && selectedIds.includes(seat.id))
+    ? map!.seats.filter((seat) => !seat.taken && selectedIds.includes(seat.id))
     : [];
 
   const toggle = (id: number) => {
     const currentTime = Date.now();
     setNow(currentTime);
-    if (!map.selectionOpen || currentTime + clockOffsetMs >= startsAt) return;
+    if (!map || !map.selectionOpen || currentTime + clockOffsetMs >= startsAt)
+      return;
     if (!map.seats.some((seat) => seat.id === id && !seat.taken)) return;
     setSelectedIds((previous) => {
       const available = previous.filter((selected) =>

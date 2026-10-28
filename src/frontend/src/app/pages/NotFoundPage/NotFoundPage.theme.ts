@@ -20,9 +20,6 @@ export const notFoundPageTheme = {
     'absolute inset-x-0 bottom-0 h-32 border-t border-amber/10 bg-[linear-gradient(#241923,#17111d)] [clip-path:polygon(0_16%,25%_24%,56%_10%,78%_19%,100%_8%,100%_100%,0_100%)]',
   drift:
     'absolute inset-x-0 bottom-16 h-40 w-full overflow-visible text-[#bd976b]',
-  movingWeed: 'motion-reduce:hidden',
-  stillWeed: 'hidden motion-reduce:block',
-  shadow: 'fill-black/40 blur-[3px]',
   footer:
     'absolute inset-x-0 bottom-5 z-10 px-6 text-center font-label text-[10px] tracking-[0.12em] text-muted/60',
 };

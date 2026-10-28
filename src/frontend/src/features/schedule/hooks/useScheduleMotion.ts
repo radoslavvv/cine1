@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
-import { scheduleMotionTheme } from '../components/SchedulePage/SchedulePage.theme';
+import { scheduleMotionTheme } from '../pages/SchedulePage.theme';
 import type { ScheduleMotionSession } from '../model/scheduleMotion';
 
 export function useScheduleMotion(

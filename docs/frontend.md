@@ -6,81 +6,83 @@ Product areas own their code. The app routes between an auditorium entrance, a s
 
 ```text
 src/
-  main.tsx
   app/
     App.tsx
-    App.theme.ts
-    components/NotFoundPage/
-      NotFoundPage.tsx
-      NotFoundPage.theme.ts
+    pages/
+      HomePage.tsx
+      NotFoundPage/
+    components/Tumbleweed/
     hooks/useAppNavigation.ts
     providers/AppProviders.tsx
     theme.css
   features/
     cinema-entrance/
-      index.ts
       components/
         CinemaEntrance/
-          CinemaEntrance.tsx
-          CinemaEntrance.theme.ts
         Auditorium/
-          Auditorium.tsx
-          Auditorium.theme.ts
       hooks/useCinemaJourney.ts
       journeyGeometry.ts
     schedule/
-      index.ts
+      pages/SchedulePage.tsx
       components/
-        SchedulePage/
-          SchedulePage.tsx
-          SchedulePage.theme.ts
         DatePicker/
-          DatePicker.tsx
-          DatePicker.theme.ts
+        ScheduleFilters/
       hooks/
-        useResultsSpace.ts
+        useSchedule.ts
         useScheduleMotion.ts
-        useScheduleReady.ts
         useShowtimeClock.ts
       model/
+        schedulePresentation.ts
+        scheduleFilters.ts
         scheduleDates.ts
-        scheduleMotion.ts
         showtimeStatus.ts
       api/scheduleQueries.ts
-      types.ts
     booking/
-      index.ts
-      api/bookingQueries.ts
-      types.ts
-      hooks/useSeatSelection.ts
+      pages/
+        BookingPage.tsx
+        ConfirmationPage.tsx
       components/
-        BookingPage/
-          BookingPage.tsx
-          BookingPage.theme.ts
+        Confirmation/
         SeatMap/
-          SeatMap.tsx
-          SeatMap.theme.ts
+        Checkout/
+      hooks/
+        useBookingPage.ts
+        useCheckout.ts
+        useSeatSelection.ts
+      model/bookingPresentation.ts
+      booking.theme.ts
+      api/bookingQueries.ts
   shared/
     components/
       MovieArtwork/
-        MovieArtwork.tsx
-        MovieArtwork.theme.ts
-        artwork/
-          presentation.ts
-          assets/README.md
       Button/
-        Button.tsx
-        Button.theme.ts
       StatusMessage/
-        StatusMessage.tsx
-        StatusMessage.theme.ts
-      Wordmark/Wordmark.tsx
-    hooks/usePageScrollLock.ts
+      Wordmark/
+      ProjectorAtmosphere/
+    hooks/
+      usePageScrollLock.ts
+      useProjectorAtmosphere.ts
 ```
 
-`app` composes features and installs providers. `App.tsx` declares routes; `useAppNavigation` owns arrival state, route scroll positioning, focus, document titles, and the shared motion session. Each feature and shared component has its own folder under `components/`, with its theme beside it. Hooks live directly in their owner’s `hooks/` folder without per-hook subfolders. Keep JSX expanded and separate logical blocks with blank lines. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. Schedule owns its screening response types and dated query. MovieArtwork and its local assets are shared by Schedule and Booking. There is no standalone Movies feature or unused catalog query; a future catalog browsing screen can establish its own boundary when needed. Shared UI must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
+`app` composes features and installs providers. `App.tsx` declares routes; `useAppNavigation` owns arrival state, route scroll positioning, focus, document titles, and the shared motion session. Pages live under `pages/`; supporting UI lives under `components/`, with themes beside their owners. Hooks live directly in their owner’s `hooks/` folder without per-hook subfolders. Keep JSX expanded and separate logical blocks with blank lines. `CinemaEntrance` accepts the schedule as children and knows nothing about movie data. Schedule owns its screening response types and dated query. MovieArtwork and its local assets are shared by Schedule and Booking. There is no standalone Movies feature or unused catalog query; a future catalog browsing screen can establish its own boundary when needed. Shared UI must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
 
 This is pragmatic feature-folder organization, not the formal Feature-Sliced Design layer system. Do not add empty booking/admin directories, generic repositories, or extra layers before there is code that needs them. The imports are conventions, not currently enforced by a lint rule. Substantial Tailwind class groups and visual variants live in adjacent `Component.theme.ts` files and are imported as named theme objects. Global tokens and atmospheric utilities remain in `app/theme.css`; runtime camera values remain inline CSS properties. Tailwind scans the complete utility strings in these TypeScript files.
+
+## Pages, components, hooks, and pure functions
+
+A **page** owns a route's screen layout and connects feature hooks to presentation components. Pages live in their owner's `pages/` folder. They read route parameters and compose UI, but delegate requests, business rules, effects, and state transitions to hooks and model modules. `HomePage` composes the entrance and schedule preview; `BookingPage` and `ConfirmationPage` render their screens. A simple page can render its JSX directly; it needs no extra wrapper or separate view layer. A route may render an existing component directly if a page would only forward unchanged props.
+
+A **component** is a focused UI piece, such as a seat map, checkout form, date picker, or loading placeholder. Components live under `components/`, render props, and emit events. Lists, conditional JSX, formatting-helper calls, simple layout calculations, and event adapters such as `onClick={() => onSelect(id)}` belong here. Small, self-contained UI state, such as a dropdown being open or an image failing to load, can stay local. Extract behavior when it involves effects, complex state, reuse, business rules, or external systems. A presentation component does not fetch data, navigate after a mutation, manage query caches, or calculate business eligibility.
+
+**At most one React component per file**, including private helpers, skeletons, composition adapters, and lazy component declarations. A named component lives in a matching file; extract additional components and import them. Types and pure helpers may share a component file when they belong to that component, subject to the logic boundaries above. Do not create a second component inside another component.
+
+A **hook** owns React state, lifecycle, and behavior. Feature hooks coordinate queries, mutations, retries, and state transitions. Pure calculations live in descriptive feature `model/` modules; network functions and query options stay in `api/`. Use meaningful module names rather than accumulating unrelated helpers in a generic `utils/` directory. Keep hook modules separate from domain constants and pure functions.
+
+`SchedulePage` owns the schedule layout and calls `useSchedule`. The homepage renders that same page with a `preview` prop for the heading and motion differences. Keep a page together when splitting it would only forward props through more files.
+
+`BookingPage` owns the complete selection-or-checkout layout and calls `useBookingPage`. That hook loads seats and coordinates selection, checkout entry, and conflict recovery; `useSeatSelection` owns selection and showtime timing, and `useCheckout` owns submission, idempotent retries, and form reset. The page renders `SeatMap` or `Checkout` directly. The route keys BookingPage by pathname to reset its state when switching showtimes. Entering or leaving checkout resets form state explicitly, while an uncertain retry retains its original request.
+
+Seat-selection rules belong to the booking model and hooks. `SeatMap` receives prepared selected/disabled flags and emits seat IDs; grid layout stays in that component. The feature's `booking.theme.ts` supplies styles shared by booking pages and loading UI.
 
 ## Visual direction
 

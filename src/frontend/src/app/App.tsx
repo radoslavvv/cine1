@@ -1,13 +1,13 @@
-import { Route, Routes } from 'react-router-dom';
-import { CinemaEntrance } from '../features/cinema-entrance';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { HomePage } from './pages/HomePage';
 import { SchedulePage } from '../features/schedule';
-import { BookingPage } from '../features/booking';
-import { ConfirmationPage } from '../features/booking/components/Checkout/ConfirmationPage';
-import { NotFoundPage } from './components/NotFoundPage/NotFoundPage';
+import { BookingPage, ConfirmationPage } from '../features/booking';
+import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { appTheme as theme } from './App.theme';
 
 export function App() {
+  const { pathname } = useLocation();
   const {
     mainRef,
     scheduleMotion,
@@ -22,13 +22,11 @@ export function App() {
         <Route
           path="/"
           element={
-            <CinemaEntrance
+            <HomePage
+              motion={scheduleMotion}
               onComplete={completeEntrance}
-              onScheduleReveal={scheduleMotion.start}
               onScheduleArrival={beginArrival}
-            >
-              <SchedulePage preview motion={scheduleMotion} />
-            </CinemaEntrance>
+            />
           }
         />
 
@@ -39,7 +37,10 @@ export function App() {
           }
         />
 
-        <Route path="/booking/:showtimeId" element={<BookingPage />} />
+        <Route
+          path="/booking/:showtimeId"
+          element={<BookingPage key={pathname} />}
+        />
         <Route
           path="/booking/confirmation/:token"
           element={<ConfirmationPage />}

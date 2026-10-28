@@ -1,16 +1,11 @@
-import type { Seat } from '../../types';
-import { MAX_SEATS } from '../../hooks/useSeatSelection';
+import type { SeatPresentation } from '../../model/bookingPresentation';
 import { seatMapTheme as theme } from './SeatMap.theme';
 
 export function SeatMap({
   seats,
-  selectedSeats,
-  isOpen,
   onToggle,
 }: {
-  seats: Seat[];
-  selectedSeats: Seat[];
-  isOpen: boolean;
+  seats: SeatPresentation[];
   onToggle: (id: number) => void;
 }) {
   const rows = [...new Set(seats.map((seat) => seat.gridRow))].sort(
@@ -58,9 +53,6 @@ export function SeatMap({
                 </span>
 
                 {rowSeats.map((seat) => {
-                  const selected = selectedSeats.some(
-                    (item) => item.id === seat.id,
-                  );
                   return (
                     <button
                       key={seat.id}
@@ -70,16 +62,12 @@ export function SeatMap({
                         gridColumn: seat.gridColumn + 2,
                       }}
                       aria-label={`Row ${seat.rowLabel}, seat ${seat.number}${seat.taken ? ', taken' : ''}`}
-                      aria-pressed={selected}
-                      disabled={
-                        seat.taken ||
-                        !isOpen ||
-                        (!selected && selectedSeats.length >= MAX_SEATS)
-                      }
+                      aria-pressed={seat.selected}
+                      disabled={seat.disabled}
                       onClick={() => onToggle(seat.id)}
                     >
                       <span
-                        className={`${theme.chair} ${seat.taken ? theme.taken : selected ? theme.selected : theme.available}`}
+                        className={`${theme.chair} ${seat.taken ? theme.taken : seat.selected ? theme.selected : theme.available}`}
                       >
                         {seat.taken ? (
                           <span aria-hidden="true">×</span>

@@ -1,91 +1,39 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { BookingError, confirmBooking } from '../../api/bookingQueries';
-import type { Seat, SeatMap } from '../../types';
+import type { FormEvent, Ref } from 'react';
+import type { Seat } from '../../types';
 import { Button } from '../../../../shared/components/Button/Button';
 import { checkoutTheme as theme } from './Checkout.theme';
 
-export function Checkout({
-  map,
-  seats,
-  isOpen,
-  onBack,
-  onConflict,
-}: {
-  map: SeatMap;
+export interface CheckoutProps {
+  auditoriumName: string;
   seats: Seat[];
   isOpen: boolean;
+  heading: Ref<HTMLHeadingElement>;
+  email: string;
+  pending: boolean;
+  error: string;
+  inputsDisabled: boolean;
+  submitDisabled: boolean;
+  submitLabel: string;
+  onEmailChange: (email: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onBack: () => void;
-  onConflict: (message: string) => Promise<void>;
-}) {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const heading = useRef<HTMLHeadingElement>(null);
-  const busy = useRef(false);
-  const attempt = useRef<{
-    requestId: string;
-    email: string;
-    seatIds: number[];
-  } | null>(null);
-  const [email, setEmail] = useState('');
-  const [pending, setPending] = useState(false);
-  const [uncertain, setUncertain] = useState(false);
-  const [error, setError] = useState('');
-  useEffect(() => {
-    heading.current?.focus();
-  }, []);
+}
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    // An uncertain submission may be replayed after start to recover its existing confirmation.
-    if (busy.current || (!isOpen && !uncertain)) return;
-    busy.current = true;
-    setPending(true);
-    setError('');
-    attempt.current ??= {
-      requestId: crypto.randomUUID(),
-      email: email.trim(),
-      seatIds: seats.map((seat) => seat.id),
-    };
-    try {
-      const confirmation = await confirmBooking(
-        map.showtimeId,
-        attempt.current,
-      );
-      queryClient.setQueryData(
-        ['booking-confirmation', confirmation.confirmationToken],
-        confirmation,
-      );
-      void queryClient.invalidateQueries({
-        queryKey: ['seat-map', String(map.showtimeId)],
-      });
-      navigate(`/booking/confirmation/${confirmation.confirmationToken}`, {
-        replace: true,
-      });
-    } catch (failure) {
-      if (failure instanceof BookingError && failure.status < 500) {
-        attempt.current = null;
-        setUncertain(false);
-        if (
-          failure.code === 'seats_taken' ||
-          failure.code === 'showtime_started' ||
-          failure.status === 404
-        ) {
-          await onConflict(failure.message);
-        } else setError(failure.message);
-      } else {
-        setUncertain(true);
-        setError(
-          'We couldn’t retrieve your confirmation. Retry to safely check the same booking without creating a duplicate.',
-        );
-      }
-    } finally {
-      busy.current = false;
-      setPending(false);
-    }
-  }
-
+export function Checkout({
+  auditoriumName,
+  seats,
+  isOpen,
+  heading,
+  email,
+  pending,
+  error,
+  inputsDisabled,
+  submitDisabled,
+  submitLabel,
+  onEmailChange,
+  onSubmit,
+  onBack,
+}: CheckoutProps) {
   return (
     <section
       className={theme.panel}
@@ -103,7 +51,7 @@ export function Checkout({
       </h2>
       <p className={theme.subtitle}>
         {seats.length} {seats.length === 1 ? 'ticket' : 'tickets'} ·{' '}
-        {map.auditorium.name}
+        {auditoriumName}
       </p>
       <ul className={theme.seats} aria-label="Seats to book">
         {seats.map((seat) => (
@@ -112,7 +60,7 @@ export function Checkout({
           </li>
         ))}
       </ul>
-      <form onSubmit={(event) => void submit(event)} className={theme.form}>
+      <form onSubmit={onSubmit} className={theme.form}>
         <label className={theme.label}>
           Email address
           <input
@@ -123,8 +71,8 @@ export function Checkout({
             required
             maxLength={254}
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            disabled={pending || uncertain}
+            onChange={(event) => onEmailChange(event.target.value)}
+            disabled={inputsDisabled}
             aria-describedby="checkout-email-help"
           />
         </label>
@@ -150,17 +98,13 @@ export function Checkout({
           <button
             type="button"
             onClick={onBack}
-            disabled={pending || uncertain}
+            disabled={inputsDisabled}
             className={theme.back}
           >
             ← Change seats
           </button>
-          <Button type="submit" disabled={pending || (!isOpen && !uncertain)}>
-            {pending
-              ? 'Confirming…'
-              : uncertain
-                ? 'Retry confirmation'
-                : 'Confirm booking'}
+          <Button type="submit" disabled={submitDisabled}>
+            {submitLabel}
           </Button>
         </div>
       </form>

@@ -1,1 +1,2 @@
-export { BookingPage } from './components/BookingPage/BookingPage';
+export { BookingPage } from './pages/BookingPage';
+export { ConfirmationPage } from './pages/ConfirmationPage';

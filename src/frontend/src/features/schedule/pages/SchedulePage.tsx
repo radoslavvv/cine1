@@ -1,83 +1,52 @@
-import { schedulePageTheme as theme } from './SchedulePage.theme';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { MovieArtwork } from '../../../../shared/components/MovieArtwork/MovieArtwork';
-import { Button } from '../../../../shared/components/Button/Button';
-import { StatusMessage } from '../../../../shared/components/StatusMessage/StatusMessage';
-import { DatePicker } from '../DatePicker/DatePicker';
-import { formatShowtime, getScheduleDates } from '../../model/scheduleDates';
-import { scheduleQueries } from '../../api/scheduleQueries';
-import type { ScheduleMotionSession } from '../../model/scheduleMotion';
-import { useScheduleMotion } from '../../hooks/useScheduleMotion';
-import { Wordmark } from '../../../../shared/components/Wordmark/Wordmark';
-import { getShowtimeStatus } from '../../model/showtimeStatus';
-import { useShowtimeClock } from '../../hooks/useShowtimeClock';
-import { useResultsSpace } from '../../hooks/useResultsSpace';
-import { useScheduleReady } from '../../hooks/useScheduleReady';
-import { readScheduleFilters } from '../../model/scheduleFilters';
-import { ScheduleFilters } from '../ScheduleFilters/ScheduleFilters';
-import { CarpetFooter } from '../../../../shared/components/CarpetFooter/CarpetFooter';
-import { ProjectorAtmosphere } from '../../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere';
+import { scheduleTheme as theme } from './SchedulePage.theme';
+import { MovieArtwork } from '../../../shared/components/MovieArtwork/MovieArtwork';
+import { Button } from '../../../shared/components/Button/Button';
+import { StatusMessage } from '../../../shared/components/StatusMessage/StatusMessage';
+import { Wordmark } from '../../../shared/components/Wordmark/Wordmark';
+import { CarpetFooter } from '../../../shared/components/CarpetFooter/CarpetFooter';
+import { ProjectorAtmosphere } from '../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere';
+import { DatePicker } from '../components/DatePicker/DatePicker';
+import { ScheduleFilters } from '../components/ScheduleFilters/ScheduleFilters';
+
+import { useSchedule } from '../hooks/useSchedule';
+import type { ScheduleMotionSession } from '../model/scheduleMotion';
 
 export function SchedulePage({
-  preview = false,
   motion,
+  preview = false,
   onReady,
 }: {
-  preview?: boolean;
   motion: ScheduleMotionSession;
+  preview?: boolean;
   onReady?: () => void;
 }) {
-  const [dates] = useState(() => getScheduleDates());
   const [searchParams, setSearchParams] = useSearchParams();
-  const { selectedIndex, genre, format } = readScheduleFilters(
-    searchParams,
+  const {
     dates,
-  );
-  const selectedDate = dates[selectedIndex];
-  const scheduleQuery = useQuery(
-    scheduleQueries.forFilters(selectedDate.key, genre, format),
-  );
-  const showtimes = scheduleQuery.data;
-  const genres = [
-    ...new Set([
-      ...(scheduleQuery.data?.flatMap((showtime) => showtime.movie.genres) ??
-        []),
-      ...(genre ? [genre] : []),
-    ]),
-  ].sort();
-  function updateFilters(values: Record<string, string>) {
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-      next.set('date', selectedDate.key);
-      next.set('format', format);
-      for (const [key, value] of Object.entries(values)) {
-        if (value) next.set(key, value);
-        else next.delete(key);
-      }
-      return next;
-    });
-  }
-  const movies =
-    showtimes === undefined
-      ? undefined
-      : [
-          ...new Map(
-            showtimes.map((showtime) => [showtime.movie.id, showtime.movie]),
-          ).values(),
-        ];
-  const rootRef = useScheduleMotion(motion, preview, selectedDate.key);
-  const now = useShowtimeClock(scheduleQuery.data);
-  const { contentRef, height } = useResultsSpace(
-    scheduleQuery.isPending || scheduleQuery.isFetching,
-  );
-  useScheduleReady(
+    selectedIndex,
+    selectedDate,
+    genre,
+    format,
+    genres,
+    movies,
+    isPending,
+    isPaused,
+    isError,
+    isFetching,
     rootRef,
-    scheduleQuery.isPending && !scheduleQuery.isPaused,
+    contentRef,
+    height,
+    onDateSelect,
+    onFilterChange,
+    onRetry,
+  } = useSchedule({
+    searchParams,
+    onSearchParamsChange: setSearchParams,
+    motion,
+    preview,
     onReady,
-  );
-
+  });
   return (
     <div
       ref={rootRef}
@@ -105,17 +74,17 @@ export function SchedulePage({
         <DatePicker
           dates={dates}
           selectedIndex={selectedIndex}
-          onSelect={(index) => updateFilters({ date: dates[index].key })}
+          onSelect={onDateSelect}
         />
         <ScheduleFilters
           genres={genres}
           genre={genre}
           format={format}
-          onChange={(name, value) => updateFilters({ [name]: value })}
+          onChange={onFilterChange}
         />
         <p className="sr-only" role="status">
           {selectedDate.fullLabel}
-          {scheduleQuery.isPending
+          {isPending
             ? ' — loading schedule'
             : movies?.length === 0
               ? ' — no matching screenings'
@@ -127,12 +96,12 @@ export function SchedulePage({
         <div
           className={theme.results}
           style={{ minHeight: height ? `max(32rem, ${height}px)` : undefined }}
-          aria-busy={scheduleQuery.isPending && !scheduleQuery.isPaused}
+          aria-busy={isPending && !isPaused}
         >
           <div ref={contentRef}>
             {movies === undefined &&
-              scheduleQuery.isPending &&
-              (scheduleQuery.isPaused ? (
+              isPending &&
+              (isPaused ? (
                 <StatusMessage title="You’re offline.">
                   <p>The schedule will load when you reconnect.</p>
                 </StatusMessage>
@@ -163,19 +132,19 @@ export function SchedulePage({
                   ))}
                 </ul>
               ))}
-            {movies === undefined && scheduleQuery.isError && (
+            {movies === undefined && isError && (
               <StatusMessage title="Couldn’t load schedule" isError>
                 <p>The schedule could not be loaded. Please try again.</p>
-                <Button onClick={() => void scheduleQuery.refetch()}>
+                <Button onClick={onRetry}>
                   Try again <span aria-hidden="true">↗</span>
                 </Button>
               </StatusMessage>
             )}
             {movies !== undefined && (
               <>
-                {(scheduleQuery.isPaused || scheduleQuery.isError) && (
+                {(isPaused || isError) && (
                   <p className={theme.catalogStatus} role="status">
-                    {scheduleQuery.isPaused ? (
+                    {isPaused ? (
                       'You’re offline. Here’s the last schedule we loaded for this date.'
                     ) : (
                       <>
@@ -183,8 +152,8 @@ export function SchedulePage({
                         <button
                           type="button"
                           className="underline underline-offset-4 disabled:opacity-50"
-                          disabled={scheduleQuery.isFetching}
-                          onClick={() => void scheduleQuery.refetch()}
+                          disabled={isFetching}
+                          onClick={onRetry}
                         >
                           Try again
                         </button>
@@ -204,9 +173,6 @@ export function SchedulePage({
                 ) : (
                   <ul className={theme.movieList}>
                     {movies.map((movie, index) => {
-                      const movieShowtimes = showtimes!.filter(
-                        (showtime) => showtime.movie.id === movie.id,
-                      );
                       return (
                         <li
                           key={movie.id}
@@ -259,16 +225,12 @@ export function SchedulePage({
                               data-showtimes
                               aria-label={`Showtimes for ${movie.title}`}
                             >
-                              {movieShowtimes.map((showtime) => {
-                                const status = getShowtimeStatus(
-                                  showtime.startsAt,
-                                  movie.durationMinutes,
-                                  now,
-                                );
+                              {movie.showtimes.map((showtime) => {
+                                const { status } = showtime;
                                 const details = (
                                   <>
                                     <time dateTime={showtime.startsAt}>
-                                      {formatShowtime(showtime.startsAt)}
+                                      {showtime.timeLabel}
                                     </time>
                                     <span
                                       className={theme.timeAuditorium}

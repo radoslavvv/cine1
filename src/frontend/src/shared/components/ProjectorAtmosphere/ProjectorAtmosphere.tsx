@@ -1,4 +1,5 @@
-import { type CSSProperties, useEffect, useRef } from 'react';
+import type { CSSProperties } from 'react';
+import { useProjectorAtmosphere } from '../../hooks/useProjectorAtmosphere';
 import { projectorAtmosphereTheme as theme } from './ProjectorAtmosphere.theme';
 
 // Stable positions keep the atmosphere consistent across renders and routes.
@@ -11,39 +12,7 @@ const dust = Array.from({ length: 24 }, (_, index) => ({
 }));
 
 export function ProjectorAtmosphere() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const root = ref.current;
-    if (!root) return;
-    const motion = window.matchMedia(
-      '(min-width: 1280px) and (prefers-reduced-motion: no-preference)',
-    );
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const offset = motion.matches
-        ? Math.max(0, -root.getBoundingClientRect().top) * 0.045
-        : 0;
-      root.style.setProperty('--dust-scroll', `${offset}px`);
-    };
-    const scheduleUpdate = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    const sync = () => {
-      window.removeEventListener('scroll', scheduleUpdate);
-      if (motion.matches)
-        window.addEventListener('scroll', scheduleUpdate, { passive: true });
-      scheduleUpdate();
-    };
-    sync();
-    motion.addEventListener('change', sync);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', scheduleUpdate);
-      motion.removeEventListener('change', sync);
-    };
-  }, []);
+  const ref = useProjectorAtmosphere();
 
   return (
     <div ref={ref} className={theme.root} aria-hidden="true">
