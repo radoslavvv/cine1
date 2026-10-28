@@ -13,7 +13,7 @@ export const checkoutTheme = {
   actions:
     'mt-2 flex flex-wrap items-center justify-between gap-4 border-t border-ivory/10 pt-6',
   back: 'min-h-11 text-sm text-muted underline underline-offset-4 hover:text-ivory disabled:opacity-40',
-  note: 'text-xs leading-relaxed text-muted',
+  note: 'text-xs leading-relaxed text-muted italic',
   error:
     'rounded-sm border border-amber/30 bg-amber/5 p-4 text-sm leading-relaxed text-amber-light',
   tickets: 'my-7 grid gap-3 sm:grid-cols-2',

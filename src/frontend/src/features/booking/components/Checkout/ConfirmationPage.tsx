@@ -9,6 +9,7 @@ import { bookingPageTheme as page } from '../BookingPage/BookingPage.theme';
 import { checkoutTheme as theme } from './Checkout.theme';
 import { ConfirmationSkeleton } from '../BookingSkeleton/BookingSkeleton';
 import { CarpetFooter } from '../../../../shared/components/CarpetFooter/CarpetFooter';
+import { ProjectorAtmosphere } from '../../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere';
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Europe/Kyiv',
@@ -35,6 +36,7 @@ export function ConfirmationPage() {
 
   return (
     <div className={page.page} id="confirmation-top">
+      <ProjectorAtmosphere />
       <div className={page.container}>
         <header className={page.header}>
           <nav className={page.navigation}>
@@ -66,6 +68,7 @@ export function ConfirmationPage() {
               <br />
               {booking.auditoriumName}
             </p>
+            <p className={theme.subtitle}>Booked for {booking.email}</p>
             <ul className={theme.tickets} aria-label="Your tickets">
               {booking.tickets.map((ticket) => (
                 <li key={ticket.seatId} className={theme.ticket}>
@@ -84,9 +87,6 @@ export function ConfirmationPage() {
                 </li>
               ))}
             </ul>
-            <p className={theme.subtitle}>
-              Booked for {booking.email}. Your seats are secured.
-            </p>
             <div className={theme.form}>
               <label className={theme.label}>
                 Your private confirmation link
@@ -101,29 +101,16 @@ export function ConfirmationPage() {
                 Save this link to reopen your tickets. Anyone with the link can
                 view this booking. No email has been sent.
               </p>
-              <div className={theme.actions}>
-                <Link
-                  className={theme.link}
-                  to={`/booking/${booking.showtimeId}`}
-                >
-                  View seat map
-                </Link>
-                <Button
-                  onClick={() => {
-                    void navigator.clipboard
-                      .writeText(url)
-                      .then(() => setCopied(true))
-                      .catch(() => setCopied(false));
-                  }}
-                >
-                  Copy link
-                </Button>
-              </div>
-              <p role="status" className={theme.note}>
-                {copied
-                  ? 'Link copied.'
-                  : 'You can also select and copy the link above.'}
-              </p>
+              <Button
+                onClick={() => {
+                  void navigator.clipboard
+                    .writeText(url)
+                    .then(() => setCopied(true))
+                    .catch(() => setCopied(false));
+                }}
+              >
+                Copy link
+              </Button>
             </div>
           </section>
         ) : query.isError ? (
