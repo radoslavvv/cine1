@@ -8,6 +8,7 @@ import { Button } from '../../../../shared/components/Button/Button';
 import { bookingPageTheme as page } from '../BookingPage/BookingPage.theme';
 import { checkoutTheme as theme } from './Checkout.theme';
 import { ConfirmationSkeleton } from '../BookingSkeleton/BookingSkeleton';
+import { CarpetFooter } from '../../../../shared/components/CarpetFooter/CarpetFooter';
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Europe/Kyiv',
@@ -33,7 +34,7 @@ export function ConfirmationPage() {
   const url = `${window.location.origin}/booking/confirmation/${token}`;
 
   return (
-    <div className={page.page}>
+    <div className={page.page} id="confirmation-top">
       <div className={page.container}>
         <header className={page.header}>
           <nav className={page.navigation}>
@@ -137,6 +138,7 @@ export function ConfirmationPage() {
           <ConfirmationSkeleton />
         )}
       </div>
+      <CarpetFooter topId="confirmation-top" />
     </div>
   );
 }

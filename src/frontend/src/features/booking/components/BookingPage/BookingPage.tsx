@@ -12,6 +12,8 @@ import { StatusMessage } from '../../../../shared/components/StatusMessage/Statu
 import { Button } from '../../../../shared/components/Button/Button';
 import { bookingPageTheme as theme } from './BookingPage.theme';
 import { BookingSkeleton } from '../BookingSkeleton/BookingSkeleton';
+import { CarpetFooter } from '../../../../shared/components/CarpetFooter/CarpetFooter';
+import { ProjectorAtmosphere } from '../../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere';
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Europe/Kyiv',
@@ -39,7 +41,8 @@ function BookingPageForShowtime({ showtimeId }: { showtimeId: string }) {
     (query.error instanceof SeatMapError && query.error.status === 404);
 
   return (
-    <div className={theme.page}>
+    <div className={theme.page} id="booking-top">
+      <ProjectorAtmosphere />
       <div className={theme.container}>
         <header className={theme.header}>
           <nav className={theme.navigation} aria-label="Booking navigation">
@@ -92,14 +95,13 @@ function BookingPageForShowtime({ showtimeId }: { showtimeId: string }) {
           </StatusMessage>
         ) : query.isPaused ? (
           <StatusMessage title="You’re offline.">
-            <p role="status">
-              The layout will load when you reconnect.
-            </p>
+            <p role="status">The layout will load when you reconnect.</p>
           </StatusMessage>
         ) : (
           <BookingSkeleton />
         )}
       </div>
+      <CarpetFooter topId="booking-top" />
     </div>
   );
 }

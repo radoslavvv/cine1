@@ -1,6 +1,7 @@
 export const bookingPageTheme = {
-  page: 'min-h-svh bg-lobby',
-  container: 'mx-auto max-w-6xl px-5 pt-4 pb-12 sm:px-10 sm:pt-6',
+  page: 'relative isolate flex min-h-svh flex-col bg-lobby',
+  container:
+    'relative z-10 mx-auto w-full max-w-6xl flex-1 px-5 pt-4 pb-12 sm:px-10 sm:pt-6',
   header:
     'mb-7 grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-ivory/10 pb-4 motion-safe:animate-entrance-rise sm:mb-9',
   navigation: 'col-start-1 row-start-1 min-w-0 justify-self-start',

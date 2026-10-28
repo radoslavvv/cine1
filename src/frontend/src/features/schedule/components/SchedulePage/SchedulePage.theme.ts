@@ -1,7 +1,7 @@
 export const schedulePageTheme = {
-  page: 'flex min-h-svh flex-col bg-lobby',
+  page: 'relative isolate flex min-h-svh flex-col bg-lobby',
   container:
-    'mx-auto w-full max-w-6xl flex-1 px-5 pt-4 pb-10 sm:px-10 sm:pt-6 sm:pb-14',
+    'relative z-10 mx-auto w-full max-w-6xl flex-1 px-5 pt-4 pb-10 sm:px-10 sm:pt-6 sm:pb-14',
   header:
     'grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-ivory/10 pb-4',
   brand:
@@ -31,13 +31,6 @@ export const schedulePageTheme = {
   emptyState: 'border-t border-ivory/10 py-16 text-center',
   emptyTitle: 'font-display text-3xl text-ivory',
   emptyHint: 'mt-2 text-sm text-muted',
-  footer:
-    'relative w-full shrink-0 border-t border-amber/15 bg-carpet before:pointer-events-none before:absolute before:inset-0 before:bg-lobby/40',
-  footerDetails:
-    'relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-5 px-5 text-ivory sm:h-20 sm:px-10',
-  footerBrand: 'font-display text-2xl font-semibold tracking-[-0.055em]',
-  footerLink:
-    'inline-flex min-h-11 items-center gap-4 text-xs text-ivory/80 transition-colors hover:text-amber-light',
 };
 
 // Keep motion with component presentation. Only opacity and transforms animate.

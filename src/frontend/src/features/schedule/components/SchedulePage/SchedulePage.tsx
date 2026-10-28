@@ -20,6 +20,8 @@ import {
   readScheduleFilters,
 } from '../../model/scheduleFilters';
 import { ScheduleFilters } from '../ScheduleFilters/ScheduleFilters';
+import { CarpetFooter } from '../../../../shared/components/CarpetFooter/CarpetFooter';
+import { ProjectorAtmosphere } from '../../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere';
 
 export function SchedulePage({
   preview = false,
@@ -87,6 +89,7 @@ export function SchedulePage({
       id={preview ? undefined : 'schedule-top'}
       className={theme.page}
     >
+      <ProjectorAtmosphere />
       <div className={theme.container}>
         <header className={theme.header} data-schedule-enter="header">
           <Link
@@ -327,16 +330,7 @@ export function SchedulePage({
           </div>
         </div>
       </div>
-      <footer className={theme.footer}>
-        <div className={theme.footerDetails} data-schedule-enter="footer">
-          <span className={theme.footerBrand}>
-            cinema<span className="italic text-amber">R</span>
-          </span>
-          <a className={theme.footerLink} href="#schedule-top">
-            Back to top <span aria-hidden="true">↑</span>
-          </a>
-        </div>
-      </footer>
+      <CarpetFooter topId={preview ? 'schedule' : 'schedule-top'} animate />
     </div>
   );
 }
