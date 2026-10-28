@@ -6,8 +6,6 @@ export const scheduleFiltersTheme = {
   labelText: 'font-label text-[10px] tracking-[0.16em] text-muted uppercase',
   select:
     'min-h-11 w-full rounded-sm border border-ivory/15 bg-surface px-3 py-2 text-sm text-ivory transition-colors hover:border-amber/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber',
-  clear:
-    'inline-flex min-h-11 items-center text-xs text-amber underline-offset-4 hover:underline',
   formats: 'min-w-0',
   legend:
     'mb-2 w-full font-label text-[10px] tracking-[0.16em] text-muted uppercase',

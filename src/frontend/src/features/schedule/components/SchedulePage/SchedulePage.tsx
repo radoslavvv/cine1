@@ -15,10 +15,7 @@ import { getShowtimeStatus } from '../../model/showtimeStatus';
 import { useShowtimeClock } from '../../hooks/useShowtimeClock';
 import { useResultsSpace } from '../../hooks/useResultsSpace';
 import { useScheduleReady } from '../../hooks/useScheduleReady';
-import {
-  DEFAULT_FORMAT,
-  readScheduleFilters,
-} from '../../model/scheduleFilters';
+import { readScheduleFilters } from '../../model/scheduleFilters';
 import { ScheduleFilters } from '../ScheduleFilters/ScheduleFilters';
 import { CarpetFooter } from '../../../../shared/components/CarpetFooter/CarpetFooter';
 import { ProjectorAtmosphere } from '../../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere';
@@ -62,8 +59,6 @@ export function SchedulePage({
       return next;
     });
   }
-  const clearFilters = () =>
-    updateFilters({ genre: '', format: DEFAULT_FORMAT });
   const movies =
     showtimes === undefined
       ? undefined
@@ -117,7 +112,6 @@ export function SchedulePage({
           genre={genre}
           format={format}
           onChange={(name, value) => updateFilters({ [name]: value })}
-          onClear={clearFilters}
         />
         <p className="sr-only" role="status">
           {selectedDate.fullLabel}
@@ -206,9 +200,6 @@ export function SchedulePage({
                     <p className={theme.emptyHint}>
                       Try another date, genre, or format.
                     </p>
-                    {(genre || format !== DEFAULT_FORMAT) && (
-                      <Button onClick={clearFilters}>Reset filters</Button>
-                    )}
                   </div>
                 ) : (
                   <ul className={theme.movieList}>

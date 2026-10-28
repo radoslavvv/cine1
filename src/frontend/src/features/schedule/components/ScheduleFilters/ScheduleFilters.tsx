@@ -1,4 +1,4 @@
-import { DEFAULT_FORMAT, SHOWTIME_FORMATS } from '../../model/scheduleFilters';
+import { SHOWTIME_FORMATS } from '../../model/scheduleFilters';
 import { scheduleFiltersTheme as theme } from './ScheduleFilters.theme';
 
 export function ScheduleFilters({
@@ -6,13 +6,11 @@ export function ScheduleFilters({
   genre,
   format,
   onChange,
-  onClear,
 }: {
   genres: string[];
   genre: string;
   format: string;
   onChange: (name: 'genre' | 'format', value: string) => void;
-  onClear: () => void;
 }) {
   return (
     <div className={theme.root} role="group" aria-label="Filter screenings">
@@ -49,12 +47,6 @@ export function ScheduleFilters({
             ))}
           </div>
         </fieldset>
-
-        {(genre || format !== DEFAULT_FORMAT) && (
-          <button type="button" className={theme.clear} onClick={onClear}>
-            Reset filters
-          </button>
-        )}
       </div>
     </div>
   );
