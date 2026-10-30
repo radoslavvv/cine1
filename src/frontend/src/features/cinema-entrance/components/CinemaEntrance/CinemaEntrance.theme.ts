@@ -3,7 +3,7 @@ export const cinemaEntranceTheme = {
     'absolute inset-x-6 top-7 z-40 grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:inset-x-14 sm:top-12',
   rightNav: 'justify-self-end',
   skip: 'inline-flex min-h-11 items-center gap-2 text-[11px] text-ivory/85 transition-colors hover:text-amber-light sm:gap-4 sm:text-sm motion-safe:animate-entrance-rise motion-safe:[animation-delay:320ms]',
-  journey: 'relative h-[300svh] motion-reduce:h-svh',
+  journey: 'relative h-[300svh] motion-reduce:h-[110svh]',
   stage: 'sticky top-0 h-svh overflow-hidden',
   scene: 'absolute inset-0',
   brand:
@@ -23,5 +23,4 @@ export const cinemaEntranceTheme = {
   hintLabel: 'text-[10px] uppercase tracking-[0.28em]',
   hintContent:
     'flex flex-col items-center gap-3 motion-safe:animate-entrance-rise motion-safe:[animation-delay:480ms]',
-  schedule: 'relative z-40 -mt-[100svh] min-h-svh bg-lobby motion-reduce:mt-0',
 };

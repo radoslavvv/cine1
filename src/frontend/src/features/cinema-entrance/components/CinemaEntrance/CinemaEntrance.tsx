@@ -1,22 +1,18 @@
-import { type CSSProperties, type ReactNode, type RefObject } from 'react';
+import { type CSSProperties, type RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import { Auditorium } from '../Auditorium/Auditorium';
 import { cinemaEntranceTheme as theme } from './CinemaEntrance.theme';
 import { Wordmark } from '../../../../shared/components/Wordmark/Wordmark';
 
 export function CinemaEntrance({
-  children,
   rootRef,
   journeyRef,
   stageRef,
-  scheduleRef,
   scheduleHref,
 }: {
-  children: ReactNode;
   rootRef: RefObject<HTMLDivElement | null>;
   journeyRef: RefObject<HTMLDivElement | null>;
   stageRef: RefObject<HTMLDivElement | null>;
-  scheduleRef: RefObject<HTMLElement | null>;
   scheduleHref: string;
 }) {
   return (
@@ -26,7 +22,6 @@ export function CinemaEntrance({
       style={
         {
           '--travel': 0,
-          '--schedule-opacity': 0,
           '--entrance-hint': 1,
         } as CSSProperties
       }
@@ -114,17 +109,6 @@ export function CinemaEntrance({
           </div>
         </div>
       </div>
-      <section
-        ref={scheduleRef}
-        id="schedule"
-        inert
-        aria-hidden="true"
-        aria-label="Movie schedule preview"
-        className={theme.schedule}
-        style={{ opacity: 'var(--schedule-opacity)' }}
-      >
-        {children}
-      </section>
     </div>
   );
 }

@@ -7,26 +7,15 @@ import {
   getScheduleGenres,
   getScheduleMovies,
 } from '../model/schedulePresentation';
-import type { ScheduleMotionSession } from '../model/scheduleMotion';
-import { useShowtimeClock } from './useShowtimeClock';
-import { useScheduleMotion } from './useScheduleMotion';
-import { useResultsSpace } from './useResultsSpace';
-import { useScheduleReady } from './useScheduleReady';
 
 export function useSchedule({
   searchParams,
   onSearchParamsChange,
-  motion,
-  preview = false,
-  onReady,
 }: {
   searchParams: URLSearchParams;
   onSearchParamsChange: (
     update: (previous: URLSearchParams) => URLSearchParams,
   ) => void;
-  motion: ScheduleMotionSession;
-  preview?: boolean;
-  onReady?: () => void;
 }) {
   const [dates] = useState(() => getScheduleDates());
   const { selectedIndex, genre, format } = readScheduleFilters(
@@ -37,13 +26,7 @@ export function useSchedule({
   const query = useQuery(
     scheduleQueries.forFilters(selectedDate.key, genre, format),
   );
-  const now = useShowtimeClock(query.data);
-  const movies = getScheduleMovies(query.data, now);
-  const rootRef = useScheduleMotion(motion, preview, selectedDate.key);
-  const { contentRef, height } = useResultsSpace(
-    query.isPending || query.isFetching,
-  );
-  useScheduleReady(rootRef, query.isPending && !query.isPaused, onReady);
+  const movies = getScheduleMovies(query.data, Date.now());
 
   function updateFilters(values: Record<string, string>) {
     onSearchParamsChange((previous) => {
@@ -70,9 +53,6 @@ export function useSchedule({
     isPaused: query.isPaused,
     isError: query.isError,
     isFetching: query.isFetching,
-    rootRef,
-    contentRef,
-    height,
     onDateSelect: (index: number) => updateFilters({ date: dates[index].key }),
     onFilterChange: (name: string, value: string) =>
       updateFilters({ [name]: value }),

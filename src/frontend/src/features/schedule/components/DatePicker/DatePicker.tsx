@@ -21,9 +21,6 @@ export function DatePicker({
           aria-label={date.fullLabel}
           aria-pressed={selectedIndex === index}
           onClick={() => onSelect(index)}
-          data-schedule-enter="date"
-          data-schedule-key={`date:${date.key}`}
-          data-schedule-order={index}
           className={`${theme.day} ${selectedIndex === index ? theme.selected : theme.idle}`}
         >
           <span className={theme.weekday}>{date.weekday}</span>

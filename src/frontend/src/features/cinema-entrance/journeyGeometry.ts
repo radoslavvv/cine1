@@ -29,7 +29,3 @@ export function getJourneyGeometry(width: number, height: number) {
     screenHeight: screen.height * cover,
   };
 }
-
-export function getScheduleScrollOffset(previewTop: number) {
-  return Math.max(0, -previewTop);
-}

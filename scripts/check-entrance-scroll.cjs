@@ -69,15 +69,11 @@ function environment() {
   };
 }
 
-const { lockPageScroll } = load('shared/hooks/usePageScrollLock.ts', {
-  react: {},
-});
 const geometry = load('features/cinema-entrance/journeyGeometry.ts');
 
 function journey(reduced = false) {
   const env = environment();
   const style = new Map();
-  const html = { style: { overflow: '', scrollbarGutter: '' } };
   const controls = { inert: false };
   const root = {
     style: { setProperty: (key, value) => style.set(key, value) },
@@ -85,23 +81,12 @@ function journey(reduced = false) {
   };
   const stage = { clientWidth: 1000, clientHeight: 1000, offsetHeight: 1000 };
   const room = {
-    offsetHeight: reduced ? 1000 : 3000,
+    offsetHeight: reduced ? 1100 : 3000,
     getBoundingClientRect: () => ({ top: -env.window.scrollY }),
   };
-  const schedule = {
-    getBoundingClientRect: () => ({
-      top:
-        room.offsetHeight -
-        (reduced ? 0 : stage.offsetHeight) -
-        env.window.scrollY,
-    }),
-    setAttribute() {},
-    removeAttribute() {},
-  };
-  const refs = [root, room, stage, schedule];
+  const refs = [root, room, stage];
   const effects = [];
   const events = [];
-  let unlock;
   const media = new EventTarget();
   media.matches = reduced;
   const { useCinemaJourney } = load(
@@ -122,154 +107,86 @@ function journey(reduced = false) {
       },
     },
   );
-  useCinemaJourney(
-    (offset) => events.push(['complete', offset]),
-    () => events.push(['reveal']),
-    () => {
-      events.push(['lock']);
-      unlock = lockPageScroll(html, env.window);
-    },
-  );
+  useCinemaJourney(() => events.push('complete'));
   const cleanup = effects[0]();
   env.flush();
   return {
     ...env,
     events,
     style,
-    html,
     scroll(y) {
       env.window.scrollY = y;
       env.window.dispatchEvent(new Event('scroll'));
     },
-    dispose() {
-      cleanup();
-      unlock?.();
-    },
+    dispose: cleanup,
   };
 }
 
-for (const position of [1760, 2450]) {
-  test(`arrival pins before reveal, including overshoot from ${position}px`, () => {
-    const scene = journey();
-    scene.scroll(1700);
-    scene.flush();
-    assert.deepEqual(scene.events, []);
-    assert.equal(scene.style.get('--schedule-opacity'), '0');
-    scene.scroll(position);
-    assert.deepEqual(scene.events, [['lock']]);
-    assert.equal(scene.html.style.overflow, 'hidden');
-    assert.equal(scene.window.scrollY, 2000);
-    scene.flush();
-    assert.deepEqual(scene.events, [['lock'], ['reveal'], ['complete', 0]]);
-    assert.equal(scene.style.get('--schedule-opacity'), '1');
-    const wheel = new Event('wheel', { cancelable: true });
-    scene.window.dispatchEvent(wheel);
-    assert.equal(
-      wheel.defaultPrevented,
-      true,
-      'Hold must survive camera completion',
-    );
-    scene.dispose();
-    assert.equal(scene.html.style.overflow, '');
-  });
+for (const position of [1999.5, 2000, 2450]) {
+  test(
+    'navigates once at the end, including scroll overshoot ' + position,
+    () => {
+      const scene = journey();
+      scene.scroll(1760);
+      scene.flush();
+      assert.deepEqual(scene.events, []);
+      scene.scroll(position);
+      scene.flush();
+      assert.deepEqual(scene.events, ['complete']);
+      assert.equal(scene.style.get('--travel'), '1');
+      scene.scroll(position);
+      scene.flush();
+      assert.deepEqual(scene.events, ['complete']);
+      scene.dispose();
+    },
+  );
 }
 
-test('scroll can reverse before the reveal boundary without acquiring a hold', () => {
+test('scroll can reverse before reaching the end', () => {
   const scene = journey();
   scene.scroll(1700);
   scene.flush();
-  scene.scroll(600);
+  scene.scroll(0);
   scene.flush();
   assert.deepEqual(scene.events, []);
-  assert.equal(scene.window.scrollY, 600);
+  assert.equal(scene.style.get('--travel'), '0');
   scene.dispose();
 });
 
-test('reduced motion pins and hands off when the schedule first enters view', () => {
+test('reduced motion navigates at the bottom without zooming', () => {
   const scene = journey(true);
-  scene.scroll(10);
-  assert.deepEqual(scene.events, [['lock'], ['reveal'], ['complete', 0]]);
-  assert.equal(scene.window.scrollY, 1000);
+  scene.scroll(50);
+  assert.deepEqual(scene.events, []);
+  scene.scroll(100);
+  assert.deepEqual(scene.events, ['complete']);
+  assert.equal(scene.style.get('--travel'), '0');
   scene.dispose();
 });
 
-test('navigation acquires its lock synchronously and keeps it through handoff', () => {
-  const env = environment();
-  const html = { style: { overflow: 'auto', scrollbarGutter: '' } };
-  const navigations = [];
-  const { useAppNavigation } = load(
-    'app/hooks/useAppNavigation.ts',
-    {
-      react: {
-        useRef: (current) => ({ current }),
-        useState: (init) => [init()],
-        useCallback: (callback) => callback,
-        useLayoutEffect() {},
-      },
-      'react-router-dom': {
-        useLocation: () => ({
-          pathname: '/',
-          search: '?genre=Sci-Fi&format=IMAX+3D',
-        }),
-        useNavigate: () => (url) => navigations.push(url),
-      },
-      '../../features/schedule': { createScheduleMotionSession: () => ({}) },
-      '../../shared/hooks/usePageScrollLock': { lockPageScroll },
-    },
-    { window: env.window, document: { documentElement: html } },
-  );
-  const navigation = useAppNavigation();
-  navigation.beginArrival();
-  navigation.beginArrival();
-  assert.equal(html.style.overflow, 'hidden');
-  navigation.completeEntrance(0);
-  assert.deepEqual(navigations, ['/schedule?genre=Sci-Fi&format=IMAX+3D']);
-  assert.equal(html.style.overflow, 'hidden');
-  navigation.releaseArrival();
-  assert.equal(html.style.overflow, 'auto');
-  const wheel = new Event('wheel', { cancelable: true });
-  env.window.dispatchEvent(wheel);
-  assert.equal(wheel.defaultPrevented, false);
+test('unmount cancels an unfinished entrance', () => {
+  const scene = journey();
+  scene.scroll(2000);
+  scene.dispose();
+  scene.flush();
+  assert.deepEqual(scene.events, []);
 });
 
-test('schedule readiness waits for data and entrance effects before releasing', async () => {
-  const env = environment();
-  let effect;
-  let ready = 0;
-  let finish;
-  const finished = new Promise((resolve) => {
-    finish = resolve;
-  });
-  const root = {
-    current: {
-      querySelectorAll: () => [{ getAnimations: () => [{ finished }] }],
+test('entrance navigation preserves URL filters', () => {
+  const navigations = [];
+  const { useAppNavigation } = load('app/hooks/useAppNavigation.ts', {
+    react: {
+      useRef: (current) => ({ current }),
+      useCallback: (callback) => callback,
+      useLayoutEffect() {},
     },
-  };
-  const { useScheduleReady } = load(
-    'features/schedule/hooks/useScheduleReady.ts',
-    {
-      react: {
-        useLayoutEffect: (callback) => {
-          effect = callback;
-        },
-      },
+    'react-router-dom': {
+      useLocation: () => ({
+        pathname: '/',
+        search: '?genre=Sci-Fi&format=IMAX+3D',
+      }),
+      useNavigate: () => (url) => navigations.push(url),
     },
-    env.globals,
-  );
-  useScheduleReady(root, true, () => {
-    ready++;
   });
-  effect();
-  assert.equal(env.frames.size, 0, 'Pending data must keep the hold');
-  useScheduleReady(root, false, () => {
-    ready++;
-  });
-  const cleanup = effect();
-  env.flush();
-  await new Promise(setImmediate);
-  assert.equal(ready, 0, 'Unfinished entrance effects must keep the hold');
-  finish();
-  await new Promise(setImmediate);
-  assert.equal(ready, 1);
-  cleanup();
+  useAppNavigation().completeEntrance();
+  assert.deepEqual(navigations, ['/schedule?genre=Sci-Fi&format=IMAX+3D']);
 });

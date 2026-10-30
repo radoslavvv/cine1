@@ -1,5 +1,5 @@
 export const scheduleTheme = {
-  page: 'relative isolate flex min-h-svh flex-col bg-lobby',
+  page: 'relative isolate flex min-h-svh flex-col bg-lobby motion-safe:animate-entrance-rise',
   container:
     'relative z-10 mx-auto w-full max-w-6xl flex-1 px-5 pt-4 pb-10 sm:px-10 sm:pt-6 sm:pb-14',
   header:
@@ -31,36 +31,4 @@ export const scheduleTheme = {
   emptyState: 'border-t border-ivory/10 py-16 text-center',
   emptyTitle: 'font-display text-3xl text-ivory',
   emptyHint: 'mt-2 text-sm text-muted',
-};
-
-// Keep motion with component presentation. Only opacity and transforms animate.
-const fade: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
-const rise: Keyframe[] = [
-  { opacity: 0, transform: 'translateY(12px)' },
-  { opacity: 1, transform: 'translateY(0)' },
-];
-export const scheduleMotionTheme = {
-  header: { frames: fade, duration: 340, delay: 0, stagger: 0 },
-  date: { frames: rise, duration: 350, delay: 140, stagger: 35 },
-  row: { frames: rise, duration: 420, delay: 320, stagger: 65 },
-  poster: {
-    frames: [
-      { opacity: 0, transform: 'scale(0.96)' },
-      { opacity: 1, transform: 'scale(1)' },
-    ],
-    duration: 520,
-    delay: 350,
-    stagger: 65,
-  },
-  details: {
-    frames: [
-      { opacity: 0, transform: 'translateX(6px)' },
-      { opacity: 1, transform: 'translateX(0)' },
-    ],
-    duration: 400,
-    delay: 370,
-    stagger: 65,
-  },
-  times: { frames: fade, duration: 360, delay: 400, stagger: 65 },
-  footer: { frames: fade, duration: 450, delay: 560, stagger: 0 },
 };

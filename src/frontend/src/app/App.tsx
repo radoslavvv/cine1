@@ -8,34 +8,14 @@ import { appTheme as theme } from './App.theme';
 
 export function App() {
   const { pathname } = useLocation();
-  const {
-    mainRef,
-    scheduleMotion,
-    beginArrival,
-    releaseArrival,
-    completeEntrance,
-  } = useAppNavigation();
+  const { mainRef, completeEntrance } = useAppNavigation();
 
   return (
     <main ref={mainRef} tabIndex={-1} className={theme.main}>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <HomePage
-              motion={scheduleMotion}
-              onComplete={completeEntrance}
-              onScheduleArrival={beginArrival}
-            />
-          }
-        />
+        <Route path="/" element={<HomePage onComplete={completeEntrance} />} />
 
-        <Route
-          path="/schedule"
-          element={
-            <SchedulePage motion={scheduleMotion} onReady={releaseArrival} />
-          }
-        />
+        <Route path="/schedule" element={<SchedulePage />} />
 
         <Route
           path="/booking/:showtimeId"
