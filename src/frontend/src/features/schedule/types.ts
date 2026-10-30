@@ -4,6 +4,8 @@ export interface Movie {
   durationMinutes: number;
   genres: string[];
   synopsis: string;
+  posterUrl?: string | null;
+  backdropUrl?: string | null;
 }
 
 export interface Showtime {

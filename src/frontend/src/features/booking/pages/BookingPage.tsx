@@ -93,6 +93,8 @@ export function BookingPage() {
               <div className={theme.poster}>
                 <MovieArtwork
                   title={query.data.movie.title}
+                  posterUrl={query.data.movie.posterUrl}
+                  backdropUrl={query.data.movie.backdropUrl}
                   showTitle={false}
                 />
               </div>

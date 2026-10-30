@@ -17,7 +17,7 @@ public sealed class ScheduleService(IShowtimeRepository repository) : IScheduleS
         var showtimes = await repository.GetForIntervalAsync(start, end, string.IsNullOrWhiteSpace(genre) ? null : genre.Trim(), format, cancellationToken);
         return new ScheduleResult(showtimes.Select(showtime => new ShowtimeResponse(
             showtime.Id, showtime.StartsAt,
-            new MovieResponse(showtime.MovieId, showtime.Title, showtime.DurationMinutes, showtime.Genres, showtime.Synopsis),
+            new MovieResponse(showtime.MovieId, showtime.Title, showtime.DurationMinutes, showtime.Genres, showtime.Synopsis, showtime.PosterUrl, showtime.BackdropUrl),
             new AuditoriumResponse(showtime.AuditoriumId, showtime.AuditoriumName), showtime.Format)).ToArray());
     }
 }

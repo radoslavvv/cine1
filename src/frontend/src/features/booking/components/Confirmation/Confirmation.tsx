@@ -17,9 +17,11 @@ export function Confirmation({
 }) {
   return (
     <section className={theme.panel} aria-labelledby="confirmation-heading">
-      <p className={theme.eyebrow}>YOU’RE ALL SET</p>
+      <p className={theme.eyebrow}>
+        {booking.isCancelled ? 'SCREENING CANCELLED' : 'YOU’RE ALL SET'}
+      </p>
       <h1 id="confirmation-heading" className={theme.title}>
-        Booking confirmed
+        {booking.isCancelled ? 'Screening cancelled' : 'Booking confirmed'}
       </h1>
       <p className={theme.subtitle}>
         {booking.movieTitle}
@@ -29,21 +31,39 @@ export function Confirmation({
         {booking.auditoriumName}
       </p>
       <p className={theme.subtitle}>Booked for {booking.email}</p>
-      <ul className={theme.tickets} aria-label="Your tickets">
+      {booking.isCancelled && (
+        <p className={theme.note} role="status">
+          This screening has been cancelled. These tickets are no longer valid
+          for admission.
+        </p>
+      )}
+      <ul
+        className={theme.tickets}
+        aria-label={booking.isCancelled ? 'Cancelled tickets' : 'Your tickets'}
+      >
         {booking.tickets.map((ticket, index) => (
-          <MotionItem key={ticket.seatId} reveal delay={index * 0.045} className={theme.ticket}>
-            <p className={theme.eyebrow}>ADMIT ONE</p>
+          <MotionItem
+            key={ticket.seatId}
+            reveal
+            delay={index * 0.045}
+            className={theme.ticket}
+          >
+            <p className={theme.eyebrow}>
+              {booking.isCancelled ? 'INVALID TICKET' : 'ADMIT ONE'}
+            </p>
             <p className={theme.seat}>
               Row {ticket.rowLabel} · {ticket.number}
             </p>
-            <img
-              src={`/api/bookings/${booking.confirmationToken}/tickets/${ticket.seatId}/qr`}
-              alt={`Ticket QR code for row ${ticket.rowLabel}, seat ${ticket.number}`}
-              className={theme.qr}
-              width={196}
-              height={196}
-              referrerPolicy="no-referrer"
-            />
+            {!booking.isCancelled && (
+              <img
+                src={`/api/bookings/${booking.confirmationToken}/tickets/${ticket.seatId}/qr`}
+                alt={`Ticket QR code for row ${ticket.rowLabel}, seat ${ticket.number}`}
+                className={theme.qr}
+                width={196}
+                height={196}
+                referrerPolicy="no-referrer"
+              />
+            )}
           </MotionItem>
         ))}
       </ul>

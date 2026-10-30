@@ -14,6 +14,7 @@
 *.tsbuildinfo
 
 # Local configuration
+.dev/
 .env
 .env.*
 !.env.example

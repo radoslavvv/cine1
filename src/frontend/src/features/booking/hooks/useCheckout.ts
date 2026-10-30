@@ -62,6 +62,7 @@ export function useCheckout({
         if (
           failure.code === 'seats_taken' ||
           failure.code === 'showtime_started' ||
+          failure.code === 'showtime_cancelled' ||
           failure.status === 404
         ) {
           await onConflict(failure.message);

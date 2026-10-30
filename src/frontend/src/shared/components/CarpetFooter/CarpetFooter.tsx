@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { MotionSurface } from '../MotionSurface/MotionSurface';
 import { useCinemaMotion } from '../../hooks/useCinemaMotion';
+import { Link } from 'react-router-dom';
 
 export function CarpetFooter({ topId }: { topId: string }) {
   const animation = useCinemaMotion();
@@ -10,6 +11,7 @@ export function CarpetFooter({ topId }: { topId: string }) {
         <span className="font-display text-2xl font-semibold tracking-[-0.055em]">
           cinema<span className="italic text-amber">R</span>
         </span>
+        {import.meta.env.DEV && <Link to="/admin" className="text-xs text-ivory/80 hover:text-amber-light">Admin</Link>}
         <a
           className="inline-flex min-h-11 items-center gap-4 text-xs text-ivory/80 transition-colors hover:text-amber-light"
           href={`#${topId}`}

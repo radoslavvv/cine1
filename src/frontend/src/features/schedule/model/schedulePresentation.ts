@@ -32,7 +32,7 @@ export function getScheduleMovies(
     ...movie,
     showtimes: grouped.get(movie.id)!.map((showtime) => ({
       ...showtime,
-      status: getShowtimeStatus(showtime.startsAt, movie.durationMinutes, now),
+      status: getShowtimeStatus(showtime.startsAt, showtime.movie.durationMinutes, now),
       timeLabel: formatShowtime(showtime.startsAt),
     })),
   }));

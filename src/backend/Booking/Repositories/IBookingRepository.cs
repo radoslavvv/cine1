@@ -8,5 +8,5 @@ public interface IBookingRepository
     Task<BookingConfirmation?> FindAsync(string confirmationToken, CancellationToken cancellationToken);
 }
 
-public enum BookingOutcome { Confirmed, NotFound, Started, InvalidSeats, SeatsTaken, RequestConflict }
+public enum BookingOutcome { Confirmed, NotFound, Started, Cancelled, InvalidSeats, SeatsTaken, RequestConflict }
 public sealed record BookingResult(BookingOutcome Outcome, BookingConfirmation? Confirmation = null);

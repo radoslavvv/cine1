@@ -25,6 +25,8 @@ export function useAppNavigation() {
     document.title =
       pathname === '/schedule'
         ? 'Movie schedule · cinemaR'
+        : pathname.startsWith('/admin')
+          ? 'Administration · cinemaR'
         : pathname.startsWith('/booking/confirmation/')
           ? 'Booking confirmed · cinemaR'
           : pathname.startsWith('/booking/')

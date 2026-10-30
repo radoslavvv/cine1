@@ -7,5 +7,5 @@ public interface ISeatMapRepository
 
 public sealed record SeatMapReadModel(
     int ShowtimeId, DateTime StartsAt, int MovieId, string MovieTitle, int DurationMinutes,
-    string[] Genres, int AuditoriumId, string AuditoriumName, IReadOnlyList<SeatReadModel> Seats);
+    string[] Genres, int AuditoriumId, string AuditoriumName, IReadOnlyList<SeatReadModel> Seats, string? PosterUrl = null, string? BackdropUrl = null);
 public sealed record SeatReadModel(int Id, string RowLabel, int Number, int GridRow, int GridColumn, bool Taken);

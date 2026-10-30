@@ -28,9 +28,21 @@ builder.Services.AddScoped<ISeatMapService, SeatMapService>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<AdminRepository>();
 
 var app = builder.Build();
 app.UseExceptionHandler();
+// Unauthenticated administration must never be reachable outside local development.
+app.Use(async (context, next) =>
+{
+    if (!app.Environment.IsDevelopment() &&
+        (context.Request.Path.StartsWithSegments("/api/admin") || context.Request.Path.StartsWithSegments("/admin")))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+    await next(context);
+});
 app.MapHealthChecks("/health", new() { Predicate = _ => false });
 app.MapHealthChecks("/health/ready");
 app.MapControllers();

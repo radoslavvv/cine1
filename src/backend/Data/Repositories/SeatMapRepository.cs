@@ -8,14 +8,16 @@ public sealed class SeatMapRepository(CatalogDbContext db) : ISeatMapRepository
     public async Task<SeatMapReadModel?> GetAsync(int showtimeId, CancellationToken cancellationToken)
     {
         var showtime = await db.Showtimes.AsNoTracking()
-            .Where(showtime => showtime.Id == showtimeId)
+            .Where(showtime => showtime.Id == showtimeId && showtime.CancelledAt == null)
             .Select(showtime => new
             {
                 showtime.Id,
                 showtime.StartsAt,
                 showtime.MovieId,
                 showtime.Movie.Title,
-                showtime.Movie.DurationMinutes,
+                DurationMinutes = showtime.ScheduledDurationMinutes,
+                showtime.Movie.PosterUrl,
+                showtime.Movie.BackdropUrl,
                 showtime.Movie.Genres,
                 showtime.AuditoriumId,
                 showtime.Auditorium.Name
@@ -29,6 +31,6 @@ public sealed class SeatMapRepository(CatalogDbContext db) : ISeatMapRepository
             .ToListAsync(cancellationToken);
         return new SeatMapReadModel(showtime.Id, showtime.StartsAt, showtime.MovieId,
             showtime.Title, showtime.DurationMinutes, showtime.Genres,
-            showtime.AuditoriumId, showtime.Name, seats);
+            showtime.AuditoriumId, showtime.Name, seats, showtime.PosterUrl, showtime.BackdropUrl);
     }
 }

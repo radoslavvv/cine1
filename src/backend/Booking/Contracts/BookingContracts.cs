@@ -9,6 +9,6 @@ public sealed record ConfirmBookingRequest(
 
 public sealed record BookingConfirmation(
     string ConfirmationToken, DateTime ConfirmedAt, string Email, int ShowtimeId,
-    DateTime StartsAt, string MovieTitle, string AuditoriumName, IReadOnlyList<TicketResponse> Tickets);
+    DateTime StartsAt, string MovieTitle, string AuditoriumName, IReadOnlyList<TicketResponse> Tickets, bool IsCancelled = false);
 
 public sealed record TicketResponse(int SeatId, string RowLabel, int Number, string TicketCode);

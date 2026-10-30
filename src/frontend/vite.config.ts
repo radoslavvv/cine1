@@ -8,7 +8,7 @@ export default defineConfig({
     host: 'localhost',
     port: 5173,
     strictPort: true,
-    proxy: { '/api': 'http://localhost:5080' },
+    proxy: { '/api': process.env.CINEMA_API_PROXY ?? 'http://localhost:5080' },
   },
   preview: { host: 'localhost', port: 4173, strictPort: true },
 });

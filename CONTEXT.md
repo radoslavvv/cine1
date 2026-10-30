@@ -12,6 +12,10 @@ _Avoid_: Anonymous user, registered customer
 A film in the cinema's catalog, independent of when or where it is screened.
 _Avoid_: Showtime, screening
 
+**Archived movie**:
+A movie retained in the catalog's history but unavailable for new scheduling. Its existing screenings and bookings remain part of the cinema's records.
+_Avoid_: Deleted movie
+
 **Auditorium**:
 A room in a cinema containing a screen and a defined layout of seats.
 _Avoid_: Cinema, theater
@@ -32,8 +36,16 @@ _Avoid_: Movie, session
 The collection of showtimes offered by a cinema on a given date.
 _Avoid_: Movie catalog, booking list
 
+**Cancelled showtime**:
+A screening withdrawn by the cinema. Its bookings remain as records, but its tickets no longer grant admission.
+_Avoid_: Finished showtime, deleted showtime
+
+**Retired auditorium**:
+An auditorium withdrawn from future scheduling after its remaining screenings finish. Its seating layout and past bookings remain part of the cinema's records.
+_Avoid_: Deleted auditorium
+
 **Started showtime**:
-A showtime whose scheduled start has passed and whose movie runtime has not yet elapsed.
+A showtime whose scheduled start has passed and whose scheduled runtime has not yet elapsed.
 _Avoid_: Finished showtime
 
 **Upcoming showtime**:
@@ -41,8 +53,12 @@ A showtime whose scheduled start is still in the future.
 _Avoid_: Started showtime
 
 **Finished showtime**:
-A showtime whose scheduled start plus movie runtime has elapsed. Auditorium turnaround is not part of the screening's runtime.
+A showtime whose scheduled start plus scheduled runtime has elapsed. Auditorium turnaround is not part of the screening's runtime.
 _Avoid_: Started showtime
+
+**Scheduled runtime**:
+The film duration assigned to a showtime when it is created. Later changes to the movie's catalog runtime do not change this duration.
+_Avoid_: Turnaround, current catalog runtime
 
 **Turnaround**:
 The time reserved in an auditorium after a screening for cleaning and preparing for the next screening. A screening occupies its auditorium for the film's scheduled runtime plus this turnaround.

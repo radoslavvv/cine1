@@ -12,6 +12,7 @@ public sealed class BookingRepository(CatalogDbContext db, TimeProvider clock) :
     public async Task<BookingResult> ConfirmAsync(int showtimeId, Guid requestId, string email, int[] seatIds, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        await CatalogWriteLock.SharedAsync(db, cancellationToken);
         // Serialize finalizations for this screening only. No seat is held while the customer checks out.
         var showtime = await db.Showtimes.FromSqlInterpolated($"SELECT * FROM catalog.showtimes WHERE id = {showtimeId} FOR UPDATE")
             .SingleOrDefaultAsync(cancellationToken);
@@ -19,6 +20,7 @@ public sealed class BookingRepository(CatalogDbContext db, TimeProvider clock) :
 
         var existing = await LoadAsync().SingleOrDefaultAsync(booking => booking.Id == requestId, cancellationToken);
         if (existing is not null) return Replay(existing, showtimeId, email, seatIds);
+        if (showtime.CancelledAt is not null) return new(BookingOutcome.Cancelled);
         if (showtime.StartsAt <= clock.GetUtcNow().UtcDateTime) return new(BookingOutcome.Started);
 
         var validSeats = await db.Seats.CountAsync(seat => seat.AuditoriumId == showtime.AuditoriumId && seatIds.Contains(seat.Id), cancellationToken);
@@ -79,5 +81,6 @@ public sealed class BookingRepository(CatalogDbContext db, TimeProvider clock) :
         booking.ConfirmationToken, booking.ConfirmedAt, booking.Email, booking.ShowtimeId,
         booking.Showtime.StartsAt, booking.Showtime.Movie.Title, booking.Showtime.Auditorium.Name,
         booking.Seats.OrderBy(item => item.Seat.GridRow).ThenBy(item => item.Seat.GridColumn)
-            .Select(item => new TicketResponse(item.SeatId, item.Seat.RowLabel, item.Seat.Number, item.TicketCode)).ToArray());
+            .Select(item => new TicketResponse(item.SeatId, item.Seat.RowLabel, item.Seat.Number,
+                booking.Showtime.CancelledAt is null ? item.TicketCode : "")).ToArray(), booking.Showtime.CancelledAt is not null);
 }

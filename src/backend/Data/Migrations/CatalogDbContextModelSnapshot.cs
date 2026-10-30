@@ -116,6 +116,10 @@ namespace Cinema.Api.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BackdropUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("backdrop_url");
+
                     b.Property<int>("DurationMinutes")
                         .HasColumnType("integer")
                         .HasColumnName("duration_minutes");
@@ -124,6 +128,14 @@ namespace Cinema.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text[]")
                         .HasColumnName("genres");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_archived");
+
+                    b.Property<string>("PosterUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("poster_url");
 
                     b.Property<string>("Synopsis")
                         .IsRequired()
@@ -156,10 +168,19 @@ namespace Cinema.Api.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("IsRetired")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_retired");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.PrimitiveCollection<string[]>("SupportedFormats")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("supported_formats");
 
                     b.HasKey("Id");
 
@@ -231,6 +252,10 @@ namespace Cinema.Api.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("auditorium_id");
 
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
                     b.Property<string>("Format")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -246,6 +271,12 @@ namespace Cinema.Api.Data.Migrations
                     b.Property<DateTime>("OccupiedUntil")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("occupied_until");
+
+                    b.Property<int>("ScheduledDurationMinutes")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("integer")
+                        .HasColumnName("scheduled_duration_minutes")
+                        .HasComputedColumnSql("(EXTRACT(EPOCH FROM (occupied_until - starts_at)) / 60)::integer - 15", true);
 
                     b.Property<DateTime>("StartsAt")
                         .HasColumnType("timestamp with time zone")

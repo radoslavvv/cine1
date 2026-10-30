@@ -168,7 +168,7 @@ export function SchedulePage() {
                     return (
                       <MotionItem key={movie.id} reveal delay={index * 0.045} className={theme.movieRow}>
                         <div className={theme.poster}>
-                          <MovieArtwork title={movie.title} showTitle={false} />
+                          <MovieArtwork title={movie.title} posterUrl={movie.posterUrl} backdropUrl={movie.backdropUrl} showTitle={false} />
                         </div>
                         <div>
                           <p className={theme.category}>

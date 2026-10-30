@@ -11,7 +11,7 @@ public sealed class SeatMapService(ISeatMapRepository repository, TimeProvider c
         if (map is null) return null;
         var now = clock.GetUtcNow().UtcDateTime;
         return new SeatMapResponse(map.ShowtimeId, map.StartsAt, now, map.StartsAt > now,
-            new SeatMapMovie(map.MovieId, map.MovieTitle, map.DurationMinutes, map.Genres),
+            new SeatMapMovie(map.MovieId, map.MovieTitle, map.DurationMinutes, map.Genres, map.PosterUrl, map.BackdropUrl),
             new SeatMapAuditorium(map.AuditoriumId, map.AuditoriumName),
             map.Seats.Select(seat => new SeatResponse(seat.Id, seat.RowLabel, seat.Number, seat.GridRow, seat.GridColumn, seat.Taken)).ToArray());
     }

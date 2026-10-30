@@ -9,4 +9,4 @@ public interface IShowtimeRepository
 public sealed record ShowtimeReadModel(
     int Id, DateTime StartsAt,
     int MovieId, string Title, int DurationMinutes, string[] Genres, string Synopsis,
-    int AuditoriumId, string AuditoriumName, string Format);
+    int AuditoriumId, string AuditoriumName, string Format, string? PosterUrl = null, string? BackdropUrl = null);

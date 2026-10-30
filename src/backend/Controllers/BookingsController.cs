@@ -18,6 +18,7 @@ public sealed class BookingsController(IBookingService service) : ControllerBase
         {
             BookingOutcome.Confirmed => Ok(result.Confirmation),
             BookingOutcome.NotFound => Problem(statusCode: 404, title: "Showtime not found."),
+            BookingOutcome.Cancelled => Problem(statusCode: 409, title: "This screening has been cancelled.", extensions: new Dictionary<string, object?> { ["code"] = "showtime_cancelled" }),
             BookingOutcome.Started => Problem(statusCode: 409, title: "This showtime has started.", extensions: new Dictionary<string, object?> { ["code"] = "showtime_started" }),
             BookingOutcome.SeatsTaken => Problem(statusCode: 409, title: "Some selected seats have been booked. Please choose again.", extensions: new Dictionary<string, object?> { ["code"] = "seats_taken" }),
             BookingOutcome.RequestConflict => Problem(statusCode: 409, title: "This confirmation request was already used for another booking.", extensions: new Dictionary<string, object?> { ["code"] = "request_conflict" }),
@@ -39,6 +40,7 @@ public sealed class BookingsController(IBookingService service) : ControllerBase
         Response.Headers["Referrer-Policy"] = "no-referrer";
         var booking = await service.FindAsync(confirmationToken, cancellationToken);
         var ticket = booking?.Tickets.SingleOrDefault(item => item.SeatId == seatId);
+        if (booking?.IsCancelled == true) return Problem(statusCode: 410, title: "This screening has been cancelled. Its tickets are no longer valid.");
         if (ticket is null) return Problem(statusCode: 404, title: "Ticket not found.");
 
         using var data = QRCodeGenerator.GenerateQrCode(ticket.TicketCode, QRCodeGenerator.ECCLevel.M);

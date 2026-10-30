@@ -6,16 +6,22 @@ interface MovieArtworkProps {
   title: string;
   variant?: 'poster' | 'backdrop';
   showTitle?: boolean;
+  posterUrl?: string | null;
+  backdropUrl?: string | null;
 }
 
 export function MovieArtwork({
   title,
   variant = 'poster',
   showTitle = true,
+  posterUrl,
+  backdropUrl,
 }: MovieArtworkProps) {
   const presentation = getMoviePresentation(title);
   const url =
-    variant === 'poster' ? presentation.posterUrl : presentation.backdropUrl;
+    variant === 'poster'
+      ? (posterUrl ?? presentation.posterUrl)
+      : (backdropUrl ?? presentation.backdropUrl);
   const [failedUrl, setFailedUrl] = useState<string>();
   const isBackdrop = variant === 'backdrop';
 

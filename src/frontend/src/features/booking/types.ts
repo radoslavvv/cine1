@@ -8,6 +8,7 @@ export interface Seat {
 }
 
 export interface BookingConfirmation {
+  isCancelled?: boolean;
   confirmationToken: string;
   confirmedAt: string;
   email: string;
@@ -33,6 +34,8 @@ export interface SeatMap {
     title: string;
     durationMinutes: number;
     genres: string[];
+    posterUrl?: string | null;
+    backdropUrl?: string | null;
   };
   auditorium: { id: number; name: string };
   seats: Seat[];

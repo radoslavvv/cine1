@@ -38,6 +38,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             entity.HasKey(auditorium => auditorium.Id);
             entity.Property(auditorium => auditorium.Name).IsRequired();
             entity.HasIndex(auditorium => auditorium.Name).IsUnique();
+            entity.Property(auditorium => auditorium.SupportedFormats).IsRequired();
         });
         modelBuilder.Entity<Showtime>(entity =>
         {
@@ -48,6 +49,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             });
             entity.HasKey(showtime => showtime.Id);
             entity.Property(showtime => showtime.Format).HasMaxLength(16).HasDefaultValue("2D").IsRequired();
+            entity.Property(showtime => showtime.ScheduledDurationMinutes)
+                .HasComputedColumnSql("(EXTRACT(EPOCH FROM (occupied_until - starts_at)) / 60)::integer - 15", stored: true);
             entity.HasOne(showtime => showtime.Movie).WithMany().HasForeignKey(showtime => showtime.MovieId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(showtime => showtime.Auditorium).WithMany().HasForeignKey(showtime => showtime.AuditoriumId).OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(showtime => showtime.StartsAt);
