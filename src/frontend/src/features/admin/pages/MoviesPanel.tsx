@@ -1,3 +1,4 @@
+import { Button } from '@/shared/components/ui/button';
 import type { AdminCatalog } from '../types';
 import { useMovieEditor } from '../hooks/useMovieEditor';
 import { MovieForm } from '../components/MovieForm';
@@ -39,16 +40,18 @@ export function MoviesPanel({ catalog }: { catalog: AdminCatalog }) {
                   )}
                 </div>
                 <div className={t.actions}>
-                  <button
-                    className={t.button}
+                  <Button
+                    variant="outline"
+                    size="sm"
                     disabled={editor.action.pending}
                     onClick={() => editor.edit(movie)}
                   >
                     Edit
-                  </button>
+                  </Button>
                   {!movie.isArchived && (
-                    <button
-                      className={t.button}
+                    <Button
+                      variant="outline"
+                      size="sm"
                       disabled={editor.action.pending}
                       onClick={() =>
                         void editor.action.execute({
@@ -59,11 +62,12 @@ export function MoviesPanel({ catalog }: { catalog: AdminCatalog }) {
                       }
                     >
                       Archive
-                    </button>
+                    </Button>
                   )}
                   {!movie.isUsed && (
-                    <button
-                      className={t.danger}
+                    <Button
+                      variant="destructive"
+                      size="sm"
                       disabled={editor.action.pending}
                       onClick={() =>
                         void editor.action
@@ -80,7 +84,7 @@ export function MoviesPanel({ catalog }: { catalog: AdminCatalog }) {
                       }
                     >
                       Delete
-                    </button>
+                    </Button>
                   )}
                 </div>
               </article>

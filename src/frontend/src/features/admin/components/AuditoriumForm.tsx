@@ -1,3 +1,6 @@
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import type { FormEvent } from 'react';
 import { cinemaFormats, type AdminSeat, type AuditoriumDraft } from '../types';
 import { adminTheme as t } from '../admin.theme';
@@ -33,8 +36,7 @@ export function AuditoriumForm({
         <fieldset disabled={pending} className="contents">
           <label className={t.field}>
             Name
-            <input
-              className={t.input}
+            <Input
               required
               maxLength={100}
               value={draft.name}
@@ -44,8 +46,7 @@ export function AuditoriumForm({
           <div className={t.row}>
             <label className={t.field}>
               Rows · A–Z
-              <input
-                className={t.input}
+              <Input
                 type="number"
                 required
                 min={1}
@@ -59,8 +60,7 @@ export function AuditoriumForm({
             </label>
             <label className={t.field}>
               Seats per row
-              <input
-                className={t.input}
+              <Input
                 type="number"
                 required
                 min={1}
@@ -84,15 +84,18 @@ export function AuditoriumForm({
             <div className={t.checks}>
               {cinemaFormats.map((format) => (
                 <label key={format} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    disabled={pending}
                     checked={draft.supportedFormats.includes(format)}
-                    onChange={(e) =>
+                    onCheckedChange={(checked) =>
                       onChange({
                         ...draft,
-                        supportedFormats: e.target.checked
-                          ? [...draft.supportedFormats, format]
-                          : draft.supportedFormats.filter((f) => f !== format),
+                        supportedFormats:
+                          checked === true
+                            ? [...draft.supportedFormats, format]
+                            : draft.supportedFormats.filter(
+                                (f) => f !== format,
+                              ),
                       })
                     }
                   />
@@ -132,8 +135,8 @@ export function AuditoriumForm({
             first booking.
           </p>
           <div className={t.actions}>
-            <button
-              className={t.primary}
+            <Button
+              size="sm"
               disabled={draft.supportedFormats.length === 0}
               type="submit"
             >
@@ -142,11 +145,16 @@ export function AuditoriumForm({
                 : editing
                   ? 'Save changes'
                   : 'Create auditorium'}
-            </button>
+            </Button>
             {editing && (
-              <button className={t.button} type="button" onClick={onClear}>
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={onClear}
+              >
                 Cancel editing
-              </button>
+              </Button>
             )}
           </div>
         </fieldset>

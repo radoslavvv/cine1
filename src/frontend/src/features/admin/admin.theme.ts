@@ -22,16 +22,8 @@ export const adminTheme = {
   cardTitle: 'text-base font-medium',
   muted: 'text-xs leading-relaxed text-muted',
   actions: 'flex flex-wrap items-center gap-2',
-  button:
-    'min-h-10 rounded-lg border border-edge px-4 py-2 text-xs font-medium text-ivory transition-colors hover:border-amber hover:text-amber disabled:cursor-not-allowed disabled:opacity-40',
-  primary:
-    'min-h-10 rounded-lg bg-amber px-5 py-2 text-xs font-semibold text-lobby hover:bg-amber-light disabled:cursor-not-allowed disabled:opacity-40',
-  danger:
-    'min-h-10 rounded-lg border border-rose/40 px-4 py-2 text-xs text-rose hover:bg-rose/10 disabled:cursor-not-allowed disabled:opacity-40',
   form: 'mt-5 grid gap-4',
   field: 'grid min-w-0 gap-1.5 text-xs font-medium text-muted',
-  input:
-    'min-h-11 w-full min-w-0 rounded-lg border border-edge bg-lobby px-3 py-2 text-sm text-ivory outline-none focus:border-amber disabled:opacity-50',
   row: 'grid gap-4 sm:grid-cols-2',
   badge:
     'inline-flex rounded-full border border-edge px-2.5 py-1 text-[10px] uppercase tracking-wider text-muted',

@@ -1,3 +1,9 @@
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/shared/components/ui/native-select';
 import type { AdminCatalog } from '../types';
 import { useShowtimeEditor } from '../hooks/useShowtimeEditor';
 import { ShowtimeForm } from '../components/ShowtimeForm';
@@ -34,8 +40,7 @@ export function ShowtimesPanel({ catalog }: { catalog: AdminCatalog }) {
             <h2 className={t.heading}>Screenings</h2>
             <label className={t.field}>
               Date · Kyiv
-              <input
-                className={t.input}
+              <Input
                 type="date"
                 value={editor.date}
                 required
@@ -52,33 +57,33 @@ export function ShowtimesPanel({ catalog }: { catalog: AdminCatalog }) {
           <div className={`${t.row} mb-5`}>
             <label className={t.field}>
               Filter movie
-              <select
-                className={t.input}
+              <NativeSelect
                 value={editor.filterMovie}
                 onChange={(e) => editor.setFilterMovie(e.target.value)}
               >
-                <option value="">All movies</option>
+                <NativeSelectOption value="">All movies</NativeSelectOption>
                 {catalog.movies.map((m) => (
-                  <option key={m.id} value={m.id}>
+                  <NativeSelectOption key={m.id} value={m.id}>
                     {m.title}
-                  </option>
+                  </NativeSelectOption>
                 ))}
-              </select>
+              </NativeSelect>
             </label>
             <label className={t.field}>
               Filter auditorium
-              <select
-                className={t.input}
+              <NativeSelect
                 value={editor.filterRoom}
                 onChange={(e) => editor.setFilterRoom(e.target.value)}
               >
-                <option value="">All auditoriums</option>
+                <NativeSelectOption value="">
+                  All auditoriums
+                </NativeSelectOption>
                 {catalog.auditoriums.map((a) => (
-                  <option key={a.id} value={a.id}>
+                  <NativeSelectOption key={a.id} value={a.id}>
                     {a.name}
-                  </option>
+                  </NativeSelectOption>
                 ))}
-              </select>
+              </NativeSelect>
             </label>
           </div>
           {editor.query.isPending && (
@@ -106,8 +111,9 @@ export function ShowtimesPanel({ catalog }: { catalog: AdminCatalog }) {
                 {!screening.isCancelled &&
                   Date.parse(screening.startsAt) > Date.now() && (
                     <div className={t.actions}>
-                      <button
-                        className={t.button}
+                      <Button
+                        variant="outline"
+                        size="sm"
                         disabled={
                           editor.action.pending || screening.bookingCount > 0
                         }
@@ -119,14 +125,15 @@ export function ShowtimesPanel({ catalog }: { catalog: AdminCatalog }) {
                         onClick={() => editor.edit(screening)}
                       >
                         Edit
-                      </button>
-                      <button
-                        className={t.danger}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
                         disabled={editor.action.pending}
                         onClick={() => void editor.cancel(screening)}
                       >
                         Cancel screening
-                      </button>
+                      </Button>
                     </div>
                   )}
               </article>

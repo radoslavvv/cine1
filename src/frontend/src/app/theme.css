@@ -1,4 +1,52 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* shadcn/ui semantic colors follow the existing cinema palette. */
+:root {
+  --background: var(--color-lobby);
+  --foreground: var(--color-ivory);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-ivory);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-ivory);
+  --primary: var(--color-amber);
+  --primary-foreground: var(--color-lobby);
+  --secondary: var(--color-raised);
+  --secondary-foreground: var(--color-ivory);
+  --muted: var(--color-raised);
+  --muted-foreground: var(--color-muted);
+  --accent: var(--color-raised);
+  --accent-foreground: var(--color-amber-light);
+  --destructive: var(--color-rose);
+  --border: var(--color-edge);
+  --input: var(--color-edge);
+  --ring: var(--color-amber);
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
 
 /* Cinema tokens create utilities such as bg-lobby and text-amber. */
 @theme {

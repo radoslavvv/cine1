@@ -1,3 +1,4 @@
+import { Button } from '@/shared/components/ui/button';
 import { adminTheme as t } from '../admin.theme';
 
 export function AdminNotice({
@@ -14,9 +15,9 @@ export function AdminNotice({
       <div className={t.error} role="alert">
         {error}
         {retry && (
-          <button className={`${t.link} ml-3`} onClick={retry}>
+          <Button variant="link" className="ml-3 h-auto p-0" onClick={retry}>
             Try again
-          </button>
+          </Button>
         )}
       </div>
     );

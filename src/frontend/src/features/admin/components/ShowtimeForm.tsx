@@ -1,3 +1,9 @@
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/shared/components/ui/native-select';
 import type { FormEvent } from 'react';
 import type { AdminAuditorium, AdminMovie, ShowtimeDraft } from '../types';
 import { adminTheme as t } from '../admin.theme';
@@ -43,58 +49,58 @@ export function ShowtimeForm({
         <fieldset disabled={pending} className="contents">
           <label className={t.field}>
             Movie
-            <select
-              className={t.input}
+            <NativeSelect
               required
               value={draft.movieId}
               onChange={(e) => onChange({ ...draft, movieId: e.target.value })}
             >
-              <option value="">Choose a movie</option>
+              <NativeSelectOption value="">Choose a movie</NativeSelectOption>
               {movies.map((movie) => (
-                <option key={movie.id} value={movie.id}>
+                <NativeSelectOption key={movie.id} value={movie.id}>
                   {movie.title} · {movie.durationMinutes} min
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
           <label className={t.field}>
             Auditorium
-            <select
-              className={t.input}
+            <NativeSelect
               required
               value={draft.auditoriumId}
               onChange={(e) => onRoom(e.target.value)}
             >
-              <option value="">Choose an auditorium</option>
+              <NativeSelectOption value="">
+                Choose an auditorium
+              </NativeSelectOption>
               {rooms.map((room) => (
-                <option key={room.id} value={room.id}>
+                <NativeSelectOption key={room.id} value={room.id}>
                   {room.name}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
           <div className={t.row}>
             <label className={t.field}>
               Format
-              <select
-                className={t.input}
+              <NativeSelect
                 required
                 disabled={!draft.auditoriumId}
                 value={draft.format}
                 onChange={(e) => onChange({ ...draft, format: e.target.value })}
               >
                 {formats.length === 0 && (
-                  <option value="">Choose a room first</option>
+                  <NativeSelectOption value="">
+                    Choose a room first
+                  </NativeSelectOption>
                 )}
                 {formats.map((format) => (
-                  <option key={format}>{format}</option>
+                  <NativeSelectOption key={format}>{format}</NativeSelectOption>
                 ))}
-              </select>
+              </NativeSelect>
             </label>
             <label className={t.field}>
               Start time · Europe/Kyiv
-              <input
-                className={t.input}
+              <Input
                 type="time"
                 required
                 value={draft.localTime}
@@ -107,8 +113,7 @@ export function ShowtimeForm({
           {editing ? (
             <label className={t.field}>
               Screening date
-              <input
-                className={t.input}
+              <Input
                 type="date"
                 required
                 value={draft.dates[0]}
@@ -122,29 +127,31 @@ export function ShowtimeForm({
               <div className={t.row}>
                 <label className={t.field}>
                   Add a date
-                  <input
-                    className={t.input}
+                  <Input
                     type="date"
                     value={additionalDate}
                     onChange={(e) => onAdditionalDate(e.target.value)}
                     onInput={(e) => onAdditionalDate(e.currentTarget.value)}
                   />
                 </label>
-                <button
-                  className={`${t.button} self-end`}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="self-end"
                   type="button"
                   disabled={!additionalDate || draft.dates.length >= 366}
                   onClick={onAddDate}
                 >
                   Add date
-                </button>
+                </Button>
               </div>
               <div className={t.actions} aria-label="Selected screening dates">
                 {draft.dates.map((date) => (
-                  <button
+                  <Button
                     key={date}
                     type="button"
-                    className={t.button}
+                    variant="outline"
+                    size="sm"
                     aria-label={`Remove ${date}`}
                     onClick={() =>
                       onChange({
@@ -154,7 +161,7 @@ export function ShowtimeForm({
                     }
                   >
                     {date} <span aria-hidden="true">×</span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </>
@@ -164,8 +171,8 @@ export function ShowtimeForm({
             dates save together; conflicts save nothing.
           </p>
           <div className={t.actions}>
-            <button
-              className={t.primary}
+            <Button
+              size="sm"
               type="submit"
               disabled={
                 draft.dates.length === 0 ||
@@ -179,11 +186,16 @@ export function ShowtimeForm({
                 : editing
                   ? 'Save changes'
                   : `Create ${draft.dates.length} screening(s)`}
-            </button>
+            </Button>
             {editing && (
-              <button className={t.button} type="button" onClick={onClear}>
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={onClear}
+              >
                 Cancel editing
-              </button>
+              </Button>
             )}
           </div>
         </fieldset>

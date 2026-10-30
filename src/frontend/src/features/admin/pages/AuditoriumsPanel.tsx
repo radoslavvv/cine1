@@ -1,3 +1,4 @@
+import { Button } from '@/shared/components/ui/button';
 import type { AdminCatalog } from '../types';
 import { useAuditoriumEditor } from '../hooks/useAuditoriumEditor';
 import { AuditoriumForm } from '../components/AuditoriumForm';
@@ -43,16 +44,18 @@ export function AuditoriumsPanel({ catalog }: { catalog: AdminCatalog }) {
                   )}
                 </div>
                 <div className={t.actions}>
-                  <button
-                    className={t.button}
+                  <Button
+                    variant="outline"
+                    size="sm"
                     disabled={editor.action.pending}
                     onClick={() => editor.edit(room)}
                   >
                     Edit
-                  </button>
+                  </Button>
                   {!room.isRetired && (
-                    <button
-                      className={t.button}
+                    <Button
+                      variant="outline"
+                      size="sm"
                       disabled={editor.action.pending}
                       onClick={() =>
                         void editor.action.execute({
@@ -63,11 +66,12 @@ export function AuditoriumsPanel({ catalog }: { catalog: AdminCatalog }) {
                       }
                     >
                       Retire
-                    </button>
+                    </Button>
                   )}
                   {!room.isUsed && (
-                    <button
-                      className={t.danger}
+                    <Button
+                      variant="destructive"
+                      size="sm"
                       disabled={editor.action.pending}
                       onClick={() =>
                         void editor.action
@@ -84,7 +88,7 @@ export function AuditoriumsPanel({ catalog }: { catalog: AdminCatalog }) {
                       }
                     >
                       Delete
-                    </button>
+                    </Button>
                   )}
                 </div>
               </article>

@@ -1,3 +1,6 @@
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Textarea } from '@/shared/components/ui/textarea';
 import type { FormEvent } from 'react';
 import type { MovieDraft } from '../types';
 import { adminTheme as t } from '../admin.theme';
@@ -29,8 +32,7 @@ export function MovieForm({
         <fieldset disabled={pending} className="contents">
           <label className={t.field}>
             Title
-            <input
-              className={t.input}
+            <Input
               value={draft.title}
               onChange={(e) => onChange({ ...draft, title: e.target.value })}
               required
@@ -40,8 +42,7 @@ export function MovieForm({
           <div className={t.row}>
             <label className={t.field}>
               Runtime · minutes
-              <input
-                className={t.input}
+              <Input
                 type="number"
                 min={1}
                 max={1440}
@@ -57,8 +58,7 @@ export function MovieForm({
             </label>
             <label className={t.field}>
               Genres · comma separated
-              <input
-                className={t.input}
+              <Input
                 required
                 value={draft.genres}
                 placeholder="Drama, Sci-Fi"
@@ -68,8 +68,7 @@ export function MovieForm({
           </div>
           <label className={t.field}>
             Synopsis
-            <textarea
-              className={t.input}
+            <Textarea
               rows={4}
               maxLength={10000}
               value={draft.synopsis}
@@ -78,8 +77,7 @@ export function MovieForm({
           </label>
           <label className={t.field}>
             Poster URL · optional
-            <input
-              className={t.input}
+            <Input
               type="url"
               maxLength={2048}
               value={draft.posterUrl}
@@ -91,8 +89,7 @@ export function MovieForm({
           </label>
           <label className={t.field}>
             Backdrop URL · optional
-            <input
-              className={t.input}
+            <Input
               type="url"
               maxLength={2048}
               value={draft.backdropUrl}
@@ -107,13 +104,18 @@ export function MovieForm({
             their scheduled duration.
           </p>
           <div className={t.actions}>
-            <button className={t.primary} type="submit">
+            <Button size="sm" type="submit">
               {pending ? 'Saving…' : editing ? 'Save changes' : 'Create movie'}
-            </button>
+            </Button>
             {editing && (
-              <button className={t.button} type="button" onClick={onClear}>
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={onClear}
+              >
                 Cancel editing
-              </button>
+              </Button>
             )}
           </div>
         </fieldset>

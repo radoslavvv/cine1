@@ -1,3 +1,9 @@
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/shared/components/ui/native-select';
 import type { AdminCatalog } from '../types';
 import { useAdminBookings } from '../hooks/useAdminBookings';
 import { AdminNotice } from '../components/AdminNotice';
@@ -22,8 +28,7 @@ export function BookingsPanel({ catalog }: { catalog: AdminCatalog }) {
         <div className={t.filters}>
           <label className={t.field}>
             Email or booking ID
-            <input
-              className={t.input}
+            <Input
               type="search"
               value={view.draft.search}
               onChange={(e) =>
@@ -34,8 +39,7 @@ export function BookingsPanel({ catalog }: { catalog: AdminCatalog }) {
           </label>
           <label className={t.field}>
             Screening date
-            <input
-              className={t.input}
+            <Input
               type="date"
               value={view.draft.date}
               onChange={(e) =>
@@ -45,68 +49,73 @@ export function BookingsPanel({ catalog }: { catalog: AdminCatalog }) {
           </label>
           <label className={t.field}>
             Movie
-            <select
-              className={t.input}
+            <NativeSelect
               value={view.draft.movieId}
               onChange={(e) =>
                 view.setDraft({ ...view.draft, movieId: e.target.value })
               }
             >
-              <option value="">All movies</option>
+              <NativeSelectOption value="">All movies</NativeSelectOption>
               {catalog.movies.map((m) => (
-                <option key={m.id} value={m.id}>
+                <NativeSelectOption key={m.id} value={m.id}>
                   {m.title}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
           <label className={t.field}>
             Auditorium
-            <select
-              className={t.input}
+            <NativeSelect
               value={view.draft.auditoriumId}
               onChange={(e) =>
                 view.setDraft({ ...view.draft, auditoriumId: e.target.value })
               }
             >
-              <option value="">All auditoriums</option>
+              <NativeSelectOption value="">All auditoriums</NativeSelectOption>
               {catalog.auditoriums.map((a) => (
-                <option key={a.id} value={a.id}>
+                <NativeSelectOption key={a.id} value={a.id}>
                   {a.name}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
           <label className={t.field}>
             Status
-            <select
-              className={t.input}
+            <NativeSelect
               value={view.draft.status}
               onChange={(e) =>
                 view.setDraft({ ...view.draft, status: e.target.value })
               }
             >
-              <option value="">All statuses</option>
-              <option value="active">Active</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+              <NativeSelectOption value="">All statuses</NativeSelectOption>
+              <NativeSelectOption value="active">Active</NativeSelectOption>
+              <NativeSelectOption value="cancelled">
+                Cancelled
+              </NativeSelectOption>
+            </NativeSelect>
           </label>
         </div>
         <div className={`${t.actions} mb-6`}>
-          <button className={t.primary} type="submit">
+          <Button size="sm" type="submit">
             Apply filters
-          </button>
-          <button className={t.button} type="button" onClick={view.reset}>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            onClick={view.reset}
+          >
             Reset
-          </button>
-          <button
-            className={t.button}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             type="button"
             disabled={view.query.isFetching}
             onClick={() => void view.query.refetch()}
           >
             Refresh
-          </button>
+          </Button>
         </div>
       </form>
       <AdminNotice
@@ -150,12 +159,13 @@ export function BookingsPanel({ catalog }: { catalog: AdminCatalog }) {
                     <td>{item.seats.join(', ')}</td>
                     <td>{item.isCancelled ? 'Cancelled' : 'Active'}</td>
                     <td>
-                      <button
-                        className={t.button}
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => view.setSelected(item.id)}
                       >
                         View
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -166,19 +176,21 @@ export function BookingsPanel({ catalog }: { catalog: AdminCatalog }) {
             )}
           </div>
           <div className={`${t.toolbar} mt-5`}>
-            <button
-              className={t.button}
+            <Button
+              variant="outline"
+              size="sm"
               disabled={view.filters.page <= 1 || view.query.isFetching}
               onClick={() => view.page(view.filters.page - 1)}
             >
               Previous
-            </button>
+            </Button>
             <p className={t.muted}>
               Page {view.filters.page} of{' '}
               {Math.max(1, Math.ceil(view.query.data.total / 25))}
             </p>
-            <button
-              className={t.button}
+            <Button
+              variant="outline"
+              size="sm"
               disabled={
                 view.filters.page * 25 >= view.query.data.total ||
                 view.query.isFetching
@@ -186,7 +198,7 @@ export function BookingsPanel({ catalog }: { catalog: AdminCatalog }) {
               onClick={() => view.page(view.filters.page + 1)}
             >
               Next
-            </button>
+            </Button>
           </div>
         </>
       )}
@@ -198,9 +210,13 @@ export function BookingsPanel({ catalog }: { catalog: AdminCatalog }) {
         >
           <div className={t.toolbar}>
             <h3 className={t.heading}>Booking details</h3>
-            <button className={t.button} onClick={() => view.setSelected('')}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => view.setSelected('')}
+            >
               Close
-            </button>
+            </Button>
           </div>
           <AdminNotice
             error={view.detail.error?.message}
