@@ -1,5 +1,7 @@
 import type { SeatPresentation } from '../../model/bookingPresentation';
 import { seatMapTheme as theme } from './SeatMap.theme';
+import { motion } from 'motion/react';
+import { useCinemaMotion } from '../../../../shared/hooks/useCinemaMotion';
 
 export function SeatMap({
   seats,
@@ -8,6 +10,7 @@ export function SeatMap({
   seats: SeatPresentation[];
   onToggle: (id: number) => void;
 }) {
+  const animation = useCinemaMotion();
   const rows = [...new Set(seats.map((seat) => seat.gridRow))].sort(
     (a, b) => a - b,
   );
@@ -38,7 +41,10 @@ export function SeatMap({
             const gap = index > 0 ? row - rows[index - 1] - 1 : row;
 
             return (
-              <div
+              <motion.div
+                {...animation}
+                initial={animation.initial}
+                animate={{ ...animation.animate, transition: { ...animation.animate.transition, delay: animation.initial === false ? 0 : Math.min(index * 0.025, 0.18) } }}
                 key={row}
                 className={theme.row}
                 role="group"
@@ -86,7 +92,7 @@ export function SeatMap({
                 >
                   {label}
                 </span>
-              </div>
+              </motion.div>
             );
           })}
         </div>

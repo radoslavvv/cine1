@@ -9,6 +9,8 @@ import { CarpetFooter } from '../../../shared/components/CarpetFooter/CarpetFoot
 import { ProjectorAtmosphere } from '../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere';
 
 import { useConfirmationPage } from '../hooks/useConfirmationPage';
+import { AnimatePresence } from 'motion/react';
+import { MotionSurface } from '../../../shared/components/MotionSurface/MotionSurface';
 
 export function ConfirmationPage() {
   const {
@@ -25,7 +27,7 @@ export function ConfirmationPage() {
     <div className={page.page} id="confirmation-top">
       <ProjectorAtmosphere />
       <div className={page.container}>
-        <header className={page.header}>
+        <MotionSurface className={page.header}>
           <nav className={page.navigation}>
             <Link to="/schedule" className={page.link}>
               ← Schedule
@@ -34,29 +36,41 @@ export function ConfirmationPage() {
           <Link to="/" className={page.brand} aria-label="cinemaR — home">
             <Wordmark />
           </Link>
-        </header>
+        </MotionSurface>
+        <AnimatePresence mode="wait" propagate>
         {missing ? (
+          <MotionSurface key="missing">
           <StatusMessage title="Booking not found">
             <p>Check your private confirmation link.</p>
           </StatusMessage>
+          </MotionSurface>
         ) : booking ? (
+          <MotionSurface key="confirmation">
           <Confirmation
             booking={booking}
             dateLabel={dateLabel}
             url={url}
             onCopy={onCopy}
           />
+          </MotionSurface>
         ) : isError ? (
+          <MotionSurface key="error" distance={6}>
           <StatusMessage title="Couldn’t load your booking" isError>
             <Button onClick={onRetry}>Try again</Button>
           </StatusMessage>
+          </MotionSurface>
         ) : isPaused ? (
+          <MotionSurface key="offline" distance={6}>
           <StatusMessage title="You’re offline.">
             <p role="status">Reconnect to view your booking.</p>
           </StatusMessage>
+          </MotionSurface>
         ) : (
+          <MotionSurface key="loading" distance={6}>
           <ConfirmationSkeleton />
+          </MotionSurface>
         )}
+        </AnimatePresence>
       </div>
       <CarpetFooter topId="confirmation-top" />
     </div>

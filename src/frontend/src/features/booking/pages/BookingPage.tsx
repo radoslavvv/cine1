@@ -11,8 +11,13 @@ import { useBookingPage } from '../hooks/useBookingPage';
 import { Checkout } from '../components/Checkout/Checkout';
 import { SeatMap } from '../components/SeatMap/SeatMap';
 import { MovieArtwork } from '../../../shared/components/MovieArtwork/MovieArtwork';
+import { AnimatePresence, motion } from 'motion/react';
+import { MotionSurface } from '../../../shared/components/MotionSurface/MotionSurface';
+import { MotionItem } from '../../../shared/components/MotionItem/MotionItem';
+import { useCinemaMotion } from '../../../shared/hooks/useCinemaMotion';
 
 export function BookingPage() {
+  const animation = useCinemaMotion();
   const { showtimeId = '' } = useParams();
   const {
     query,
@@ -38,7 +43,7 @@ export function BookingPage() {
     <div className={theme.page} id="booking-top">
       <ProjectorAtmosphere />
       <div className={theme.container}>
-        <header className={theme.header}>
+        <MotionSurface className={theme.header}>
           <nav className={theme.navigation} aria-label="Booking navigation">
             <Link
               to="/schedule"
@@ -54,15 +59,20 @@ export function BookingPage() {
           <Link to="/" className={theme.brand} aria-label="cinemaR — home">
             <Wordmark />
           </Link>
-        </header>
+        </MotionSurface>
 
+        <AnimatePresence mode="wait" propagate>
         {notFound ? (
+          <MotionSurface key="missing">
           <StatusMessage title="Showtime not found">
             <p>Choose a showtime from the schedule.</p>
           </StatusMessage>
+          </MotionSurface>
         ) : query.data ? (
-          <>
+          <MotionSurface key="loaded" distance={0}>
+            <AnimatePresence initial={false} propagate>
             {(isError || isPaused) && (
+              <MotionSurface key="refresh-status" distance={4}>
               <p role="status" className={theme.error}>
                 {isPaused
                   ? 'You’re offline. Showing the last loaded layout.'
@@ -76,8 +86,10 @@ export function BookingPage() {
                   Try again
                 </button>
               </p>
+              </MotionSurface>
             )}
-            <div className={theme.intro}>
+            </AnimatePresence>
+            <MotionSurface className={theme.intro} delay={0.04}>
               <div className={theme.poster}>
                 <MovieArtwork
                   title={query.data.movie.title}
@@ -101,38 +113,49 @@ export function BookingPage() {
                   <span>{query.data.movie.durationMinutes} min</span>
                 </div>
               </div>
-            </div>
+            </MotionSurface>
 
+            <AnimatePresence initial={false} propagate>
             {!isOpen && (
+              <MotionSurface key="closed" distance={4}>
               <p role="status" className={theme.status}>
                 This showtime has started. Seat selection is closed.
               </p>
+              </MotionSurface>
             )}
 
             {notice && (
+              <MotionSurface key="notice" distance={4}>
               <p role="alert" className={theme.status}>
                 {notice}
               </p>
+              </MotionSurface>
             )}
+            </AnimatePresence>
 
+            <AnimatePresence mode="wait" propagate>
             {checkoutSeats ? (
+              <MotionSurface key="checkout">
               <Checkout
                 auditoriumName={query.data.auditorium.name}
                 seats={checkoutSeats}
                 onBack={backToSelection}
                 {...checkout}
               />
+              </MotionSurface>
             ) : query.data.seats.length === 0 ? (
+              <MotionSurface key="unavailable">
               <StatusMessage title="Seat layout unavailable">
                 <p>Please choose another showtime.</p>
               </StatusMessage>
+              </MotionSurface>
             ) : (
-              <div className={theme.layout}>
-                <div className={theme.seatMap}>
+              <MotionSurface key="selection" className={theme.layout}>
+                <MotionSurface className={theme.seatMap} delay={0.04}>
                   <SeatMap seats={seats} onToggle={toggle} />
-                </div>
+                </MotionSurface>
 
-                <aside className={theme.summary} aria-label="Selection summary">
+                <motion.aside layout transition={animation.transition} className={theme.summary} aria-label="Selection summary">
                   <div className={theme.summaryHeader}>
                     <h2 className={theme.summaryTitle}>Your seats</h2>
                     <button
@@ -145,41 +168,52 @@ export function BookingPage() {
                     </button>
                   </div>
 
-                  <div
+                  <motion.div
+                    layout="position"
+                    transition={animation.transition}
                     className={theme.selectionDetails}
-                    aria-live="polite"
-                    aria-atomic="true"
                   >
-                    <p className={theme.count}>
+                    <p className={theme.count} role="status" aria-atomic="true">
                       {selectedSeats.length} / {maxSeats} selected
+                      <span className="sr-only">{selectedSeats.map((seat) => `, ${seat.rowLabel}${seat.number}`).join('')}</span>
                     </p>
-                    {selectedSeats.length > 0 ? (
-                      <ul
+                      <motion.ul
+                        layout
+                        transition={animation.transition}
                         className={theme.selected}
                         aria-label="Selected seats"
+                        style={{ position: 'relative' }}
                       >
+                        <AnimatePresence mode="popLayout" propagate>
                         {selectedSeats.map((seat) => (
-                          <li key={seat.id} className={theme.chip}>
+                          <MotionItem key={seat.id} className={theme.chip}>
                             {seat.rowLabel}
                             {seat.number}
-                          </li>
+                          </MotionItem>
                         ))}
-                      </ul>
-                    ) : (
+                        </AnimatePresence>
+                      </motion.ul>
+                    <AnimatePresence initial={false} propagate>
+                    {selectedSeats.length === 0 && (
+                      <MotionSurface key="empty" distance={4}>
                       <p className={theme.empty}>
                         {isOpen
                           ? 'Select a seat on the map to get started.'
                           : 'Choose an upcoming showtime to select seats.'}
                       </p>
+                      </MotionSurface>
                     )}
                     {selectionLimitReached && (
+                      <MotionSurface key="limit" distance={4}>
                       <p className={theme.empty}>
                         Eight-seat limit reached. Deselect a seat to choose
                         another.
                       </p>
+                      </MotionSurface>
                     )}
-                  </div>
-                  <div className={theme.checkoutAction}>
+                    </AnimatePresence>
+                  </motion.div>
+                  <motion.div layout="position" transition={animation.transition} className={theme.checkoutAction}>
                     <button
                       type="button"
                       className={theme.checkoutButton}
@@ -188,23 +222,31 @@ export function BookingPage() {
                     >
                       Continue to checkout
                     </button>
-                  </div>
-                </aside>
-              </div>
+                  </motion.div>
+                </motion.aside>
+              </MotionSurface>
             )}
-          </>
+            </AnimatePresence>
+          </MotionSurface>
         ) : isError ? (
+          <MotionSurface key="error" distance={6}>
           <StatusMessage title="Couldn’t load seats" isError>
             <p>Please try again.</p>
             <Button onClick={onRetry}>Try again</Button>
           </StatusMessage>
+          </MotionSurface>
         ) : isPaused ? (
+          <MotionSurface key="offline" distance={6}>
           <StatusMessage title="You’re offline.">
             <p role="status">The layout will load when you reconnect.</p>
           </StatusMessage>
+          </MotionSurface>
         ) : (
+          <MotionSurface key="loading" distance={6}>
           <BookingSkeleton />
+          </MotionSurface>
         )}
+        </AnimatePresence>
       </div>
       <CarpetFooter topId="booking-top" />
     </div>

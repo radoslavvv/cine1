@@ -2,23 +2,24 @@ import { Link } from 'react-router-dom';
 import { Wordmark } from '../../../shared/components/Wordmark/Wordmark';
 import { notFoundPageTheme as theme } from './NotFoundPage.theme';
 import { Tumbleweed } from '../../components/Tumbleweed/Tumbleweed';
+import { MotionSurface } from '../../../shared/components/MotionSurface/MotionSurface';
 
 export function NotFoundPage() {
   return (
     <div className={theme.page}>
-      <header className={theme.header}>
+      <MotionSurface className={theme.header}>
         <Link to="/" aria-label="cinemaR — home" className={theme.brand}>
           <Wordmark />
         </Link>
-      </header>
+      </MotionSurface>
 
-      <div className={theme.content}>
+      <MotionSurface delay={0.08} className={theme.content}>
         <p className={theme.code} aria-hidden="true">
           404
         </p>
         <h1 className={theme.heading}>This scene is missing.</h1>
         <p className={theme.eyebrow}>Nothing showing here</p>
-      </div>
+      </MotionSurface>
 
       <div className={theme.desert} aria-hidden="true">
         <svg

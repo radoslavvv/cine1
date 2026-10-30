@@ -5,14 +5,19 @@ import { BookingPage, ConfirmationPage } from '../features/booking';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { appTheme as theme } from './App.theme';
+import { AnimatePresence } from 'motion/react';
+import { RouteTransition } from './components/RouteTransition/RouteTransition';
 
 export function App() {
-  const { pathname } = useLocation();
-  const { mainRef, completeEntrance } = useAppNavigation();
+  const location = useLocation();
+  const { pathname } = location;
+  const { mainRef, completeEntrance, arrive } = useAppNavigation();
 
   return (
     <main ref={mainRef} tabIndex={-1} className={theme.main}>
-      <Routes>
+      <AnimatePresence mode="wait">
+        <RouteTransition key={pathname} pathname={pathname} onEnter={arrive}>
+      <Routes location={location}>
         <Route path="/" element={<HomePage onComplete={completeEntrance} />} />
 
         <Route path="/schedule" element={<SchedulePage />} />
@@ -27,6 +32,8 @@ export function App() {
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+        </RouteTransition>
+      </AnimatePresence>
     </main>
   );
 }

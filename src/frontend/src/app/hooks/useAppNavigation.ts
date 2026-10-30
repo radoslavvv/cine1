@@ -19,21 +19,22 @@ export function useAppNavigation() {
     };
   }, []);
 
-  useLayoutEffect(() => {
+  const arrive = useCallback((pathname: string) => {
     window.scrollTo({ top: 0, behavior: 'instant' });
     mainRef.current?.focus({ preventScroll: true });
     document.title =
-      location.pathname === '/schedule'
+      pathname === '/schedule'
         ? 'Movie schedule · cinemaR'
-        : location.pathname.startsWith('/booking/confirmation/')
+        : pathname.startsWith('/booking/confirmation/')
           ? 'Booking confirmed · cinemaR'
-          : location.pathname.startsWith('/booking/')
+          : pathname.startsWith('/booking/')
             ? 'Choose seats · cinemaR'
             : 'cinemaR';
-  }, [location.pathname]);
+  }, []);
 
   return {
     mainRef,
     completeEntrance,
+    arrive,
   };
 }

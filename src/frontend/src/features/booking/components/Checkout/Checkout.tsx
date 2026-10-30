@@ -1,13 +1,17 @@
-import type { FormEvent, Ref } from 'react';
+import type { FormEvent, RefObject } from 'react';
 import type { Seat } from '../../types';
 import { Button } from '../../../../shared/components/Button/Button';
 import { checkoutTheme as theme } from './Checkout.theme';
+import { AnimatePresence } from 'motion/react';
+import { MotionSurface } from '../../../../shared/components/MotionSurface/MotionSurface';
+import { MotionItem } from '../../../../shared/components/MotionItem/MotionItem';
+import { useCheckoutArrival } from '../../hooks/useCheckoutArrival';
 
 export interface CheckoutProps {
   auditoriumName: string;
   seats: Seat[];
   isOpen: boolean;
-  heading: Ref<HTMLHeadingElement>;
+  heading: RefObject<HTMLHeadingElement | null>;
   email: string;
   pending: boolean;
   error: string;
@@ -34,6 +38,7 @@ export function Checkout({
   onSubmit,
   onBack,
 }: CheckoutProps) {
+  useCheckoutArrival(heading);
   return (
     <section
       className={theme.panel}
@@ -54,10 +59,10 @@ export function Checkout({
         {auditoriumName}
       </p>
       <ul className={theme.seats} aria-label="Seats to book">
-        {seats.map((seat) => (
-          <li key={seat.id} className={theme.chip}>
+        {seats.map((seat, index) => (
+          <MotionItem key={seat.id} delay={index * 0.025} className={theme.chip}>
             Row {seat.rowLabel} · Seat {seat.number}
-          </li>
+          </MotionItem>
         ))}
       </ul>
       <form onSubmit={onSubmit} className={theme.form}>
@@ -84,16 +89,22 @@ export function Checkout({
           No payment is required. Seats are only secured when your booking is
           confirmed.
         </p>
+        <AnimatePresence initial={false} propagate>
         {!isOpen && (
+          <MotionSurface key="closed" distance={4}>
           <p role="status" className={theme.error}>
             This showtime has started. New bookings are closed.
           </p>
+          </MotionSurface>
         )}
         {error && (
+          <MotionSurface key="error" distance={4}>
           <p role="alert" className={theme.error}>
             {error}
           </p>
+          </MotionSurface>
         )}
+        </AnimatePresence>
         <div className={theme.actions}>
           <button
             type="button"

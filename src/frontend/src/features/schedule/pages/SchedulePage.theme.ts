@@ -1,5 +1,5 @@
 export const scheduleTheme = {
-  page: 'relative isolate flex min-h-svh flex-col bg-lobby motion-safe:animate-entrance-rise',
+  page: 'relative isolate flex min-h-svh flex-col bg-lobby',
   container:
     'relative z-10 mx-auto w-full max-w-6xl flex-1 px-5 pt-4 pb-10 sm:px-10 sm:pt-6 sm:pb-14',
   header:

@@ -1,6 +1,8 @@
 import type { BookingConfirmation } from '../../types';
 import { Button } from '../../../../shared/components/Button/Button';
 import { checkoutTheme as theme } from '../Checkout/Checkout.theme';
+import { MotionItem } from '../../../../shared/components/MotionItem/MotionItem';
+import { MotionSurface } from '../../../../shared/components/MotionSurface/MotionSurface';
 
 export function Confirmation({
   booking,
@@ -28,8 +30,8 @@ export function Confirmation({
       </p>
       <p className={theme.subtitle}>Booked for {booking.email}</p>
       <ul className={theme.tickets} aria-label="Your tickets">
-        {booking.tickets.map((ticket) => (
-          <li key={ticket.seatId} className={theme.ticket}>
+        {booking.tickets.map((ticket, index) => (
+          <MotionItem key={ticket.seatId} reveal delay={index * 0.045} className={theme.ticket}>
             <p className={theme.eyebrow}>ADMIT ONE</p>
             <p className={theme.seat}>
               Row {ticket.rowLabel} · {ticket.number}
@@ -42,10 +44,10 @@ export function Confirmation({
               height={196}
               referrerPolicy="no-referrer"
             />
-          </li>
+          </MotionItem>
         ))}
       </ul>
-      <div className={theme.form}>
+      <MotionSurface reveal className={theme.form}>
         <label className={theme.label}>
           Your private confirmation link
           <input
@@ -60,7 +62,7 @@ export function Confirmation({
           this booking. No email has been sent.
         </p>
         <Button onClick={onCopy}>Copy link</Button>
-      </div>
+      </MotionSurface>
     </section>
   );
 }

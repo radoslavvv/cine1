@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { BookingError, confirmBooking } from '../api/bookingQueries';
@@ -30,9 +30,6 @@ export function useCheckout({
   const [pending, setPending] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState('');
-  useEffect(() => {
-    if (active) heading.current?.focus();
-  }, [active]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

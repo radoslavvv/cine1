@@ -10,8 +10,13 @@ import { DatePicker } from '../components/DatePicker/DatePicker';
 import { ScheduleFilters } from '../components/ScheduleFilters/ScheduleFilters';
 
 import { useSchedule } from '../hooks/useSchedule';
+import { AnimatePresence, motion } from 'motion/react';
+import { MotionSurface } from '../../../shared/components/MotionSurface/MotionSurface';
+import { MotionItem } from '../../../shared/components/MotionItem/MotionItem';
+import { useCinemaMotion } from '../../../shared/hooks/useCinemaMotion';
 
 export function SchedulePage() {
+  const animation = useCinemaMotion();
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     dates,
@@ -36,7 +41,7 @@ export function SchedulePage() {
     <div id="schedule-top" className={theme.page}>
       <ProjectorAtmosphere />
       <div className={theme.container}>
-        <header className={theme.header}>
+        <MotionSurface className={theme.header}>
           <Link
             to="/"
             className={theme.brand}
@@ -44,21 +49,25 @@ export function SchedulePage() {
           >
             <Wordmark />
           </Link>
-        </header>
+        </MotionSurface>
 
         <h1 className="sr-only">Movie schedule</h1>
 
+        <MotionSurface delay={0.04}>
         <DatePicker
           dates={dates}
           selectedIndex={selectedIndex}
           onSelect={onDateSelect}
         />
+        </MotionSurface>
+        <MotionSurface delay={0.08}>
         <ScheduleFilters
           genres={genres}
           genre={genre}
           format={format}
           onChange={onFilterChange}
         />
+        </MotionSurface>
         <p className="sr-only" role="status">
           {selectedDate.fullLabel}
           {isPending
@@ -70,14 +79,18 @@ export function SchedulePage() {
                 : ''}
         </p>
 
-        <div className={theme.results} aria-busy={isPending && !isPaused}>
+        <motion.div layout className={theme.results} transition={animation.transition} aria-busy={isPending && !isPaused}>
+          <AnimatePresence mode="wait" propagate>
           {movies === undefined &&
             isPending &&
             (isPaused ? (
+              <MotionSurface key="offline" distance={6}>
               <StatusMessage title="You’re offline.">
                 <p>The schedule will load when you reconnect.</p>
               </StatusMessage>
+              </MotionSurface>
             ) : (
+              <MotionSurface key="loading" distance={6}>
               <ul className={theme.movieList} aria-hidden="true">
                 {[0, 1, 2].map((row) => (
                   <li key={row} className={theme.movieRow}>
@@ -101,18 +114,23 @@ export function SchedulePage() {
                   </li>
                 ))}
               </ul>
+              </MotionSurface>
             ))}
           {movies === undefined && isError && (
+            <MotionSurface key="error" distance={6}>
             <StatusMessage title="Couldn’t load schedule" isError>
               <p>The schedule could not be loaded. Please try again.</p>
               <Button onClick={onRetry}>
                 Try again <span aria-hidden="true">↗</span>
               </Button>
             </StatusMessage>
+            </MotionSurface>
           )}
           {movies !== undefined && (
-            <>
+            <MotionSurface key="loaded" distance={0}>
+              <AnimatePresence initial={false} propagate>
               {(isPaused || isError) && (
+                <MotionSurface key="refresh-status" distance={4}>
                 <p className={theme.catalogStatus} role="status">
                   {isPaused ? (
                     'You’re offline. Here’s the last schedule we loaded for this date.'
@@ -130,21 +148,25 @@ export function SchedulePage() {
                     </>
                   )}
                 </p>
+                </MotionSurface>
               )}
+              </AnimatePresence>
+              <AnimatePresence mode="wait" propagate>
               {movies.length === 0 ? (
-                <div className={theme.emptyState}>
+                <MotionSurface key="empty" className={theme.emptyState}>
                   <p className={theme.emptyTitle}>
                     No screenings match these filters.
                   </p>
                   <p className={theme.emptyHint}>
                     Try another date, genre, or format.
                   </p>
-                </div>
+                </MotionSurface>
               ) : (
-                <ul className={theme.movieList}>
-                  {movies.map((movie) => {
+                <motion.ul key="movies" layout className={theme.movieList} style={{ position: 'relative' }}>
+                  <AnimatePresence mode="popLayout" propagate>
+                  {movies.map((movie, index) => {
                     return (
-                      <li key={movie.id} className={theme.movieRow}>
+                      <MotionItem key={movie.id} reveal delay={index * 0.045} className={theme.movieRow}>
                         <div className={theme.poster}>
                           <MovieArtwork title={movie.title} showTitle={false} />
                         </div>
@@ -163,7 +185,8 @@ export function SchedulePage() {
                             className={theme.times}
                             aria-label={`Showtimes for ${movie.title}`}
                           >
-                            {movie.showtimes.map((showtime) => {
+                            <AnimatePresence mode="popLayout" propagate>
+                            {movie.showtimes.map((showtime, timeIndex) => {
                               const { status } = showtime;
                               const details = (
                                 <>
@@ -191,7 +214,7 @@ export function SchedulePage() {
                                 </>
                               );
                               return (
-                                <li key={showtime.id}>
+                                <MotionItem key={showtime.id} delay={timeIndex * 0.025}>
                                   {status === 'Upcoming' ? (
                                     <Link
                                       to={`/booking/${showtime.id}`}
@@ -206,19 +229,23 @@ export function SchedulePage() {
                                       {details}
                                     </div>
                                   )}
-                                </li>
+                                </MotionItem>
                               );
                             })}
+                            </AnimatePresence>
                           </ul>
                         </div>
-                      </li>
+                      </MotionItem>
                     );
                   })}
-                </ul>
+                  </AnimatePresence>
+                </motion.ul>
               )}
-            </>
+              </AnimatePresence>
+            </MotionSurface>
           )}
-        </div>
+          </AnimatePresence>
+        </motion.div>
       </div>
       <CarpetFooter topId="schedule-top" />
     </div>
