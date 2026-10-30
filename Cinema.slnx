@@ -1,6 +1,12 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/backend/">
-    <Project Path="src/backend/Cinema.Api.csproj" />
+    <Project Path="src/backend/Cinema.Api/Cinema.Api.csproj" />
+    <Project Path="src/backend/Cinema.Domain/Cinema.Domain.csproj" />
+    <Project Path="src/backend/Cinema.Application/Cinema.Application.csproj" />
+    <Project Path="src/backend/Cinema.Infrastructure/Cinema.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Cinema.Tests/Cinema.Tests.csproj" />
   </Folder>
 </Solution>
