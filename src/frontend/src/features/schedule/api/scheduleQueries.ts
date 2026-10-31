@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import type { Showtime } from '../types';
 import type { ShowtimeFormat } from '../model/scheduleFilters';
 
@@ -14,7 +14,8 @@ export const scheduleQueries = {
           throw new Error(`Schedule request failed (${response.status}).`);
         return response.json() as Promise<Showtime[]>;
       },
-      staleTime: 0,
+      staleTime: 30_000,
+      placeholderData: keepPreviousData,
       retry: 1,
       retryDelay: 1_000,
     }),

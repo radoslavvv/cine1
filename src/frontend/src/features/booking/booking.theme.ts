@@ -3,13 +3,13 @@ export const bookingPageTheme = {
   container:
     'relative z-10 mx-auto w-full max-w-6xl flex-1 px-5 pt-4 pb-12 sm:px-10 sm:pt-6',
   header:
-    'mb-7 grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-ivory/10 pb-4 motion-safe:animate-entrance-rise sm:mb-9',
+    'mb-7 grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-ivory/10 pb-4 sm:mb-9',
   navigation: 'col-start-1 row-start-1 min-w-0 justify-self-start',
   brand:
     'col-start-2 row-start-1 inline-flex min-h-11 items-center justify-self-center text-ivory transition-colors hover:text-amber-light',
   link: 'inline-flex min-h-11 items-center gap-2 text-sm text-muted transition-colors hover:text-amber-light',
   intro:
-    'mb-7 grid grid-cols-[72px_minmax(0,1fr)] items-center gap-5 rounded-sm border border-ivory/10 bg-surface/60 p-5 motion-safe:animate-entrance-rise motion-safe:[animation-delay:60ms] sm:mb-9 sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-7 sm:p-6',
+    'mb-7 grid grid-cols-[72px_minmax(0,1fr)] items-center gap-5 rounded-sm border border-ivory/10 bg-surface/60 p-5 sm:mb-9 sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-7 sm:p-6',
   poster:
     'relative aspect-[2/3] w-full overflow-hidden rounded-sm bg-raised shadow-screen',
   details: 'min-w-0',
@@ -20,9 +20,9 @@ export const bookingPageTheme = {
     'mt-3 flex flex-col gap-1 text-xs text-muted sm:flex-row sm:flex-wrap sm:gap-x-5 sm:text-sm',
   layout: 'grid w-full grid-cols-1 gap-5 sm:gap-6',
   seatMap:
-    'min-w-0 motion-safe:animate-entrance-rise motion-safe:[animation-delay:160ms]',
+    'min-w-0',
   summary:
-    'grid w-full gap-x-8 gap-y-3 motion-safe:animate-entrance-rise motion-safe:[animation-delay:260ms] sm:grid-cols-[minmax(0,1fr)_auto]',
+    'grid w-full gap-x-8 gap-y-3 sm:grid-cols-[minmax(0,1fr)_auto]',
   summaryHeader: 'flex flex-wrap items-center gap-x-5 gap-y-1 sm:col-start-1',
   summaryTitle: 'font-display text-2xl',
   selectionDetails: 'min-w-0 sm:col-start-1 sm:row-start-2',

@@ -30,6 +30,7 @@ export function SchedulePage() {
     isPaused,
     isError,
     isFetching,
+    isUpdating,
     onDateSelect,
     onFilterChange,
     onRetry,
@@ -70,7 +71,9 @@ export function SchedulePage() {
         </MotionSurface>
         <p className="sr-only" role="status">
           {selectedDate.fullLabel}
-          {isPending
+          {isUpdating
+            ? ' — updating schedule'
+            : isPending
             ? ' — loading schedule'
             : movies?.length === 0
               ? ' — no matching screenings'
@@ -79,8 +82,8 @@ export function SchedulePage() {
                 : ''}
         </p>
 
-        <motion.div layout className={theme.results} transition={animation.transition} aria-busy={isPending && !isPaused}>
-          <AnimatePresence mode="wait" propagate>
+        <motion.div layout className={theme.results} transition={animation.transition} aria-busy={(isPending || isUpdating) && !isPaused}>
+          {isUpdating && !isPaused && <p className="absolute -top-6 right-0 text-xs text-muted" role="status">Updating screenings…</p>}
           {movies === undefined &&
             isPending &&
             (isPaused ? (
@@ -90,7 +93,7 @@ export function SchedulePage() {
               </StatusMessage>
               </MotionSurface>
             ) : (
-              <MotionSurface key="loading" distance={6}>
+              <div key="loading">
               <ul className={theme.movieList} aria-hidden="true">
                 {[0, 1, 2].map((row) => (
                   <li key={row} className={theme.movieRow}>
@@ -114,7 +117,7 @@ export function SchedulePage() {
                   </li>
                 ))}
               </ul>
-              </MotionSurface>
+              </div>
             ))}
           {movies === undefined && isError && (
             <MotionSurface key="error" distance={6}>
@@ -127,7 +130,7 @@ export function SchedulePage() {
             </MotionSurface>
           )}
           {movies !== undefined && (
-            <MotionSurface key="loaded" distance={0}>
+            <div key="loaded" inert={isUpdating || undefined}>
               <AnimatePresence initial={false} propagate>
               {(isPaused || isError) && (
                 <MotionSurface key="refresh-status" distance={4}>
@@ -151,7 +154,7 @@ export function SchedulePage() {
                 </MotionSurface>
               )}
               </AnimatePresence>
-              <AnimatePresence mode="wait" propagate>
+              <AnimatePresence initial={false} mode="popLayout" propagate>
               {movies.length === 0 ? (
                 <MotionSurface key="empty" className={theme.emptyState}>
                   <p className={theme.emptyTitle}>
@@ -164,9 +167,9 @@ export function SchedulePage() {
               ) : (
                 <motion.ul key="movies" layout className={theme.movieList} style={{ position: 'relative' }}>
                   <AnimatePresence mode="popLayout" propagate>
-                  {movies.map((movie, index) => {
+                  {movies.map((movie) => {
                     return (
-                      <MotionItem key={movie.id} reveal delay={index * 0.045} className={theme.movieRow}>
+                      <MotionItem key={movie.id} initial={false} className={theme.movieRow}>
                         <div className={theme.poster}>
                           <MovieArtwork title={movie.title} posterUrl={movie.posterUrl} backdropUrl={movie.backdropUrl} showTitle={false} />
                         </div>
@@ -186,7 +189,7 @@ export function SchedulePage() {
                             aria-label={`Showtimes for ${movie.title}`}
                           >
                             <AnimatePresence mode="popLayout" propagate>
-                            {movie.showtimes.map((showtime, timeIndex) => {
+                            {movie.showtimes.map((showtime) => {
                               const { status } = showtime;
                               const details = (
                                 <>
@@ -214,7 +217,7 @@ export function SchedulePage() {
                                 </>
                               );
                               return (
-                                <MotionItem key={showtime.id} delay={timeIndex * 0.025}>
+                                <MotionItem key={showtime.id} initial={false}>
                                   {status === 'Upcoming' ? (
                                     <Link
                                       to={`/booking/${showtime.id}`}
@@ -242,9 +245,8 @@ export function SchedulePage() {
                 </motion.ul>
               )}
               </AnimatePresence>
-            </MotionSurface>
+            </div>
           )}
-          </AnimatePresence>
         </motion.div>
       </div>
       <CarpetFooter topId="schedule-top" />

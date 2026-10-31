@@ -6,7 +6,7 @@ export const scheduleTheme = {
     'grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-ivory/10 pb-4',
   brand:
     'col-start-2 inline-flex min-h-11 items-center justify-self-center text-ivory transition-colors hover:text-amber-light',
-  results: 'mt-7 min-h-[32rem]',
+  results: 'relative mt-7 min-h-[32rem]',
   catalogStatus: 'mb-5 text-sm leading-relaxed text-muted',
   movieList: 'divide-y divide-ivory/10 border-t border-ivory/10',
   movieRow:

@@ -1,5 +1,4 @@
 import { useLayoutEffect, type ReactNode } from 'react';
-import { MotionSurface } from '../../../shared/components/MotionSurface/MotionSurface';
 
 export function RouteTransition({ pathname, onEnter, children }: {
   pathname: string;
@@ -8,5 +7,5 @@ export function RouteTransition({ pathname, onEnter, children }: {
 }) {
   useLayoutEffect(() => onEnter(pathname), [pathname, onEnter]);
 
-  return <MotionSurface distance={0}>{children}</MotionSurface>;
+  return <div>{children}</div>;
 }

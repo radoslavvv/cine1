@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { scheduleQueries } from '../api/scheduleQueries';
 import { getScheduleDates } from '../model/scheduleDates';
-import { readScheduleFilters } from '../model/scheduleFilters';
+import { readScheduleFilters, SHOWTIME_FORMATS } from '../model/scheduleFilters';
 import {
   getScheduleGenres,
   getScheduleMovies,
@@ -23,10 +23,23 @@ export function useSchedule({
     dates,
   );
   const selectedDate = dates[selectedIndex];
+  const queryClient = useQueryClient();
   const query = useQuery(
     scheduleQueries.forFilters(selectedDate.key, genre, format),
   );
   const movies = getScheduleMovies(query.data, Date.now());
+
+  // Warm the other format choices after the visible request has completed.
+  useEffect(() => {
+    if (!query.isSuccess || query.isPlaceholderData) return;
+    for (const candidate of SHOWTIME_FORMATS) {
+      if (candidate !== format) {
+        void queryClient.prefetchQuery(
+          scheduleQueries.forFilters(selectedDate.key, genre, candidate),
+        );
+      }
+    }
+  }, [queryClient, selectedDate.key, genre, format, query.isSuccess, query.isPlaceholderData]);
 
   function updateFilters(values: Record<string, string>) {
     onSearchParamsChange((previous) => {
@@ -53,6 +66,7 @@ export function useSchedule({
     isPaused: query.isPaused,
     isError: query.isError,
     isFetching: query.isFetching,
+    isUpdating: query.isPlaceholderData,
     onDateSelect: (index: number) => updateFilters({ date: dates[index].key }),
     onFilterChange: (name: string, value: string) =>
       updateFilters({ [name]: value }),

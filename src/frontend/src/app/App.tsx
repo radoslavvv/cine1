@@ -5,7 +5,6 @@ import { BookingPage, ConfirmationPage } from '../features/booking';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { appTheme as theme } from './App.theme';
-import { AnimatePresence } from 'motion/react';
 import { RouteTransition } from './components/RouteTransition/RouteTransition';
 import { Suspense } from 'react';
 import { AdminRoute } from '../features/admin/AdminRoute';
@@ -17,7 +16,6 @@ export function App() {
 
   return (
     <main ref={mainRef} tabIndex={-1} className={theme.main}>
-      <AnimatePresence mode="wait">
         <RouteTransition key={pathname} pathname={pathname} onEnter={arrive}>
           <Routes location={location}>
             <Route
@@ -54,7 +52,6 @@ export function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </RouteTransition>
-      </AnimatePresence>
     </main>
   );
 }

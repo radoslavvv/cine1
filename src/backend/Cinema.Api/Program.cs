@@ -36,3 +36,6 @@ if (app.Environment.IsDevelopment())
     await app.Services.InitializeDatabaseAsync();
 }
 app.Run();
+
+// Expose the entry point to the in-process HTTP test host.
+public partial class Program;

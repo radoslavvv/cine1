@@ -6,6 +6,8 @@ const { test } = require('node:test');
 const ts = require('../src/frontend/node_modules/typescript');
 const {
   QueryClient,
+  QueryObserver,
+  keepPreviousData,
   queryOptions,
 } = require('../src/frontend/node_modules/@tanstack/react-query');
 
@@ -30,7 +32,7 @@ function loadQueries(fetch) {
     fetch,
     require(name) {
       assert.equal(name, '@tanstack/react-query');
-      return { queryOptions };
+      return { queryOptions, keepPreviousData };
     },
   });
   return exports.scheduleQueries;
@@ -95,7 +97,7 @@ test('requests include all selections and preserve cancellation', async () => {
   assert.equal(request.options.signal, controller.signal);
 });
 
-test('each changed filter requests fresh data with a separate cache entry', async () => {
+test('recent filter results are reused immediately with a separate cache entry', async () => {
   const calls = [];
   const queries = loadQueries(async (url) => {
     calls.push(url);
@@ -113,8 +115,8 @@ test('each changed filter requests fresh data with a separate cache entry', asyn
     await client.fetchQuery(twoD);
     assert.equal(
       calls.length,
-      5,
-      'Returning to an earlier filter must also request fresh data',
+      4,
+      'Returning to a recent filter must not wait on another request',
     );
     assert.equal(client.getQueryCache().getAll().length, 4);
     assert.equal(
@@ -127,6 +129,26 @@ test('each changed filter requests fresh data with a separate cache entry', asyn
     );
     assert.equal(client.getQueryData(twoD.queryKey)[0].request, calls[0]);
   } finally {
+    client.clear();
+  }
+});
+
+test('uncached filter changes keep the schedule mounted during the request', async () => {
+  let finish;
+  const queries = loadQueries(() => new Promise((resolve) => { finish = resolve; }));
+  const client = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } });
+  const first = queries.forFilters(dates[0].key, '', '2D');
+  client.setQueryData(first.queryKey, [{ id: 1 }]);
+  const observer = new QueryObserver(client, first);
+  const unsubscribe = observer.subscribe(() => {});
+  try {
+    observer.setOptions(queries.forFilters(dates[0].key, '', '3D'));
+    const pending = observer.getCurrentResult();
+    assert.equal(pending.data?.[0].id, 1, 'Visible results must survive a pending filter change');
+    assert.equal(pending.isPlaceholderData, true);
+  } finally {
+    finish?.({ ok: true, json: async () => [] });
+    unsubscribe();
     client.clear();
   }
 });

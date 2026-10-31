@@ -61,7 +61,7 @@ export function BookingPage() {
           </Link>
         </MotionSurface>
 
-        <AnimatePresence mode="wait" propagate>
+        <div>
         {notFound ? (
           <MotionSurface key="missing">
           <StatusMessage title="Showtime not found">
@@ -69,7 +69,7 @@ export function BookingPage() {
           </StatusMessage>
           </MotionSurface>
         ) : query.data ? (
-          <MotionSurface key="loaded" distance={0}>
+          <MotionSurface key="loaded" initial={false} distance={0}>
             <AnimatePresence initial={false} propagate>
             {(isError || isPaused) && (
               <MotionSurface key="refresh-status" distance={4}>
@@ -89,7 +89,7 @@ export function BookingPage() {
               </MotionSurface>
             )}
             </AnimatePresence>
-            <MotionSurface className={theme.intro} delay={0.04}>
+            <MotionSurface className={theme.intro} initial={false}>
               <div className={theme.poster}>
                 <MovieArtwork
                   title={query.data.movie.title}
@@ -152,8 +152,8 @@ export function BookingPage() {
               </StatusMessage>
               </MotionSurface>
             ) : (
-              <MotionSurface key="selection" className={theme.layout}>
-                <MotionSurface className={theme.seatMap} delay={0.04}>
+              <MotionSurface key="selection" className={theme.layout} initial={false}>
+                <MotionSurface className={theme.seatMap} initial={false}>
                   <SeatMap seats={seats} onToggle={toggle} />
                 </MotionSurface>
 
@@ -244,11 +244,11 @@ export function BookingPage() {
           </StatusMessage>
           </MotionSurface>
         ) : (
-          <MotionSurface key="loading" distance={6}>
+          <MotionSurface key="loading" initial={false} distance={0}>
           <BookingSkeleton />
           </MotionSurface>
         )}
-        </AnimatePresence>
+        </div>
       </div>
       <CarpetFooter topId="booking-top" />
     </div>

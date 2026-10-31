@@ -9,7 +9,6 @@ import { CarpetFooter } from '../../../shared/components/CarpetFooter/CarpetFoot
 import { ProjectorAtmosphere } from '../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere';
 
 import { useConfirmationPage } from '../hooks/useConfirmationPage';
-import { AnimatePresence } from 'motion/react';
 import { MotionSurface } from '../../../shared/components/MotionSurface/MotionSurface';
 
 export function ConfirmationPage() {
@@ -37,7 +36,7 @@ export function ConfirmationPage() {
             <Wordmark />
           </Link>
         </MotionSurface>
-        <AnimatePresence mode="wait" propagate>
+        <div>
         {missing ? (
           <MotionSurface key="missing">
           <StatusMessage title="Booking not found">
@@ -45,7 +44,7 @@ export function ConfirmationPage() {
           </StatusMessage>
           </MotionSurface>
         ) : booking ? (
-          <MotionSurface key="confirmation">
+          <MotionSurface key="confirmation" initial={false}>
           <Confirmation
             booking={booking}
             dateLabel={dateLabel}
@@ -66,11 +65,11 @@ export function ConfirmationPage() {
           </StatusMessage>
           </MotionSurface>
         ) : (
-          <MotionSurface key="loading" distance={6}>
+          <MotionSurface key="loading" initial={false} distance={0}>
           <ConfirmationSkeleton />
           </MotionSurface>
         )}
-        </AnimatePresence>
+        </div>
       </div>
       <CarpetFooter topId="confirmation-top" />
     </div>

@@ -81,7 +81,7 @@ Commit migrations and each project’s dependency lockfile. The local EF tool is
 
 Automatic migration and seeding run only in Development. Other environments require ConnectionStrings__Cinema and an explicit migration procedure before starting. EF tooling also needs connection configuration; append `-- --environment Development` when deliberately targeting the local development database. Keep the development credentials local.
 
-Backend tests cover application rules, project dependency boundaries, controller dependencies, and EF model/migration compatibility without requiring a database. Run the backend tests and builds above, and use the frontend guide for manual walkthroughs. If the sandbox prevents Vite's default config bundler from reading parent directories, use `npm run build -- --configLoader runner`.
+Backend tests cover application rules, project dependency boundaries, controller dependencies, EF model/migration compatibility, and HTTP validation/error contracts without requiring a database. Frontend tests use Vitest and React Testing Library for booking hooks and seat-map interactions. Run `npm test --prefix src/frontend` and `npm run test:legacy --prefix src/frontend`; use `npm run test:coverage --prefix src/frontend` for coverage reports. See the [testing strategy](docs/testing.md) for CI, test conventions, and the PostgreSQL/browser coverage roadmap. If the sandbox prevents Vite's default config bundler from reading parent directories, use `npm run build -- --configLoader runner`.
 
 ## Project and learning documents
 
