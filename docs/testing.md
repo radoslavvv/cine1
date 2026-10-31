@@ -17,7 +17,43 @@ npm run build --prefix src/frontend
 
 Use `npm run test:watch --prefix src/frontend` while changing frontend behavior. Use `npm run test:coverage --prefix src/frontend` to produce a terminal summary, `src/frontend/coverage/index.html`, and LCOV for tooling. If a Windows sandbox blocks Vite's configuration bundler from reading parent directories, the build supports `-- --configLoader runner`; tests can use `npm test --prefix src/frontend -- --configLoader runner`.
 
-The GitHub Actions workflow runs backend tests, frontend tests with coverage, existing regression scripts, and the TypeScript/production build on pushes and pull requests. Test results and coverage reports are uploaded as artifacts. Make both jobs required checks in repository branch protection when enabling this workflow.
+The GitHub Actions workflow runs fast backend tests, PostgreSQL integration tests, frontend tests with coverage, existing regression scripts, and the TypeScript/production build on pushes and pull requests. Test results and coverage reports are uploaded as artifacts. Make all three jobs required checks in repository branch protection when enabling this workflow.
+
+## PostgreSQL integration tests
+
+Run the database suite separately from the fast solution tests:
+
+```powershell
+./scripts/test-postgres.ps1
+./scripts/test-postgres.ps1 -Filter MigrationExecutionTests
+```
+
+The runner starts PostgreSQL 18 on a random loopback port and removes its disposable container when finished. Each test creates its own randomly named database, applies the committed migrations, and drops only that database. It never uses the application connection string or the developer's Compose database. Docker must be running. The project deliberately stays outside `CinemaR.slnx`, so the normal fast suite does not require Docker.
+
+CI runs the same project in the separate `postgres` job with a PostgreSQL service. To use another **disposable** server, set `CINEMAR_TEST_POSTGRES` to a connection string for an account allowed to create databases, then run:
+
+```powershell
+dotnet restore src/backend/CinemaR.IntegrationTests/CinemaR.IntegrationTests.csproj --locked-mode
+dotnet test src/backend/CinemaR.IntegrationTests/CinemaR.IntegrationTests.csproj --no-restore --configuration Release
+```
+
+The suite covers distinct production behaviors:
+
+- Competing customers buying one seat, overlapping multi-seat selections, and rejection of foreign-auditorium seats without partial writes.
+- Recovery of the same confirmation and ticket codes after screening start, and concurrent request-ID reuse across different screenings.
+- Account-owned history rather than email-based claiming, plus rejection of replay under a different owner.
+- Actual Identity sign-in cookies, customer denial from administrator endpoints, verified-email booking ownership, and forged expected-owner rejection.
+- Email verification gating sign-in, single-use password reset and existing-session revocation, with real Identity tokens (email delivery itself is outside the test).
+- Private uncached PNG ticket endpoints, missing-seat rejection, and revoked QR access after cancellation by an authenticated administrator.
+- Cancelled tickets, retained booking history, booked-showtime and permanent layout protection, conflicting batches, and rollback after immediate seat deletion followed by a failed write.
+- PostgreSQL's exclusion constraint, adjacent occupied intervals, and independent auditoriums.
+- SQL date/genre/format filtering at both Kyiv daylight-saving boundaries.
+- Empty initialization from the idempotent deployment script, script reapplication, legacy history/data upgrades, schema rollback/reapply, and refusal of ambiguous dual histories.
+- Repeatable development seeding without altering custom bookings and layouts.
+
+Frontend regression tests additionally exercise private-cache removal and in-flight request cancellation on sign-out, route authorization, safe sign-in return destinations, tab-scoped selection expiry, movie edits, auditorium replacement intent, batch showtime creation, and showtimes filter transitions. They use actual hooks, QueryClient and transport code, replacing browser/network boundaries rather than reimplementing the behavior in tests.
+
+Two defects were reproduced and corrected while adding coverage: feature-first administration query keys escaped sign-out cleanup; a missing SQL statement terminator broke the idempotent deployment script. Historical migration IDs and data operations are unchanged; the migration edit only terminates the existing UPDATE statement inside the generated conditional block.
 
 ## Where tests belong
 
@@ -27,22 +63,11 @@ The GitHub Actions workflow runs backend tests, frontend tests with coverage, ex
 - **HTTP contracts:** `ApiTests` uses `WebApplicationFactory` with actual routing, model binding, validation, controllers, and booking application service. Only booking persistence is replaced; Data Protection uses isolated in-memory test keys. Tests run in Production to avoid Development startup migrations, and verify that administration and booking history require sign-in. They cover CSRF protection, expired/forged checkout identity, Problem Details, checkout conflict codes, validation, and private uncached confirmation errors. They do not verify persistence or readiness connectivity.
 - **Existing regression scripts:** `test:legacy` explicitly lists the standalone Node checks. Keep them running while moving relevant cases to Vitest when touching those features. Prefer normal imports and real React rendering for new tests; avoid extending the custom transpiler/VM loaders. The write-enabled `check-admin-api.cjs` is separate and requires a disposable API/database.
 
-## Next coverage to add
+## Remaining coverage to add
 
-The largest remaining gap is persistence. Create a separate PostgreSQL integration suite using a disposable PostgreSQL 18 container per run, apply the committed migrations, and insert a small fixed catalog. Use a separate database for each isolated fixture and never use the developer's Compose database. Keep Development catalog expansion out of normal fixture setup.
+The PostgreSQL suite establishes the core persistence behaviors above. Extend it with deterministic cancellation/layout-replacement races against booking, same-request concurrent replay on one screening, changed-email/seat replay conflicts, and customer-history page-boundary ordering. These remain distinct gaps; the suite is not a load test or evidence of all possible interleavings. Make the `postgres` job a required check when configuring branch protection.
 
-Prioritize these real-database assertions:
-
-1. Two independent contexts concurrently booking the same seat produce exactly one confirmation; the loser gets `SeatsTaken` and creates no partial booking.
-2. Replaying an identical request ID returns the same confirmation and ticket codes, including after showtime start. Reusing that ID with different seats, email, or showtime returns `RequestConflict`.
-3. Booking multiple seats is atomic; one occupied or foreign-auditorium seat prevents every write.
-4. The exclusion constraint rejects overlapping screenings in one auditorium but allows adjacent occupied intervals and simultaneous screenings in different auditoriums.
-5. Kyiv date filtering spans the spring and autumn clock changes correctly in actual SQL, and cancelled/archived records follow the public visibility rules.
-6. Migrations work on an empty database; seeding twice preserves bookings, layouts, and catalog counts.
-
-Use PostgreSQL for these checks: repository doubles and EF model tests cannot prove locking, transactions, SQL translation, uniqueness, or exclusion constraints. SQLite and EF InMemory cannot substitute for those PostgreSQL guarantees. Add the database job as a required check once this suite exists; the current workflow does not claim that coverage.
-
-After persistence, add a small Playwright suite against the built frontend and an API backed by that disposable database. Cover showtimes → seat selection → checkout → confirmation → reload, a second customer taking a selected seat, and administrator access being allowed only after authorized sign-in. Add one narrow/mobile seat-layout check and one reduced-motion journey. Use a fixed fixture clock/catalog, accessible locators, and condition-based waits. Keep visual choreography and scroll behavior in browser checks rather than jsdom assertions.
+Add a small Playwright suite against the built frontend and an API backed by a disposable database. Cover showtimes → seat selection → checkout → confirmation → reload, a second customer taking a selected seat, and administrator access being allowed only after authorized sign-in. Add one narrow/mobile seat-layout check and one reduced-motion journey. Use a fixed fixture clock/catalog, accessible locators, and condition-based waits. Keep visual choreography and scroll behavior in browser checks rather than jsdom assertions.
 
 ## Rules for new changes
 

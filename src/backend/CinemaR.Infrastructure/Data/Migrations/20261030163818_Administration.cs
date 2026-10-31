@@ -66,7 +66,7 @@ namespace CinemaR.Infrastructure.Data.Migrations
                 stored: true);
 
             // Existing rooms accepted all four formats before capabilities were explicit.
-            migrationBuilder.Sql("UPDATE catalog.auditoriums SET supported_formats = ARRAY['2D', '3D', 'IMAX 2D', 'IMAX 3D']");
+            migrationBuilder.Sql("UPDATE catalog.auditoriums SET supported_formats = ARRAY['2D', '3D', 'IMAX 2D', 'IMAX 3D'];");
             // Cancelled screenings remain historical records but no longer occupy the room.
             migrationBuilder.Sql("""
                 ALTER TABLE catalog.showtimes DROP CONSTRAINT ex_showtimes_auditorium_occupied;

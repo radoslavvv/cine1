@@ -71,7 +71,7 @@ dotnet test CinemaR.slnx --no-restore
 dotnet run --project src/backend/CinemaR.Api --launch-profile http
 ```
 
-Tests do not connect to a live database. They cover showtimes boundaries across Kyiv clock changes, command validation, booking request identity, seat-map timing, administration write rules, dependency direction, and the EF migration snapshot. For manual checks, run PostgreSQL through Compose and exercise the showtimes, seat maps, bookings, and administration flows.
+The solution's fast tests do not connect to a live database. They cover showtimes boundaries across Kyiv clock changes, command validation, booking request identity, seat-map timing, administration write rules, dependency direction, and the EF migration snapshot. Run `./scripts/test-postgres.ps1` for the separate PostgreSQL 18 integration suite covering persistence, concurrency, Identity HTTP authorization, and migration execution. See [testing](testing.md) for coverage and remaining gaps. For manual checks, run PostgreSQL through Compose and exercise the showtimes, seat maps, bookings, and administration flows.
 
 ## EF migrations
 

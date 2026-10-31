@@ -23,6 +23,35 @@ jobs:
           name: backend-test-results
           path: TestResults
 
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: cinemar_tests
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      CINEMAR_TEST_POSTGRES: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=cinemar_tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore src/backend/CinemaR.IntegrationTests/CinemaR.IntegrationTests.csproj --locked-mode
+      - run: dotnet test src/backend/CinemaR.IntegrationTests/CinemaR.IntegrationTests.csproj --no-restore --configuration Release --logger trx --results-directory TestResults
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: postgres-test-results
+          path: TestResults
+
   frontend:
     runs-on: ubuntu-latest
     defaults:

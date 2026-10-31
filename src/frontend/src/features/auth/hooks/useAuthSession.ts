@@ -27,6 +27,7 @@ export function useAuthSession(): AuthState {
       if (previousId.current !== (session.customer?.id ?? null)) {
         const privateQueries = {
           predicate: (query: { queryKey: readonly unknown[] }) =>
+            query.queryKey[1] === 'admin' ||
             ['admin', 'my-bookings', 'booking-confirmation'].includes(
               String(query.queryKey[0]),
             ),
