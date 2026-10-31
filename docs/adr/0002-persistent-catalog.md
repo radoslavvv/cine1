@@ -1,5 +1,7 @@
 # Persist the catalog and screenings in PostgreSQL
 
+Ownership and naming superseded by [ADR 0006](0006-concept-owned-cinema-features.md). Historical rationale follows.
+
 Store movies, auditoriums, and showtimes in a Catalog-owned PostgreSQL schema through EF Core. The public schedule reads dated screenings instead of generating times from movie positions; screening timestamps represent UTC instants while schedule dates belong to Europe/Kyiv. This makes calendar boundaries explicit, including 23- and 25-hour daylight-saving days.
 
 Each showtime records its occupied interval using the scheduled movie runtime plus a 15-minute turnaround. A PostgreSQL exclusion constraint rejects overlapping occupied intervals in the same auditorium, including concurrent inserts; changing a movie's catalog runtime later must not silently rewrite an existing screening's interval.

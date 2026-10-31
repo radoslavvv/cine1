@@ -18,7 +18,7 @@ assert.ok(
   'Set AUTH_TEST_CONNECTION to the disposable cinemar_auth_verification database.',
 );
 const backend = fileURLToPath(
-  new URL('../src/backend/Cinema.Api/', import.meta.url),
+  new URL('../src/backend/CinemaR.Api/', import.meta.url),
 );
 const suffix = randomUUID().slice(0, 8);
 const password = `Cinema-${randomUUID()}-Aa1!`;
@@ -103,7 +103,7 @@ async function signIn(client, address, secret = password) {
   assert.equal(response.status, 200, 'Verified credentials sign in.');
   const cookie = response.headers
     .getSetCookie()
-    .find((value) => value.startsWith('cinemar.session='));
+    .find((value) => value.startsWith('cinemaR.session='));
   assert.match(cookie, /httponly/i);
   assert.match(cookie, /samesite=strict/i);
   assert.doesNotMatch(
@@ -115,7 +115,7 @@ async function signIn(client, address, secret = password) {
 }
 
 const customer = browser();
-assert.equal((await customer.request('/api/admin/catalog')).status, 401);
+assert.equal((await customer.request('/api/admin/movies')).status, 401);
 assert.equal((await customer.request('/api/account/bookings')).status, 401);
 assert.equal(
   (
@@ -154,7 +154,7 @@ assert.equal(
   'Registration cannot grant administrator privileges.',
 );
 assert.equal(
-  (await customer.request('/api/admin/catalog')).status,
+  (await customer.request('/api/admin/movies')).status,
   403,
   'Customer cannot access administration.',
 );
@@ -165,7 +165,7 @@ console.log(
 const setup = spawnSync(
   'dotnet',
   [
-    'bin/Debug/net10.0/Cinema.Api.dll',
+    'bin/Debug/net10.0/CinemaR.Api.dll',
     'setup-admin',
     '--environment',
     'Development',
@@ -176,7 +176,7 @@ const setup = spawnSync(
     cwd: backend,
     encoding: 'utf8',
     windowsHide: true,
-    env: { ...process.env, ConnectionStrings__Cinema: connection },
+    env: { ...process.env, ConnectionStrings__CinemaR: connection },
     input: `${adminEmail}\n${password}\n`,
   },
 );
@@ -184,7 +184,7 @@ assert.equal(setup.status, 0, 'Administrator setup succeeds.');
 const repeat = spawnSync(
   'dotnet',
   [
-    'bin/Debug/net10.0/Cinema.Api.dll',
+    'bin/Debug/net10.0/CinemaR.Api.dll',
     'setup-admin',
     '--environment',
     'Development',
@@ -195,7 +195,7 @@ const repeat = spawnSync(
     cwd: backend,
     encoding: 'utf8',
     windowsHide: true,
-    env: { ...process.env, ConnectionStrings__Cinema: connection },
+    env: { ...process.env, ConnectionStrings__CinemaR: connection },
   },
 );
 assert.equal(repeat.status, 0);
@@ -203,7 +203,7 @@ assert.match(repeat.stdout, /already exists/);
 const admin = browser();
 await verify(admin, adminEmail);
 assert.equal((await signIn(admin, adminEmail)).isAdministrator, true);
-const catalog = await admin.request('/api/admin/catalog');
+const catalog = await admin.request('/api/admin/movies');
 assert.equal(
   catalog.status,
   200,
@@ -250,10 +250,10 @@ const dates = Array.from({ length: 7 }, (_, offset) =>
 );
 let map;
 for (const date of dates) {
-  const schedule = await customer.request(
+  const showtimes = await customer.request(
     `/api/showtimes?date=${date}&format=2D`,
   );
-  const showtime = schedule.result?.find(
+  const showtime = showtimes.result?.find(
     (item) => Date.parse(item.startsAt) > Date.now() + 600_000,
   );
   if (!showtime) continue;

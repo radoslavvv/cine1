@@ -17,20 +17,20 @@ export function useProjectorAtmosphere() {
         : 0;
       root.style.setProperty('--dust-scroll', `${offset}px`);
     };
-    const scheduleUpdate = () => {
+    const showtimesUpdate = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
     const sync = () => {
-      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('scroll', showtimesUpdate);
       if (motion.matches)
-        window.addEventListener('scroll', scheduleUpdate, { passive: true });
-      scheduleUpdate();
+        window.addEventListener('scroll', showtimesUpdate, { passive: true });
+      showtimesUpdate();
     };
     sync();
     motion.addEventListener('change', sync);
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('scroll', showtimesUpdate);
       motion.removeEventListener('change', sync);
     };
   }, []);

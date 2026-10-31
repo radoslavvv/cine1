@@ -8,5 +8,5 @@ export function HomePage({ onComplete }: { onComplete: () => void }) {
   const { search } = useLocation();
   const journey = useCinemaJourney(onComplete);
 
-  return <CinemaEntrance {...journey} scheduleHref={`/schedule${search}`} />;
+  return <CinemaEntrance {...journey} showtimesHref={`/showtimes${search}`} />;
 }

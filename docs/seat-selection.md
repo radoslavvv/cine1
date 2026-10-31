@@ -14,7 +14,7 @@
 
 ## Implementation
 
-- Link upcoming showtimes on the schedule to a directly addressable seat-selection page, with navigation back to the schedule.
+- Link upcoming showtimes on the showtimes to a directly addressable seat-selection page, with navigation back to the showtimes.
 - Follow the existing frontend feature and adjacent theme-file conventions. Match the current cinema styling and support keyboard and mobile use.
 - Add a backend read endpoint for one showtime's movie details, start time, auditorium, and seat layout, following the existing controller/service/repository boundaries.
 - Persist auditorium seats and their grid positions, and seed distinct layouts for the existing three auditoriums.
@@ -23,13 +23,13 @@
 
 The page is `/booking/:showtimeId`; its read endpoint is `GET /api/showtimes/{showtimeId}/seats`. The response includes the movie, auditorium, seat IDs/labels/grid positions, UTC start time, server time, and whether selection is open. Unknown showtimes return 404 Problem Details; started showtimes return their layout with selection closed. Responses are not HTTP-cached.
 
-Catalog owns physical seats; Booking reads them for a showtime through its own service/repository contract. No booking, hold, customer, or payment record is created. Development migration/seeding adds layouts independently of the existing catalog seed, preserving showtimes and existing custom seat layouts. The three sample layouts contain 56, 92, and 136 seats.
+Auditoriums owns physical seats; Booking reads them for a showtime through its own service/repository contract. No booking, hold, customer, or payment record is created. Development migration/seeding adds layouts independently of the existing cinema seed, preserving showtimes and existing custom seat layouts. The three sample layouts contain 56, 92, and 136 seats.
 
 The page uses the returned server time to account for a different client clock. It checks the start boundary with a scheduled timer, a one-second interval, on focus/visibility changes, and again when a seat is toggled. Mobile layouts scroll horizontally within the seat map; seats use 44px button targets with accessible row/seat labels and pressed state.
 
 ## Manual walkthrough
 
-1. Open the schedule and choose an upcoming showtime. Verify movie, Kyiv start time, and auditorium details.
+1. Open the showtimes and choose an upcoming showtime. Verify movie, Kyiv start time, and auditorium details.
 2. Select eight seats. Further unselected seats become disabled; selected seats remain available to deselect. Clear the selection.
 3. Refresh or navigate away and back. Selection starts empty.
 4. Open showtimes in each auditorium. Verify shorter front rows, central aisles, and the largest auditorium's cross aisle.
@@ -44,4 +44,4 @@ The user confirmed the complete design and authorized implementation.
 
 ## Layout refinement
 
-The user confirmed a left-side back control, film artwork presented as a card, and a wider centered seat map with the selection summary underneath. The brand header remains above Back to schedule at the left, followed by a horizontal poster/details card, then the map and full-width summary in a centered column. The card adapts to narrow screens. MovieArtwork and its local assets now live in shared UI so Schedule and Booking use the same artwork and illustrated fallback without importing each other's internals.
+The user confirmed a left-side back control, film artwork presented as a card, and a wider centered seat map with the selection summary underneath. The brand header remains above Back to showtimes at the left, followed by a horizontal poster/details card, then the map and full-width summary in a centered column. The card adapts to narrow screens. MovieArtwork and its local assets now live in shared UI so Showtimes and Booking use the same artwork and illustrated fallback without importing each other's internals.

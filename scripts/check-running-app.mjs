@@ -28,7 +28,7 @@ for (const path of [
   else
     assert.ok(
       Array.isArray(body),
-      'The schedule endpoint must return screenings.',
+      'The showtimes endpoint must return screenings.',
     );
   console.log(`PASS ${path}`);
 }

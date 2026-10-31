@@ -8,8 +8,9 @@ param(
 $ErrorActionPreference = 'Stop'
 $backendProcess = $null
 $frontendProcess = $null
-$previousProxy = $env:CINEMA_API_PROXY
+$previousProxy = $env:CINEMAR_API_PROXY
 $previousEnvironment = $env:ASPNETCORE_ENVIRONMENT
+$previousFrontendOrigin = $env:Identity__FrontendOrigin
 
 function Invoke-Checked {
     param([string]$Command, [string[]]$Arguments)
@@ -66,8 +67,10 @@ try {
         }
     }
 
-    Write-Host 'Starting PostgreSQL…' -ForegroundColor Cyan
-    Invoke-Checked 'docker' @('compose', 'up', '-d', '--wait', 'postgres')
+    Write-Host 'Starting PostgreSQL and the local email inbox…' -ForegroundColor Cyan
+    Invoke-Checked 'docker' @('compose', 'up', '-d', '--wait', 'postgres', 'mailpit')
+
+    & (Join-Path $PSScriptRoot 'scripts/initialize-cinemaR-database.ps1')
 
     if (-not (Test-Path -LiteralPath 'src/frontend/node_modules/.package-lock.json')) {
         Write-Host 'Installing frontend dependencies…' -ForegroundColor Cyan
@@ -79,8 +82,9 @@ try {
     if ($chosenFrontendPort -eq $chosenBackendPort) { $chosenFrontendPort = Find-FreePort ($chosenFrontendPort + 1) }
     $backendUrl = "http://localhost:$chosenBackendPort"
     $frontendUrl = "http://localhost:$chosenFrontendPort"
-    $env:CINEMA_API_PROXY = $backendUrl
+    $env:CINEMAR_API_PROXY = $backendUrl
     $env:ASPNETCORE_ENVIRONMENT = 'Development'
+    $env:Identity__FrontendOrigin = $frontendUrl
     $logDirectory = Join-Path $PSScriptRoot '.dev'
     New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
     $runId = Get-Date -Format 'yyyyMMdd-HHmmss-fff'
@@ -92,18 +96,25 @@ try {
     Write-Host 'Starting backend and frontend…' -ForegroundColor Cyan
     # Launch without an apphost so a previous locally running .exe cannot block compilation.
     $backendProcess = Start-Process -FilePath (Get-Command dotnet).Source -WorkingDirectory $PSScriptRoot `
-        -ArgumentList @('run', '--project', 'src/backend', '--no-launch-profile', '-p:UseAppHost=false', '--', '--urls', $backendUrl, '--Logging:LogLevel:Microsoft.EntityFrameworkCore', 'Warning') `
+        -ArgumentList @('run', '--project', 'src/backend/CinemaR.Api', '--no-launch-profile', '-p:UseAppHost=false', '--', '--urls', $backendUrl, '--Logging:LogLevel:Microsoft.EntityFrameworkCore', 'Warning') `
         -WindowStyle Hidden -PassThru -RedirectStandardOutput $backendLog -RedirectStandardError $backendError
     $frontendProcess = Start-Process -FilePath $env:ComSpec -WorkingDirectory (Join-Path $PSScriptRoot 'src/frontend') `
         -ArgumentList @('/d', '/c', "npm run dev -- --host localhost --port $chosenFrontendPort") `
         -WindowStyle Hidden -PassThru -RedirectStandardOutput $frontendLog -RedirectStandardError $frontendError
 
     Wait-Endpoint "$backendUrl/health/ready" $backendProcess @($backendLog, $backendError)
-    Wait-Endpoint "$backendUrl/api/admin/catalog" $backendProcess @($backendLog, $backendError)
+    Wait-Endpoint "$backendUrl/api/account/session" $backendProcess @($backendLog, $backendError)
     Wait-Endpoint "$frontendUrl/admin" $frontendProcess @($frontendLog, $frontendError)
+    # Check the API through Vite too: a rendered page alone cannot prove its proxy is healthy.
+    # Node's Intl uses the same IANA zone as the frontend, including on Windows PowerShell.
+    $cinemaDate = & node -p "new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Kyiv', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())"
+    if ($LASTEXITCODE -ne 0) { throw 'Could not determine the cinema date for the startup check.' }
+    Wait-Endpoint "$frontendUrl/api/account/session" $frontendProcess @($frontendLog, $frontendError)
+    Wait-Endpoint "$frontendUrl/api/showtimes?date=$cinemaDate&format=2D" $frontendProcess @($frontendLog, $frontendError)
 
-    Write-Host "`nCinema is ready: $frontendUrl/admin" -ForegroundColor Green
+    Write-Host "`ncinemaR is ready: $frontendUrl/admin" -ForegroundColor Green
     Write-Host "Backend: $backendUrl"
+    Write-Host 'Account email inbox: http://localhost:8025'
     Write-Host "Logs: $logDirectory"
     if ($Check) {
         Write-Host 'Startup check passed. Stopping the two test processes.' -ForegroundColor Green
@@ -122,7 +133,8 @@ try {
 finally {
     Stop-StartedProcess $frontendProcess
     Stop-StartedProcess $backendProcess
-    $env:CINEMA_API_PROXY = $previousProxy
+    $env:CINEMAR_API_PROXY = $previousProxy
     $env:ASPNETCORE_ENVIRONMENT = $previousEnvironment
+    $env:Identity__FrontendOrigin = $previousFrontendOrigin
     Pop-Location
 }

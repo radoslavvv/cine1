@@ -25,7 +25,7 @@ function load(file, state) {
     exports,
     URLSearchParams,
     require(name) {
-      if (name.endsWith('/useSchedule')) return { useSchedule: () => state };
+      if (name.endsWith('/useShowtimes')) return { useShowtimes: () => state };
       if (name.endsWith('/useBookingPage'))
         return { useBookingPage: () => state };
       if (name.endsWith('/useConfirmationPage'))
@@ -69,15 +69,15 @@ const state = {
 };
 
 function render(overrides) {
-  const { SchedulePage } = load(
+  const { ShowtimesPage } = load(
     path.resolve(
       __dirname,
-      '../src/frontend/src/features/schedule/pages/SchedulePage.tsx',
+      '../src/frontend/src/features/showtimes/pages/ShowtimesPage.tsx',
     ),
     { ...state, ...overrides },
   );
   return renderToStaticMarkup(
-    React.createElement(MemoryRouter, null, React.createElement(SchedulePage)),
+    React.createElement(MemoryRouter, null, React.createElement(ShowtimesPage)),
   );
 }
 

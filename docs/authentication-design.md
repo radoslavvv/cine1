@@ -40,16 +40,16 @@ Design confirmed by the user and implemented. Authentication uses the existing R
 
 Run `docker compose up -d --wait` to start PostgreSQL and Mailpit. Start the API and frontend using the README commands, or use `./start.ps1`. The startup script preserves its chosen frontend port in account email links. Open [the inbox](http://localhost:8025) to read verification and password-reset emails; messages stay local. Booking confirmation emails remain deferred.
 
-The launcher checks both session and schedule requests through the frontend proxy before reporting ready. To check an already-running app, run `node scripts/check-running-app.mjs http://localhost:5173`. After backend changes, restart the API process; Vite updates frontend code only. A session 404 alongside schedule failures can indicate an old backend process, especially one launched from the former `src/backend/bin` path rather than the current `src/backend/Cinema.Api` project.
+The launcher checks both session and showtimes requests through the frontend proxy before reporting ready. To check an already-running app, run `node scripts/check-running-app.mjs http://localhost:5173`. After backend changes, restart the API process; Vite updates frontend code only. A session 404 alongside showtimes failures can indicate an old backend process, especially one launched from the former `src/backend/bin` path rather than the current `src/backend/CinemaR.Api` project.
 
-Account forms use the same cinema header as the schedule and booking pages, plus the cinema footer. Registration labels its credential field Password; New password is reserved for password reset. Verification resend is offered after registration, on email-verification pages, or after a failed sign-in. A service failure leaves account navigation available and shows a separate message with a visibly pending retry button.
+Account forms use the same cinema header as the showtimes and booking pages, plus the cinema footer. Registration labels its credential field Password; New password is reserved for password reset. Verification resend is offered after registration, on email-verification pages, or after a failed sign-in. A service failure leaves account navigation available and shows a separate message with a visibly pending retry button.
 
 Register at `/account/register`, open the verification link from Mailpit, click Verify email, and sign in. My bookings is available at `/account/bookings`. Registration, verification resend, forgotten-password requests, verification, reset, and sign-in share a per-IP limit of ten requests per minute. Five failed password attempts lock an account for fifteen minutes. Passwords require 12–128 characters with uppercase, lowercase, a digit, and a symbol. Verification and reset links expire after one hour; a successful password reset invalidates existing sessions.
 
 Create the real administrator yourself, choosing its email and password when prompted:
 
 ```powershell
-dotnet run --project src/backend/Cinema.Api --no-launch-profile -- setup-admin --environment Development
+dotnet run --project src/backend/CinemaR.Api --no-launch-profile -- setup-admin --environment Development
 ```
 
 The command hides typed passwords. It does not promote an existing customer or change an existing administrator. If email delivery fails after creation, use Resend verification. A second run reports that an administrator already exists without changing credentials. A PostgreSQL advisory lock and filtered unique index prevent concurrent commands from creating multiple administrators. Verify the email before signing in to `/admin`. No administrator password is bundled with the app.
@@ -71,7 +71,7 @@ Deployment remains outside this increment. Before deploying, configure a trusted
 Fast checks:
 
 ```powershell
-dotnet test Cinema.slnx --no-restore
+dotnet test CinemaR.slnx --no-restore
 npm test --prefix src/frontend -- --configLoader runner
 npm run test:legacy --prefix src/frontend
 npm run build --prefix src/frontend -- --configLoader runner
@@ -83,8 +83,8 @@ To run it against a fresh disposable database, start Mailpit and PostgreSQL, cre
 
 ```powershell
 docker compose exec postgres createdb -U cinemar cinemar_auth_verification
-$env:ConnectionStrings__Cinema = 'Host=127.0.0.1;Port=5433;Database=cinemar_auth_verification;Username=cinemar;Password=cinemar_local'
-dotnet run --project src/backend/Cinema.Api --no-launch-profile -- --environment Development --urls http://127.0.0.1:5081
+$env:ConnectionStrings__CinemaR = 'Host=127.0.0.1;Port=5433;Database=cinemar_auth_verification;Username=cinemar;Password=cinemar_local'
+dotnet run --project src/backend/CinemaR.Api --no-launch-profile -- --environment Development --urls http://127.0.0.1:5081
 ```
 
 In another terminal:

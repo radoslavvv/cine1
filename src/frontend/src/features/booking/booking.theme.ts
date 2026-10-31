@@ -19,10 +19,8 @@ export const bookingPageTheme = {
   metadata:
     'mt-3 flex flex-col gap-1 text-xs text-muted sm:flex-row sm:flex-wrap sm:gap-x-5 sm:text-sm',
   layout: 'grid w-full grid-cols-1 gap-5 sm:gap-6',
-  seatMap:
-    'min-w-0',
-  summary:
-    'grid w-full gap-x-8 gap-y-3 sm:grid-cols-[minmax(0,1fr)_auto]',
+  seatMap: 'min-w-0',
+  summary: 'grid w-full gap-x-8 gap-y-3 sm:grid-cols-[minmax(0,1fr)_auto]',
   summaryHeader: 'flex flex-wrap items-center gap-x-5 gap-y-1 sm:col-start-1',
   summaryTitle: 'font-display text-2xl',
   selectionDetails: 'min-w-0 sm:col-start-1 sm:row-start-2',

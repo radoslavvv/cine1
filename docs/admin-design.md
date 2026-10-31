@@ -9,7 +9,7 @@ Status: implemented. Authentication and administrator access are now covered by 
 - Booking management is view-only. Screening cancellation is the sole agreed operation that indirectly cancels bookings.
 - Once a showtime has confirmed bookings, prevent changing its movie, start time, or auditorium. Allow an explicit screening cancellation flow that also cancels its bookings.
 - Start auditorium creation with a name, row count, seats per row, and a seating preview. Permanently lock the layout after its first confirmed booking; use a replacement auditorium and retire the old one after its remaining screenings finish. This supersedes the initial upcoming-bookings-only restriction.
-- Screening cancellation invalidates its tickets, removes it from the public schedule, and preserves bookings for admin viewing. Existing confirmation links display "Screening cancelled." Email notifications are deferred.
+- Screening cancellation invalidates its tickets, removes it from the public showtimes, and preserves bookings for admin viewing. Existing confirmation links display "Screening cancelled." Email notifications are deferred.
 - Movie forms accept optional poster and backdrop image URLs with placeholder fallbacks. File uploads are deferred.
 - Support creating one showtime or repeating the same movie, auditorium, format, and local start time over multiple selected dates. Retain the 15-minute turnaround and report conflicting screenings when rejecting overlaps.
 - Repeated scheduling is atomic: any conflict rejects the entire batch without creating screenings. Identify conflicting dates and screenings so the admin can adjust and retry.

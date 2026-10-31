@@ -49,7 +49,7 @@ export function BookingPage() {
           {notFound ? (
             <MotionSurface key="missing">
               <StatusMessage title="Showtime not found">
-                <p>Choose a showtime from the schedule.</p>
+                <p>Choose a showtime from the showtimes.</p>
               </StatusMessage>
             </MotionSurface>
           ) : query.data ? (

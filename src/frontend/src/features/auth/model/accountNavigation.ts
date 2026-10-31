@@ -1,7 +1,7 @@
 export function safeReturnTo(value: string | null) {
   // Only known application destinations; never redirect to an external URL or back into sign-in.
   return value &&
-    /^\/(?:booking\/[1-9]\d*|schedule|admin(?:\/[a-z]+)?)(?:\?[^#]*)?$/.test(
+    /^\/(?:booking\/[1-9]\d*|showtimes|admin(?:\/[a-z]+)?)(?:\?[^#]*)?$/.test(
       value,
     )
     ? value

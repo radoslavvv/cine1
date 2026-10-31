@@ -59,7 +59,7 @@ describe('account pages within the cinema', () => {
     );
     expect(screen.getByLabelText('Confirm password')).toBeInTheDocument();
     expect(
-      screen.queryByRole('link', { name: /back to schedule/i }),
+      screen.queryByRole('link', { name: /back to showtimes/i }),
     ).not.toBeInTheDocument();
     await waitFor(() => expect(api.loadSession).toHaveBeenCalled());
   });

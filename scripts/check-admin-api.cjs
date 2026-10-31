@@ -74,7 +74,7 @@ const day = (offset) =>
     'admin',
   );
   await refreshSession(sessions.admin);
-  const initial = await admin('catalog');
+  const initial = { movies: await admin('movies'), auditoriums: await admin('auditoriums') };
   assert(
     initial.auditoriums.every((a) => a.supportedFormats.length > 0),
     'Migrated/seeded rooms retain formats',
@@ -103,9 +103,9 @@ const day = (offset) =>
   const roomId = await admin('auditoriums', 'POST', room);
   const updateRoom = { ...room, rows: 3, replaceLayout: true };
   await admin(`auditoriums/${roomId}`, 'PUT', updateRoom);
-  const catalog = await admin('catalog');
+  const rooms = await admin('auditoriums');
   assert.equal(
-    catalog.auditoriums.find((a) => a.id === roomId).seats.length,
+    rooms.find((a) => a.id === roomId).seats.length,
     60,
   );
   const show = {
@@ -252,7 +252,7 @@ const day = (offset) =>
   await admin('bookings?page=0', 'GET', undefined, 400);
   await admin('showtimes?date=bad', 'GET', undefined, 400);
   console.log(
-    'PASS: catalog CRUD, format capabilities, atomic conflicts, runtime snapshots, pagination, booked-layout locks, cancellation, ticket invalidation, retirement and history.',
+    'PASS: movie and auditorium CRUD, format capabilities, atomic conflicts, runtime snapshots, pagination, booked-layout locks, cancellation, ticket invalidation, retirement and history.',
   );
 })().catch((error) => {
   console.error(error);

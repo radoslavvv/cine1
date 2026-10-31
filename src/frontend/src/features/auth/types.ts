@@ -1,5 +1,3 @@
-import type { BookingConfirmation } from '../booking/types';
-
 export interface Customer {
   id: string;
   email: string;
@@ -13,9 +11,4 @@ export interface AuthState {
   error: string;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
-}
-
-export interface BookingHistory {
-  items: BookingConfirmation[];
-  hasMore: boolean;
 }

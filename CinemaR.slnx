@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/backend/">
+    <Project Path="src/backend/CinemaR.Api/CinemaR.Api.csproj" />
+    <Project Path="src/backend/CinemaR.Domain/CinemaR.Domain.csproj" />
+    <Project Path="src/backend/CinemaR.Application/CinemaR.Application.csproj" />
+    <Project Path="src/backend/CinemaR.Infrastructure/CinemaR.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CinemaR.Tests/CinemaR.Tests.csproj" />
+  </Folder>
+</Solution>

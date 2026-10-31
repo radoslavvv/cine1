@@ -44,7 +44,16 @@ export function SeatMap({
               <motion.div
                 {...animation}
                 initial={animation.initial}
-                animate={{ ...animation.animate, transition: { ...animation.animate.transition, delay: animation.initial === false ? 0 : Math.min(index * 0.025, 0.18) } }}
+                animate={{
+                  ...animation.animate,
+                  transition: {
+                    ...animation.animate.transition,
+                    delay:
+                      animation.initial === false
+                        ? 0
+                        : Math.min(index * 0.025, 0.18),
+                  },
+                }}
                 key={row}
                 className={theme.row}
                 role="group"

@@ -1,0 +1,15 @@
+@CinemaR.Api_HostAddress = http://localhost:5080
+
+GET {{CinemaR.Api_HostAddress}}/health
+
+###
+
+# Replace with a date in the initialized seven-day showtimes.
+GET {{CinemaR.Api_HostAddress}}/api/showtimes?date=2026-10-28&format=2D&genre=Sci-Fi
+Accept: application/json
+
+###
+
+GET {{CinemaR.Api_HostAddress}}/health/ready
+
+###

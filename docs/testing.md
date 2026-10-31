@@ -7,8 +7,8 @@ Protect customer outcomes first: correct screenings, available seats, one bookin
 From the repository root:
 
 ```powershell
-dotnet restore Cinema.slnx --locked-mode
-dotnet test Cinema.slnx --no-restore
+dotnet restore CinemaR.slnx --locked-mode
+dotnet test CinemaR.slnx --no-restore
 npm ci --prefix src/frontend
 npm test --prefix src/frontend
 npm run test:legacy --prefix src/frontend
@@ -22,7 +22,8 @@ The GitHub Actions workflow runs backend tests, frontend tests with coverage, ex
 ## Where tests belong
 
 - **Frontend rules and interactions:** colocate `*.test.ts` / `*.test.tsx` beside the feature. Vitest imports actual TypeScript modules; React Testing Library renders hooks and components. Seat-selection tests use a fixed clock and cover the eight-seat limit, refreshed availability, and the server-adjusted start boundary. Seat-map component tests check accessible names, pressed state, and disabled interactions. Checkout tests use real query providers and API request serialization, replacing only `fetch` to simulate lost responses, server failures, conflicts, and duplicate submissions.
-- **Application rules:** keep xUnit tests in `tests/Cinema.Tests`, with small repository doubles in `Support`. These cover validation, calendar boundaries, command normalization, transaction orchestration, and cancellation. They are fast and do not need a database.
+- **Application rules:** keep xUnit tests in `tests/CinemaR.Tests`, with small repository doubles in `Support`. These cover validation, calendar boundaries, command normalization, transaction orchestration, and cancellation. They are fast and do not need a database.
+- **Schema compatibility:** `MigrationScriptTests` checks legacy history relocation before idempotent migration guards, rejects ambiguous histories, and verifies that the schema upgrade moves tables without dropping them. `ArchitectureTests` checks the EF snapshot and preserves historical migration IDs. Verify empty initialization, upgrades, and rollback/reapply against disposable PostgreSQL databases before changing migration history handling.
 - **HTTP contracts:** `ApiTests` uses `WebApplicationFactory` with actual routing, model binding, validation, controllers, and booking application service. Only booking persistence is replaced; Data Protection uses isolated in-memory test keys. Tests run in Production to avoid Development startup migrations, and verify that administration and booking history require sign-in. They cover CSRF protection, expired/forged checkout identity, Problem Details, checkout conflict codes, validation, and private uncached confirmation errors. They do not verify persistence or readiness connectivity.
 - **Existing regression scripts:** `test:legacy` explicitly lists the standalone Node checks. Keep them running while moving relevant cases to Vitest when touching those features. Prefer normal imports and real React rendering for new tests; avoid extending the custom transpiler/VM loaders. The write-enabled `check-admin-api.cjs` is separate and requires a disposable API/database.
 
@@ -41,7 +42,7 @@ Prioritize these real-database assertions:
 
 Use PostgreSQL for these checks: repository doubles and EF model tests cannot prove locking, transactions, SQL translation, uniqueness, or exclusion constraints. SQLite and EF InMemory cannot substitute for those PostgreSQL guarantees. Add the database job as a required check once this suite exists; the current workflow does not claim that coverage.
 
-After persistence, add a small Playwright suite against the built frontend and an API backed by that disposable database. Cover schedule → seat selection → checkout → confirmation → reload, a second customer taking a selected seat, and administrator access being allowed only after authorized sign-in. Add one narrow/mobile seat-layout check and one reduced-motion journey. Use a fixed fixture clock/catalog, accessible locators, and condition-based waits. Keep visual choreography and scroll behavior in browser checks rather than jsdom assertions.
+After persistence, add a small Playwright suite against the built frontend and an API backed by that disposable database. Cover showtimes → seat selection → checkout → confirmation → reload, a second customer taking a selected seat, and administrator access being allowed only after authorized sign-in. Add one narrow/mobile seat-layout check and one reduced-motion journey. Use a fixed fixture clock/catalog, accessible locators, and condition-based waits. Keep visual choreography and scroll behavior in browser checks rather than jsdom assertions.
 
 ## Rules for new changes
 

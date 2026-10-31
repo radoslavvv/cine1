@@ -12,7 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:legacy": "node --test ../../scripts/check-booking-flow.cjs ../../scripts/check-entrance-scroll.cjs ../../scripts/check-schedule-presentation.cjs ../../scripts/check-schedule-filters.cjs ../../scripts/check-loading-transitions.cjs",
+    "test:legacy": "node --test ../../scripts/check-booking-flow.cjs ../../scripts/check-entrance-scroll.cjs ../../scripts/check-showtimes-presentation.cjs ../../scripts/check-showtimes-filters.cjs ../../scripts/check-loading-transitions.cjs",
     "preview": "vite preview",
     "format": "prettier . --write",
     "format:check": "prettier . --check"

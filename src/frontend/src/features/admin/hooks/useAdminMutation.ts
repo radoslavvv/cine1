@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminRequest } from '../api/adminQueries';
+import { adminRequest } from '@/features/auth/api/adminRequest';
 
 interface AdminCommand {
   path: string;
@@ -24,9 +24,15 @@ export function useAdminMutation() {
       }),
     onSuccess: async () => {
       await Promise.all(
-        ['admin', 'showtimes', 'seat-map', 'booking-confirmation'].map((key) =>
-          client.invalidateQueries({ queryKey: [key] }),
-        ),
+        [
+          'movies',
+          'auditoriums',
+          'showtimes',
+          'bookings',
+          'my-bookings',
+          'seat-map',
+          'booking-confirmation',
+        ].map((key) => client.invalidateQueries({ queryKey: [key] })),
       );
     },
     retry: false,

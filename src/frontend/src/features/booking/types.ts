@@ -40,3 +40,8 @@ export interface SeatMap {
   auditorium: { id: number; name: string };
   seats: Seat[];
 }
+
+export interface BookingHistory {
+  items: BookingConfirmation[];
+  hasMore: boolean;
+}

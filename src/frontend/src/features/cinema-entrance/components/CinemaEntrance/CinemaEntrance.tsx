@@ -8,12 +8,12 @@ export function CinemaEntrance({
   rootRef,
   journeyRef,
   stageRef,
-  scheduleHref,
+  showtimesHref,
 }: {
   rootRef: RefObject<HTMLDivElement | null>;
   journeyRef: RefObject<HTMLDivElement | null>;
   stageRef: RefObject<HTMLDivElement | null>;
-  scheduleHref: string;
+  showtimesHref: string;
 }) {
   return (
     <div
@@ -77,9 +77,9 @@ export function CinemaEntrance({
               </span>
             </Link>
 
-            <nav aria-label="Movie schedule" className={theme.rightNav}>
-              <Link className={theme.skip} to={scheduleHref}>
-                Schedule <span aria-hidden="true">↗</span>
+            <nav aria-label="Movie showtimes" className={theme.rightNav}>
+              <Link className={theme.skip} to={showtimesHref}>
+                Showtimes <span aria-hidden="true">↗</span>
               </Link>
             </nav>
           </header>

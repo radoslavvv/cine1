@@ -21,7 +21,13 @@ export function MotionSurface({
   return (
     <motion.div
       {...animation}
-      {...(reveal ? { animate: undefined, whileInView: animation.animate, viewport: { once: true, amount: 0.08 } } : {})}
+      {...(reveal
+        ? {
+            animate: undefined,
+            whileInView: animation.animate,
+            viewport: { once: true, amount: 0.08 },
+          }
+        : {})}
       {...props}
       inert={!present || props.inert}
       aria-hidden={!present ? true : props['aria-hidden']}

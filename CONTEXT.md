@@ -1,4 +1,4 @@
-# Cinema Booking
+# cinemaR
 
 A cinema offers scheduled screenings of movies. Customers select seats for a screening and complete a booking to receive tickets.
 
@@ -25,11 +25,11 @@ The registered customer who made a booking while signed in. A guest booking has 
 _Avoid_: Contact email, ticket holder
 
 **Movie**:
-A film in the cinema's catalog, independent of when or where it is screened.
+A film offered by the cinema, independent of when or where it is screened.
 _Avoid_: Showtime, screening
 
 **Archived movie**:
-A movie retained in the catalog's history but unavailable for new scheduling. Its existing screenings and bookings remain part of the cinema's records.
+A movie retained in the cinema's history but unavailable for new showtimes. Its existing showtimes and bookings remain part of the cinema's records.
 _Avoid_: Deleted movie
 
 **Auditorium**:
@@ -45,12 +45,8 @@ The presentation type of a showtime: 2D, 3D, IMAX 2D, or IMAX 3D. The same movie
 _Avoid_: Genre, auditorium, room
 
 **Showtime**:
-A scheduled screening of one movie in one auditorium at a particular date and time.
-_Avoid_: Movie, session
-
-**Schedule**:
-The collection of showtimes offered by a cinema on a given date.
-_Avoid_: Movie catalog, booking list
+A screening of one movie in one auditorium at a particular date and time. Showtimes also names the collection customers browse for a selected date.
+_Avoid_: Schedule, session, booking
 
 **Cancelled showtime**:
 A screening withdrawn by the cinema. Its bookings remain as records, but its tickets no longer grant admission.
@@ -73,8 +69,8 @@ A showtime whose scheduled start plus scheduled runtime has elapsed. Auditorium 
 _Avoid_: Started showtime
 
 **Scheduled runtime**:
-The film duration assigned to a showtime when it is created. Later changes to the movie's catalog runtime do not change this duration.
-_Avoid_: Turnaround, current catalog runtime
+The film duration assigned to a showtime when it is created. Later changes to the movie's current runtime do not change this duration.
+_Avoid_: Turnaround, current movie runtime
 
 **Turnaround**:
 The time reserved in an auditorium after a screening for cleaning and preparing for the next screening. A screening occupies its auditorium for the film's scheduled runtime plus this turnaround.

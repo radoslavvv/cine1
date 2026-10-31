@@ -188,5 +188,5 @@ test('entrance navigation preserves URL filters', () => {
     },
   });
   useAppNavigation().completeEntrance();
-  assert.deepEqual(navigations, ['/schedule?genre=Sci-Fi&format=IMAX+3D']);
+  assert.deepEqual(navigations, ['/showtimes?genre=Sci-Fi&format=IMAX+3D']);
 });

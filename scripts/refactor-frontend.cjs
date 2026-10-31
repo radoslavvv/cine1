@@ -11,7 +11,7 @@ function move(from, to) {
 
 for (const [feature, component] of [
   ['cinema-entrance', 'CinemaEntrance'],
-  ['schedule', 'SchedulePage'],
+  ['showtimes', 'ShowtimesPage'],
 ]) {
   for (const extension of ['tsx', 'theme.ts']) {
     move(
@@ -23,7 +23,7 @@ for (const [feature, component] of [
 
 for (const [feature, component] of [
   ['cinema-entrance', 'Auditorium'],
-  ['schedule', 'DatePicker'],
+  ['showtimes', 'DatePicker'],
 ]) {
   for (const extension of ['tsx', 'theme.ts']) {
     move(
@@ -35,20 +35,20 @@ for (const [feature, component] of [
 
 for (const extension of ['tsx', 'theme.ts']) {
   move(
-    `features/schedule/artwork/MovieArtwork.${extension}`,
-    `features/schedule/components/MovieArtwork/MovieArtwork.${extension}`,
+    `features/showtimes/artwork/MovieArtwork.${extension}`,
+    `features/showtimes/components/MovieArtwork/MovieArtwork.${extension}`,
   );
 }
 
 for (const [feature, hooks] of [
   ['cinema-entrance', ['useCinemaJourney']],
   [
-    'schedule',
+    'showtimes',
     [
       'useResultsSpace',
-      'useScheduleMotion',
+      'useShowtimesMotion',
       'useShowtimeClock',
-      'useScheduleReady',
+      'useShowtimesReady',
     ],
   ],
 ]) {
@@ -129,7 +129,7 @@ const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 delete packageJson.scripts.test;
 fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
-const solutionPath = path.join(root, 'Cinema.slnx');
+const solutionPath = path.join(root, 'CinemaR.slnx');
 fs.writeFileSync(
   solutionPath,
   fs

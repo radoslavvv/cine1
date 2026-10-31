@@ -14,8 +14,8 @@ export function CinemaHeader({
     <header role="banner" className={theme.header}>
       <div className={theme.layout}>
         <nav aria-label="Main navigation" className={theme.navigation}>
-          <Link to="/schedule" className={theme.link}>
-            Schedule
+          <Link to="/showtimes" className={theme.link}>
+            Showtimes
           </Link>
         </nav>
         <Link to="/" aria-label="cinemaR — home" className={theme.brand}>

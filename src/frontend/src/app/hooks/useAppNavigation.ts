@@ -8,7 +8,7 @@ export function useAppNavigation() {
   const mainRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const completeEntrance = useCallback(() => {
-    navigate(`/schedule${searchRef.current}`);
+    navigate(`/showtimes${searchRef.current}`);
   }, [navigate]);
 
   useLayoutEffect(() => {
@@ -23,8 +23,8 @@ export function useAppNavigation() {
     window.scrollTo({ top: 0, behavior: 'instant' });
     mainRef.current?.focus({ preventScroll: true });
     document.title =
-      pathname === '/schedule'
-        ? 'Movie schedule · cinemaR'
+      pathname === '/showtimes'
+        ? 'Movie showtimes · cinemaR'
         : pathname === '/account/bookings'
           ? 'My bookings · cinemaR'
           : pathname.startsWith('/account/')

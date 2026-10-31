@@ -14,7 +14,12 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       include: ['src/features/**/*.{ts,tsx}'],
-      exclude: ['**/*.test.{ts,tsx}', '**/*.theme.ts', '**/types.ts', '**/index.ts'],
+      exclude: [
+        '**/*.test.{ts,tsx}',
+        '**/*.theme.ts',
+        '**/types.ts',
+        '**/index.ts',
+      ],
     },
   },
 });

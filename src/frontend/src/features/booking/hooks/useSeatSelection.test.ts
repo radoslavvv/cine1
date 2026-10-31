@@ -16,10 +16,14 @@ describe('seat selection', () => {
       for (let id = 1; id <= 10; id++) result.current.toggle(id);
       result.current.toggle(999);
     });
-    expect(result.current.selectedSeats.map((seat) => seat.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(result.current.selectedSeats.map((seat) => seat.id)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8,
+    ]);
     act(() => result.current.toggle(1));
     act(() => result.current.toggle(9));
-    expect(result.current.selectedSeats.map((seat) => seat.id)).toEqual([2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(result.current.selectedSeats.map((seat) => seat.id)).toEqual([
+      2, 3, 4, 5, 6, 7, 8, 9,
+    ]);
   });
 
   it('closes exactly at the server-adjusted start and clears the active selection', () => {
@@ -36,9 +40,20 @@ describe('seat selection', () => {
 
   it('removes seats taken during a refresh and lets the customer choose again', () => {
     const map = seatMap();
-    const { result, rerender } = renderHook(({ map }) => useSeatSelection(map, 0), { initialProps: { map } });
+    const { result, rerender } = renderHook(
+      ({ map }) => useSeatSelection(map, 0),
+      { initialProps: { map } },
+    );
     act(() => result.current.toggle(1));
-    rerender({ map: { ...map, seats: map.seats.map((seat) => ({ ...seat, taken: seat.id === 1 || seat.taken })) } });
+    rerender({
+      map: {
+        ...map,
+        seats: map.seats.map((seat) => ({
+          ...seat,
+          taken: seat.id === 1 || seat.taken,
+        })),
+      },
+    });
     expect(result.current.selectedSeats).toEqual([]);
     act(() => result.current.toggle(2));
     expect(result.current.selectedSeats.map((seat) => seat.id)).toEqual([2]);
@@ -47,7 +62,9 @@ describe('seat selection', () => {
   });
 
   it('never opens selection when the server has closed it', () => {
-    const { result } = renderHook(() => useSeatSelection({ ...seatMap(), selectionOpen: false }, 0));
+    const { result } = renderHook(() =>
+      useSeatSelection({ ...seatMap(), selectionOpen: false }, 0),
+    );
     act(() => result.current.toggle(1));
     expect(result.current.isOpen).toBe(false);
     expect(result.current.selectedSeats).toEqual([]);

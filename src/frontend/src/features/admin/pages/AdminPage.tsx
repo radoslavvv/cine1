@@ -1,16 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
 import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom';
-import { adminQueries } from '../api/adminQueries';
-import { MoviesPanel } from './MoviesPanel';
-import { AuditoriumsPanel } from './AuditoriumsPanel';
-import { ShowtimesPanel } from './ShowtimesPanel';
-import { BookingsPanel } from './BookingsPanel';
-import { AdminNotice } from '../components/AdminNotice';
+import { MoviesPanel } from '../../movies/admin/pages/MoviesPanel';
+import { AuditoriumsPanel } from '../../auditoriums/admin/pages/AuditoriumsPanel';
+import { ShowtimesPanel } from '../../showtimes/admin/pages/ShowtimesPanel';
+import { BookingsPanel } from '../../booking/admin/pages/BookingsPanel';
 import { adminTheme as t } from '../admin.theme';
 import { AccountHeader } from '../../auth/components/AccountHeader/AccountHeader';
 
 export function AdminPage() {
-  const catalog = useQuery(adminQueries.catalog());
   return (
     <div className={t.page}>
       <div className={t.container}>
@@ -25,8 +21,8 @@ export function AdminPage() {
             </p>
           </div>
           <div className="grid justify-items-end gap-3">
-            <Link className={t.link} to="/schedule">
-              View public schedule ↗
+            <Link className={t.link} to="/showtimes">
+              View public showtimes ↗
             </Link>
             <span className={t.badge}>Administrator</span>
           </div>
@@ -47,37 +43,14 @@ export function AdminPage() {
             </NavLink>
           ))}
         </nav>
-        <AdminNotice
-          error={catalog.error?.message}
-          retry={() => void catalog.refetch()}
-        />
-        {catalog.isPending && (
-          <p className={t.muted} role="status">
-            Loading your cinema…
-          </p>
-        )}
-        {catalog.data && (
-          <Routes>
-            <Route index element={<Navigate to="movies" replace />} />
-            <Route
-              path="movies"
-              element={<MoviesPanel catalog={catalog.data} />}
-            />
-            <Route
-              path="showtimes"
-              element={<ShowtimesPanel catalog={catalog.data} />}
-            />
-            <Route
-              path="auditoriums"
-              element={<AuditoriumsPanel catalog={catalog.data} />}
-            />
-            <Route
-              path="bookings"
-              element={<BookingsPanel catalog={catalog.data} />}
-            />
-            <Route path="*" element={<Navigate to="/admin/movies" replace />} />
-          </Routes>
-        )}
+        <Routes>
+          <Route index element={<Navigate to="movies" replace />} />
+          <Route path="movies" element={<MoviesPanel />} />
+          <Route path="showtimes" element={<ShowtimesPanel />} />
+          <Route path="auditoriums" element={<AuditoriumsPanel />} />
+          <Route path="bookings" element={<BookingsPanel />} />
+          <Route path="*" element={<Navigate to="/admin/movies" replace />} />
+        </Routes>
       </div>
     </div>
   );

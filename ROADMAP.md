@@ -14,7 +14,9 @@ Customers can browse movies and showtimes, select seats, hold them for checkout,
 
 Start with one backend deployment and one PostgreSQL database, organized into modules:
 
-- **Catalog:** movies, cinemas, auditoriums, and showtimes.
+- **Movies:** film metadata and archival.
+- **Auditoriums:** rooms, supported formats, and seat layouts.
+- **Showtimes:** dated screenings, overlap rules, and cancellation.
 - **Booking:** seat availability, holds, bookings, and tickets. Keep these together so seat allocation and booking confirmation remain transactional.
 - **Payments:** simulated payment attempts, outcomes, and reversals.
 - **Notifications:** booking confirmation delivery to a local development inbox.
@@ -22,13 +24,13 @@ Start with one backend deployment and one PostgreSQL database, organized into mo
 
 Use module-owned schemas and explicit application interfaces. Modules must not modify another module's tables directly.
 
-Eventually extract **Notifications**, followed by **Payments**, into separate services with their own databases and credentials. Catalog and Booking remain together for this project. Use a single repository throughout.
+Eventually extract **Notifications**, followed by **Payments**, into separate services with their own databases and credentials. Movies, Auditoriums, Showtimes and Booking remain modules in the same application and database for this project. Use a single repository throughout.
 
 ## Learning milestones
 
 ### Initial scaffold — complete
 
-- [x] Connect React + TypeScript to a .NET 10 controller API with an injected sample movie catalog.
+- [x] Connect React + TypeScript to a .NET 10 controller API with an injected sample movies.
 - [x] Add the health endpoint, fixed development ports, API proxy, solution, and dependency lockfiles.
 - [x] Save the roadmap, setup instructions, and domain glossary.
 - [x] Build both projects and verify the live API/proxy, loading, empty, failure, retry, and mobile states.
@@ -38,17 +40,17 @@ This completes the scaffold only. The full first milestone below remains open.
 ### Frontend foundation — complete
 
 - [x] Organize the client into app setup, a movies feature, and shared UI.
-- [x] Introduce TanStack Query, development-only devtools, and explicit catalog caching/retry settings.
-- [x] Redesign the catalog as a dark cinema lobby with violet surfaces, amber lighting, subtle ceiling lights, and original patterned-carpet accents.
+- [x] Introduce TanStack Query, development-only devtools, and explicit showtimes caching/retry settings.
+- [x] Redesign showtimes as a dark cinema lobby with violet surfaces, amber lighting, subtle ceiling lights, and original patterned-carpet accents.
 - [x] Migrate styling to Tailwind v4 with a separate `app/theme.css` for design tokens and atmospheric utilities.
 - [x] Support user-supplied local posters/backdrops with illustrated fallbacks; artwork files are pending user supply.
 - [x] Document feature boundaries and Query learning exercises in `docs/frontend.md`.
 
 ### 1. Build a usable vertical slice — 3–4 weeks
 
-The frontend includes a reversible layered-auditorium entrance and a seven-day schedule with date navigation. Movies, displayed metadata, auditoriums, and showtimes now come from PostgreSQL through EF Core GET endpoints. Docker Compose, migrations, one-time development seeding, database readiness, and backend integration checks are implemented. Administration, customer/administrator identity, account booking history, and confirmed-seat availability are implemented. Temporary seat holds remain a later milestone. Reduced-motion and skip-link alternatives are implemented. See `docs/frontend.md` and `docs/adr/0002-persistent-catalog.md`.
+The frontend includes a reversible layered-auditorium entrance and seven days of showtimes with date navigation. Movies, displayed metadata, auditoriums, and showtimes now come from PostgreSQL through EF Core GET endpoints. Docker Compose, migrations, one-time development seeding, database readiness, and backend integration checks are implemented. Administration, customer/administrator identity, account booking history, and confirmed-seat availability are implemented. Temporary seat holds remain a later milestone. Reduced-motion and skip-link alternatives are implemented. See `docs/frontend.md` and `docs/adr/0002-persistent-catalog.md`.
 
-- [x] Add PostgreSQL in Docker Compose, EF Core migrations, and one-time catalog/showtime seeding.
+- [x] Add PostgreSQL in Docker Compose, EF Core migrations, and one-time movie/showtime seeding.
 - [x] Replace generated frontend times and local movie text with database-backed reads.
 
 - [ ] Complete milestone 1 and its acceptance criteria.
@@ -108,7 +110,7 @@ The initial scaffold is the first step within this milestone: a React movie list
 - [ ] Track latency percentiles, throughput, unexpected errors, database pool usage, lock waits, queue depth, and outbox age.
 - [ ] Create k6 workloads for browsing, ordinary bookings, a popular-showtime surge, and sustained traffic.
 - [ ] Inspect query plans and fix indexes, pagination, and inefficient EF Core queries.
-- [ ] Add Redis caching for catalog reads with a documented TTL. Seat allocation must always validate against PostgreSQL.
+- [ ] Add Redis caching for movie and showtime reads with a documented TTL. Seat allocation must always validate against PostgreSQL.
 - [ ] Run multiple API instances; investigate connection-pool limits, thread-pool starvation, rate limiting, and backpressure.
 
 **Done when:** a report records hardware, dataset, workload, baseline, bottleneck, change, and measured result. Find the machine's sustainable throughput rather than claiming production-scale capacity from local tests.

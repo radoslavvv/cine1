@@ -12,7 +12,7 @@ try {
     & node $prettier . $mode
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    $dotnetArguments = @('format', 'whitespace', 'Cinema.slnx', '--no-restore')
+    $dotnetArguments = @('format', 'whitespace', 'CinemaR.slnx', '--no-restore')
     if ($Check) { $dotnetArguments += '--verify-no-changes' }
     & dotnet @dotnetArguments
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
