@@ -10,7 +10,7 @@ export function AdminNotice({
   success?: string;
   retry?: () => void;
 }) {
-  if (error)
+  if (error) {
     return (
       <div className={t.error} role="alert">
         {error}
@@ -21,11 +21,15 @@ export function AdminNotice({
         )}
       </div>
     );
-  if (success)
+  }
+
+  if (success) {
     return (
       <p className={t.notice} role="status">
         {success}
       </p>
     );
+  }
+
   return null;
 }

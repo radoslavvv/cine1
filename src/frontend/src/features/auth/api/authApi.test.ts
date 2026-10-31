@@ -11,8 +11,11 @@ describe('cookie authentication transport', () => {
         Response.json({ customer: null, csrfToken: 'anonymous-token' }),
       )
       .mockResolvedValueOnce(Response.json({ message: 'Done' }));
+
     vi.stubGlobal('fetch', fetch);
+
     const { accountAction } = await import('./authApi');
+
     await accountAction('register', {
       email: 'guest@example.com',
       password: 'Example-Password-1',
@@ -36,8 +39,11 @@ describe('cookie authentication transport', () => {
         Response.json({ customer: { id: 'customer' }, csrfToken: 'new' }),
       )
       .mockResolvedValueOnce(Response.json({ message: 'Done' }));
+
     vi.stubGlobal('fetch', fetch);
+
     const { accountAction } = await import('./authApi');
+
     await accountAction('sign-out');
     expect(
       new Headers(fetch.mock.calls[3][1].headers).get('X-CSRF-Token'),
@@ -54,8 +60,11 @@ describe('cookie authentication transport', () => {
       .mockResolvedValueOnce(
         Response.json({ title: 'Unable to sign in' }, { status: 401 }),
       );
+
     vi.stubGlobal('fetch', fetch);
+
     const { accountAction } = await import('./authApi');
+
     await expect(accountAction('sign-in')).rejects.toThrow('Unable to sign in');
     expect(fetch).toHaveBeenCalledTimes(2);
   });

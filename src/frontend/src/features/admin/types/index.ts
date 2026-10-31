@@ -1,0 +1,1 @@
+export { cinemaFormats } from './cinemaFormats';

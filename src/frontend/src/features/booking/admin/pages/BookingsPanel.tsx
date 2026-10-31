@@ -21,15 +21,18 @@ export function BookingsPanel() {
 
   const view = useAdminBookings();
   const booking = view.detail.data;
+
   if (
     (moviesQuery.isPending && !moviesQuery.data) ||
     (auditoriumsQuery.isPending && !auditoriumsQuery.data)
-  )
+  ) {
     return <p role="status">Loading movies and auditoriums…</p>;
+  }
+
   if (
     (moviesQuery.isError && !moviesQuery.data) ||
     (auditoriumsQuery.isError && !auditoriumsQuery.data)
-  )
+  ) {
     return (
       <AdminNotice
         error={moviesQuery.error?.message ?? auditoriumsQuery.error?.message}
@@ -39,6 +42,8 @@ export function BookingsPanel() {
         }}
       />
     );
+  }
+
   return (
     <section aria-label="Booking records">
       <div className={t.toolbar}>

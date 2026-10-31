@@ -21,15 +21,18 @@ export function ShowtimesPanel() {
   const auditoriums = auditoriumsQuery.data ?? [];
 
   const editor = useShowtimeEditor(movies, auditoriums);
+
   if (
     (moviesQuery.isPending && !moviesQuery.data) ||
     (auditoriumsQuery.isPending && !auditoriumsQuery.data)
-  )
+  ) {
     return <p role="status">Loading movies and auditoriums…</p>;
+  }
+
   if (
     (moviesQuery.isError && !moviesQuery.data) ||
     (auditoriumsQuery.isError && !auditoriumsQuery.data)
-  )
+  ) {
     return (
       <AdminNotice
         error={moviesQuery.error?.message ?? auditoriumsQuery.error?.message}
@@ -39,6 +42,8 @@ export function ShowtimesPanel() {
         }}
       />
     );
+  }
+
   return (
     <>
       <AdminNotice
@@ -71,7 +76,9 @@ export function ShowtimesPanel() {
                 value={editor.date}
                 required
                 onChange={(e) => {
-                  if (e.target.value) editor.setDate(e.target.value);
+                  if (e.target.value) {
+                    editor.setDate(e.target.value);
+                  }
                 }}
               />
             </label>

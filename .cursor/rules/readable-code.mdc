@@ -1,0 +1,17 @@
+---
+description: Explicit bodies and readable spacing in C# and TypeScript
+globs: "**/*.{cs,ts,tsx,js,jsx,cjs,mjs}"
+alwaysApply: false
+---
+
+# Readable code
+
+- Write named methods, functions, and property getters with full block bodies. Use explicit `return` statements for returned expressions.
+- Keep auto-properties compact on one line, such as `public int Id { get; set; }`. Computed getters still use full bodies.
+- Put braces around every conditional and loop body, including single statements. Expand blocks onto multiple lines.
+- Separate logical steps with a blank line: setup, validation, mutation, side effects, and the final return. Keep closely related declarations and operations together; use one blank line between groups.
+- Put distinct operations on separate lines. Wrap long signatures, argument lists, and query chains so their parts can be scanned.
+- Keep idiomatic LINQ expressions and concise anonymous callbacks, such as TypeScript `map` callbacks and implicit returns. Add blank lines around their surrounding logical steps without expanding these callbacks just for style.
+- Lay out chained LINQ operations vertically: the source, then one `.Where(...)`, `.Select(...)`, or other operation per line. Keep each callback concise where readable.
+- Format request records with one parameter per logical block, validation attributes above the parameter, and a single blank line between parameters.
+- Apply the same style to tests and scripts. Run `scripts/format.ps1` after changes and `scripts/format.ps1 -Check` to verify.

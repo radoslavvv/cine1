@@ -11,7 +11,12 @@ public sealed class CinemaRClaimsFactory(UserManager<CinemaRUser> users, IOption
     protected override async Task<ClaimsIdentity> GenerateClaimsAsync(CinemaRUser user)
     {
         var identity = await base.GenerateClaimsAsync(user);
-        if (user.IsAdministrator) identity.AddClaim(new Claim("cinema:administrator", "true"));
+
+        if (user.IsAdministrator)
+        {
+            identity.AddClaim(new Claim("cinema:administrator", "true"));
+        }
+
         return identity;
     }
 }

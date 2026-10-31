@@ -21,37 +21,57 @@ function load(file, state) {
     },
   });
   const exports = {};
+
   vm.runInNewContext(outputText, {
     exports,
     URLSearchParams,
     require(name) {
-      if (name.endsWith('/useShowtimes')) return { useShowtimes: () => state };
-      if (name.endsWith('/useBookingPage'))
+      if (name.endsWith('/useShowtimes')) {
+        return { useShowtimes: () => state };
+      }
+
+      if (name.endsWith('/useBookingPage')) {
         return { useBookingPage: () => state };
-      if (name.endsWith('/useConfirmationPage'))
+      }
+
+      if (name.endsWith('/useConfirmationPage')) {
         return { useConfirmationPage: () => state };
-      if (name.endsWith('/MovieArtwork')) return { MovieArtwork: () => null };
-      if (name.endsWith('/CarpetFooter')) return { CarpetFooter: () => null };
+      }
+
+      if (name.endsWith('/MovieArtwork')) {
+        return { MovieArtwork: () => null };
+      }
+
+      if (name.endsWith('/CarpetFooter')) {
+        return { CarpetFooter: () => null };
+      }
+
       if (name.startsWith('@/')) {
         const target = path.resolve(
           __dirname,
           '../src/frontend/src',
           name.slice(2),
         );
+
         return load(
           [target + '.ts', target + '.tsx'].find(require('node:fs').existsSync),
           state,
         );
       }
-      if (!name.startsWith('.'))
+
+      if (!name.startsWith('.')) {
         return require('../src/frontend/node_modules/' + name);
+      }
+
       const target = path.resolve(path.dirname(file), name);
+
       return load(
         [target + '.ts', target + '.tsx'].find(require('node:fs').existsSync),
         state,
       );
     },
   });
+
   return exports;
 }
 
@@ -76,6 +96,7 @@ function render(overrides) {
     ),
     { ...state, ...overrides },
   );
+
   return renderToStaticMarkup(
     React.createElement(MemoryRouter, null, React.createElement(ShowtimesPage)),
   );
@@ -83,17 +104,24 @@ function render(overrides) {
 
 function hiddenAncestors(html, marker) {
   const stack = [];
+
   for (const match of html.matchAll(/<[^>]+>|[^<]+/g)) {
     const tag = match[0];
-    if (tag.includes(marker))
+
+    if (tag.includes(marker)) {
       return stack.filter((tag) => /opacity:0(?:[;"\s])/.test(tag));
-    if (tag.startsWith('</')) stack.pop();
-    else if (
+    }
+
+    if (tag.startsWith('</')) {
+      stack.pop();
+    } else if (
       tag.startsWith('<') &&
       !/^<(?:img|input|br|hr|meta|link)\b/.test(tag)
-    )
+    ) {
       stack.push(tag);
+    }
   }
+
   assert.fail('Content marker not found');
 }
 
@@ -110,11 +138,13 @@ test('loaded movie is visible immediately, without nested entrance fades', () =>
       },
     ],
   });
+
   assert.deepEqual(hiddenAncestors(html, 'Regression movie'), []);
 });
 
 test('initial skeleton is visible immediately', () => {
   const html = render({ movies: undefined, isPending: true });
+
   assert.deepEqual(hiddenAncestors(html, 'space-y-4 py-2'), []);
 });
 
@@ -132,6 +162,7 @@ test('stale results cannot be booked while a different filter is loading', () =>
       },
     ],
   });
+
   assert.match(html, /aria-busy="true"/);
   assert.match(html, /<div inert="">/);
   assert.match(html, /Updating screenings/);
@@ -149,6 +180,7 @@ for (const name of ['BookingPage', 'ConfirmationPage']) {
     const html = renderToStaticMarkup(
       React.createElement(MemoryRouter, null, React.createElement(page)),
     );
+
     assert.deepEqual(hiddenAncestors(html, 'aria-busy="true"'), []);
   });
 }
@@ -174,5 +206,6 @@ test('booking details do not disappear behind another entrance after loading', (
   const html = renderToStaticMarkup(
     React.createElement(MemoryRouter, null, React.createElement(page)),
   );
+
   assert.deepEqual(hiddenAncestors(html, 'Loaded booking'), []);
 });

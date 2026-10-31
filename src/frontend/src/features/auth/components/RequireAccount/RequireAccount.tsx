@@ -13,13 +13,16 @@ export function RequireAccount({
 }) {
   const auth = useAuth();
   const location = useLocation();
-  if (auth.loading)
+
+  if (auth.loading) {
     return (
       <p className="p-8" role="status">
         Checking sign-in…
       </p>
     );
-  if (auth.error)
+  }
+
+  if (auth.error) {
     return (
       <AccountLayout title="Couldn’t check sign-in.">
         <p role="alert">{auth.error}</p>
@@ -31,14 +34,18 @@ export function RequireAccount({
         </button>
       </AccountLayout>
     );
-  if (!auth.customer)
+  }
+
+  if (!auth.customer) {
     return (
       <Navigate
         replace
         to={`/account/sign-in?${new URLSearchParams({ returnTo: location.pathname + location.search })}`}
       />
     );
-  if (administrator && !auth.customer.isAdministrator)
+  }
+
+  if (administrator && !auth.customer.isAdministrator) {
     return (
       <AccountLayout title="Administrator access required.">
         <p>This area is available to the cinema administrator.</p>
@@ -47,5 +54,7 @@ export function RequireAccount({
         </Link>
       </AccountLayout>
     );
+  }
+
   return children;
 }

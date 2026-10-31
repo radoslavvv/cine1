@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 export function AccountHeader() {
   const { error, refreshing, refresh } = useAuth();
+
   return (
     <CinemaHeader
       accountLinks={<AccountNav />}

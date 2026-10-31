@@ -10,17 +10,25 @@ namespace CinemaR.Infrastructure.Data.Repositories;
 public abstract class CinemaWriteRepository(CinemaRDbContext db) : CinemaR.Application.Persistence.IWriteTransaction
 {
     protected CinemaRDbContext Db { get; } = db;
-    public Task SaveChangesAsync(CancellationToken ct) => Db.SaveChangesAsync(ct);
+
+    public Task SaveChangesAsync(CancellationToken ct)
+    {
+        return Db.SaveChangesAsync(ct);
+    }
 
     public async Task<T> ExecuteWriteAsync<T>(Func<Task<T>> action, CancellationToken ct)
     {
         await using var transaction = await Db.Database.BeginTransactionAsync(ct);
+
         await CinemaRWriteLock.ExclusiveAsync(Db, ct);
+
         try
         {
             var result = await action();
+
             await Db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
+
             return result;
         }
         catch (DbUpdateException exception) when (exception.InnerException is PostgresException)
@@ -33,7 +41,12 @@ public abstract class CinemaWriteRepository(CinemaRDbContext db) : CinemaR.Appli
                 PostgresErrorCodes.ForeignKeyViolation => "This record is in use and cannot be deleted.",
                 _ => null
             };
-            if (message is null) throw;
+
+            if (message is null)
+            {
+                throw;
+            }
+
             throw new AdminRuleException(message);
         }
     }

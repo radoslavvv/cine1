@@ -14,8 +14,8 @@
     "test:coverage": "vitest run --coverage",
     "test:legacy": "node --test ../../scripts/check-booking-flow.cjs ../../scripts/check-entrance-scroll.cjs ../../scripts/check-showtimes-presentation.cjs ../../scripts/check-showtimes-filters.cjs ../../scripts/check-loading-transitions.cjs",
     "preview": "vite preview",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format": "node ../../scripts/format-readable.cjs && prettier . --write",
+    "format:check": "node ../../scripts/format-readable.cjs --check && prettier . --check"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",

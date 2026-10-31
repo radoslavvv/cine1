@@ -4,7 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export function useAppNavigation() {
   const location = useLocation();
   const searchRef = useRef(location.search);
+
   searchRef.current = location.search;
+
   const mainRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const completeEntrance = useCallback(() => {
@@ -13,7 +15,9 @@ export function useAppNavigation() {
 
   useLayoutEffect(() => {
     const previous = history.scrollRestoration;
+
     history.scrollRestoration = 'manual';
+
     return () => {
       history.scrollRestoration = previous;
     };

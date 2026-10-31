@@ -37,15 +37,21 @@ export function useAdminMutation() {
     },
     retry: false,
   });
+
   async function execute(command: AdminCommand) {
-    if (command.confirm && !window.confirm(command.confirm)) return false;
+    if (command.confirm && !window.confirm(command.confirm)) {
+      return false;
+    }
+
     try {
       await mutation.mutateAsync(command);
+
       return true;
     } catch {
       return false;
     }
   }
+
   return {
     execute,
     pending: mutation.isPending,

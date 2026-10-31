@@ -7,9 +7,13 @@ namespace CinemaR.Infrastructure.Data.Transactions;
 // Shared booking locks still allow different screenings to confirm concurrently.
 public static class CinemaRWriteLock
 {
-    public static Task ExclusiveAsync(CinemaRDbContext db, CancellationToken ct) =>
-        db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_xact_lock(73190422)", ct);
+    public static Task ExclusiveAsync(CinemaRDbContext db, CancellationToken ct)
+    {
+        return db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_xact_lock(73190422)", ct);
+    }
 
-    public static Task SharedAsync(CinemaRDbContext db, CancellationToken ct) =>
-        db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_xact_lock_shared(73190422)", ct);
+    public static Task SharedAsync(CinemaRDbContext db, CancellationToken ct)
+    {
+        return db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_xact_lock_shared(73190422)", ct);
+    }
 }

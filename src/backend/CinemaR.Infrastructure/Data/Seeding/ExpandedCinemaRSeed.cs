@@ -13,7 +13,11 @@ public static class ExpandedCinemaRSeed
 
     public static async Task RunAsync(CinemaRDbContext db, CancellationToken cancellationToken)
     {
-        if (await db.SeedHistory.AnyAsync(seed => seed.Name == Version, cancellationToken)) return;
+        if (await db.SeedHistory.AnyAsync(seed => seed.Name == Version, cancellationToken))
+        {
+            return;
+        }
+
         await using var transaction = db.Database.CurrentTransaction is null
             ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
 
@@ -27,11 +31,17 @@ public static class ExpandedCinemaRSeed
             new() { Title = "Knives Out", DurationMinutes = 130, Genres = ["Crime", "Comedy", "Thriller"], Synopsis = "A detective untangles a web of family secrets after a celebrated mystery writer's sudden death." },
             new() { Title = "The Truman Show", DurationMinutes = 103, Genres = ["Comedy", "Drama"], Synopsis = "A cheerful insurance salesman begins to suspect that his entire world has been staged." }
         ];
-        var samples = CinemaRSeed.CreateSampleMovies().Concat(additions).ToArray();
+        var samples = CinemaRSeed
+            .CreateSampleMovies()
+            .Concat(additions)
+            .ToArray();
         var movies = await db.Movies.ToListAsync(cancellationToken);
         var rooms = await db.Auditoriums.ToListAsync(cancellationToken);
         var existing = await db.Showtimes.ToListAsync(cancellationToken);
-        var roomsWithSeats = (await db.Seats.Select(seat => seat.AuditoriumId).Distinct().ToListAsync(cancellationToken)).ToHashSet();
+        var roomsWithSeats = (await db.Seats
+            .Select(seat => seat.AuditoriumId)
+            .Distinct()
+            .ToListAsync(cancellationToken)).ToHashSet();
         string[] formats = ["2D", "3D", "IMAX 2D", "IMAX 3D"];
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, CinemaCalendar.TimeZone));
 
@@ -39,55 +49,79 @@ public static class ExpandedCinemaRSeed
         {
             var sample = samples[movieIndex];
             var movie = movies.FirstOrDefault(movie => movie.Title == sample.Title);
+
             if (movie is null)
             {
                 movie = sample;
                 db.Movies.Add(movie);
                 movies.Add(movie);
             }
+
             for (var formatIndex = 0; formatIndex < formats.Length; formatIndex++)
             {
                 var format = formats[formatIndex];
                 // Dedicated demo screens allow the dense showtimes without overlapping room bookings.
                 var roomName = $"Screen {movieIndex + 1:00} · {format}";
                 var room = rooms.FirstOrDefault(room => room.Name == roomName);
+
                 if (room is null)
                 {
                     room = new Auditorium { Name = roomName };
                     db.Auditoriums.Add(room);
                     rooms.Add(room);
                 }
-                if (!roomsWithSeats.Contains(room.Id))
-                    AddSeats(db, room, formatIndex);
 
-                var roomShowtimes = existing.Where(showtime => ReferenceEquals(showtime.Auditorium, room)).ToList();
+                if (!roomsWithSeats.Contains(room.Id))
+                {
+                    AddSeats(db, room, formatIndex);
+                }
+
+                var roomShowtimes = existing
+                    .Where(showtime => ReferenceEquals(showtime.Auditorium, room))
+                    .ToList();
+
                 for (var day = 0; day < 7; day++)
+                {
                     for (var slot = 0; slot < 6; slot++)
                     {
                         var time = new TimeOnly(6, 30).AddMinutes(slot * 195 + (movieIndex + formatIndex + day) % 4 * 5);
                         var startsAt = CinemaCalendar.ToUtc(today.AddDays(day), time);
                         var occupiedUntil = startsAt.AddMinutes(movie.DurationMinutes + 15);
-                        if (roomShowtimes.Any(showtime => showtime.StartsAt < occupiedUntil && startsAt < showtime.OccupiedUntil)) continue;
+
+                        if (roomShowtimes.Any(showtime => showtime.StartsAt < occupiedUntil && startsAt < showtime.OccupiedUntil))
+                        {
+                            continue;
+                        }
+
                         var screening = new Showtime { Movie = movie, Auditorium = room, StartsAt = startsAt, OccupiedUntil = occupiedUntil, Format = format };
+
                         db.Showtimes.Add(screening);
                         roomShowtimes.Add(screening);
                     }
+                }
             }
         }
 
         db.SeedHistory.Add(new SeedHistory { Name = Version, AppliedAt = DateTime.UtcNow });
         await db.SaveChangesAsync(cancellationToken);
-        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
     }
 
     private static void AddSeats(CinemaRDbContext db, Auditorium room, int formatIndex)
     {
         var rows = formatIndex >= 2 ? 10 : 8;
         var columns = formatIndex >= 2 ? 14 : 12;
+
         for (var row = 0; row < rows; row++)
         {
             var inset = row < 2 ? 1 : 0;
+
             for (var column = inset; column < columns - inset; column++)
+            {
                 db.Seats.Add(new Seat
                 {
                     Auditorium = room,
@@ -96,6 +130,7 @@ public static class ExpandedCinemaRSeed
                     GridRow = row + (rows == 10 && row >= 5 ? 1 : 0),
                     GridColumn = column + (column >= columns / 2 ? 1 : 0)
                 });
+            }
         }
     }
 }

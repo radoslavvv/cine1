@@ -26,11 +26,22 @@ public sealed class ApiTests
     {
         using var factory = new ApiFactory();
         using var client = factory.CreateClient();
-        var response = await PostAsync(client, "/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email, seatIds = seats });
+        var response = await PostAsync(client, "/api/showtimes/1/bookings", new
+        {
+            requestId = Guid.NewGuid(),
+            email,
+            seatIds = seats
+        });
+
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
-        Assert.True(problem.GetProperty("errors").EnumerateObject().Any());
+
+        Assert.True(problem
+            .GetProperty("errors")
+            .EnumerateObject()
+            .Any());
         Assert.False(factory.Repository.Called);
     }
 
@@ -42,12 +53,22 @@ public sealed class ApiTests
     public async Task Booking_conflicts_expose_the_codes_used_by_checkout(BookingOutcome outcome, string code)
     {
         using var factory = new ApiFactory();
+
         factory.Repository.Outcome = outcome;
+
         using var client = factory.CreateClient();
-        var response = await PostAsync(client, "/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email = "customer@example.com", seatIds = new[] { 1 } });
+        var response = await PostAsync(client, "/api/showtimes/1/bookings", new
+        {
+            requestId = Guid.NewGuid(),
+            email = "customer@example.com",
+            seatIds = new[] { 1 }
+        });
+
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+
         Assert.Equal(code, problem.GetProperty("code").GetString());
         Assert.True(factory.Repository.Called);
         Assert.Contains("no-store", response.Headers.CacheControl!.ToString());
@@ -62,6 +83,7 @@ public sealed class ApiTests
         using var factory = new ApiFactory();
         using var client = factory.CreateClient();
         var response = await client.GetAsync(url);
+
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
     }
@@ -73,6 +95,7 @@ public sealed class ApiTests
     {
         using var factory = new ApiFactory();
         using var client = factory.CreateClient();
+
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(url)).StatusCode);
     }
 
@@ -81,9 +104,17 @@ public sealed class ApiTests
     {
         using var factory = new ApiFactory();
         using var client = factory.CreateClient();
-        var response = await client.PostAsJsonAsync("/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email = "customer@example.com", seatIds = new[] { 1 } });
+        var response = await client.PostAsJsonAsync("/api/showtimes/1/bookings", new
+        {
+            requestId = Guid.NewGuid(),
+            email = "customer@example.com",
+            seatIds = new[] { 1 }
+        });
+
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+
         Assert.Equal("csrf_invalid", problem.GetProperty("code").GetString());
         Assert.False(factory.Repository.Called);
     }
@@ -93,7 +124,14 @@ public sealed class ApiTests
     {
         using var factory = new ApiFactory();
         using var client = factory.CreateClient();
-        var response = await PostAsync(client, "/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email = "customer@example.com", seatIds = new[] { 1 }, expectedCustomerId = "another-customer" });
+        var response = await PostAsync(client, "/api/showtimes/1/bookings", new
+        {
+            requestId = Guid.NewGuid(),
+            email = "customer@example.com",
+            seatIds = new[] { 1 },
+            expectedCustomerId = "another-customer"
+        });
+
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.False(factory.Repository.Called);
     }
@@ -101,8 +139,10 @@ public sealed class ApiTests
     private static async Task<HttpResponseMessage> PostAsync(HttpClient client, string url, object body)
     {
         var session = await client.GetFromJsonAsync<JsonElement>("/api/account/session");
+
         client.DefaultRequestHeaders.Remove("X-CSRF-Token");
         client.DefaultRequestHeaders.Add("X-CSRF-Token", session.GetProperty("csrfToken").GetString());
+
         return await client.PostAsJsonAsync(url, body);
     }
 
@@ -112,6 +152,7 @@ public sealed class ApiTests
         using var factory = new ApiFactory();
         using var client = factory.CreateClient();
         var response = await client.GetAsync("/api/bookings/unknown-token");
+
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal("no-referrer", Assert.Single(response.Headers.GetValues("Referrer-Policy")));
         Assert.Contains("no-store", response.Headers.CacheControl!.ToString());
@@ -119,7 +160,11 @@ public sealed class ApiTests
 
     private sealed class ApiFactory : WebApplicationFactory<Program>
     {
-        public ApiFactory() { ClientOptions.BaseAddress = new Uri("https://localhost"); }
+        public ApiFactory()
+        {
+            ClientOptions.BaseAddress = new Uri("https://localhost");
+        }
+
         public BookingRepositoryStub Repository { get; } = new();
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -141,14 +186,19 @@ public sealed class ApiTests
     private sealed class BookingRepositoryStub : IBookingRepository
     {
         public BookingOutcome Outcome { get; set; } = BookingOutcome.Confirmed;
+
         public bool Called { get; private set; }
 
         public Task<BookingResult> ConfirmAsync(int id, Guid requestId, string email, int[] seats, CancellationToken ct, string? customerId = null)
         {
             Called = true;
+
             return Task.FromResult(new BookingResult(Outcome));
         }
 
-        public Task<BookingConfirmationResponse?> FindAsync(string token, CancellationToken ct) => Task.FromResult<BookingConfirmationResponse?>(null);
+        public Task<BookingConfirmationResponse?> FindAsync(string token, CancellationToken ct)
+        {
+            return Task.FromResult<BookingConfirmationResponse?>(null);
+        }
     }
 }

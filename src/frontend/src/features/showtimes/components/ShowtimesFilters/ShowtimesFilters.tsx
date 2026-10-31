@@ -24,6 +24,7 @@ export function ShowtimesFilters({
   const genreId = useId();
   // Radix reserves an empty value for its placeholder; URLs still use "".
   const allGenres = '__all_genres__';
+
   return (
     <div className={theme.root} role="group" aria-label="Filter screenings">
       <div className={theme.controls}>

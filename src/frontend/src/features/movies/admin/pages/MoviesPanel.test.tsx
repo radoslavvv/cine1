@@ -7,8 +7,10 @@ afterEach(() => vi.unstubAllGlobals());
 
 it('loads movies without requiring auditorium or combined administration data', async () => {
   const request = vi.fn(async (url: string) => {
-    if (url !== '/api/admin/movies')
+    if (url !== '/api/admin/movies') {
       throw new Error('Unrelated resource is unavailable');
+    }
+
     return new Response(
       JSON.stringify([
         {
@@ -25,6 +27,7 @@ it('loads movies without requiring auditorium or combined administration data', 
       ]),
     );
   });
+
   vi.stubGlobal('fetch', request);
   render(
     <QueryClientProvider

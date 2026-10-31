@@ -53,9 +53,11 @@ export function Checkout({
   onContinueAsGuest,
 }: CheckoutProps) {
   useCheckoutArrival(heading);
+
   const auth = useAuth();
   const location = useLocation();
   const signInUrl = `/account/sign-in?${new URLSearchParams({ returnTo: location.pathname })}`;
+
   return (
     <section
       className={theme.panel}

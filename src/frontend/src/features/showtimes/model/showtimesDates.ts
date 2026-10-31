@@ -16,19 +16,27 @@ export function getShowtimesDates(now = new Date()): ShowtimesDate[] {
     month: '2-digit',
     day: '2-digit',
   }).formatToParts(now);
-  const part = (type: string) =>
-    parts.find((entry) => entry.type === type)!.value;
+
+  const part = (type: string) => {
+    return parts.find((entry) => entry.type === type)!.value;
+  };
+
   const start = new Date(
     `${part('year')}-${part('month')}-${part('day')}T12:00:00Z`,
   );
 
   return Array.from({ length: 7 }, (_, index) => {
     const date = new Date(start);
+
     date.setUTCDate(date.getUTCDate() + index);
-    const format = (options: Intl.DateTimeFormatOptions) =>
-      new Intl.DateTimeFormat('en-GB', { ...options, timeZone: 'UTC' }).format(
-        date,
-      );
+
+    const format = (options: Intl.DateTimeFormatOptions) => {
+      return new Intl.DateTimeFormat('en-GB', {
+        ...options,
+        timeZone: 'UTC',
+      }).format(date);
+    };
+
     return {
       key: date.toISOString().slice(0, 10),
       weekday: index === 0 ? 'Today' : format({ weekday: 'short' }),

@@ -12,13 +12,61 @@ namespace CinemaR.Infrastructure.Data.Contexts;
 
 public sealed class CinemaRDbContext(DbContextOptions<CinemaRDbContext> options) : IdentityUserContext<CinemaRUser>(options)
 {
-    public DbSet<Movie> Movies => Set<Movie>();
-    public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
-    public DbSet<Showtime> Showtimes => Set<Showtime>();
-    public DbSet<Seat> Seats => Set<Seat>();
-    public DbSet<ConfirmedBooking> Bookings => Set<ConfirmedBooking>();
-    public DbSet<BookedSeat> BookedSeats => Set<BookedSeat>();
-    public DbSet<SeedHistory> SeedHistory => Set<SeedHistory>();
+    public DbSet<Movie> Movies
+    {
+        get
+        {
+            return Set<Movie>();
+        }
+    }
+
+    public DbSet<Auditorium> Auditoriums
+    {
+        get
+        {
+            return Set<Auditorium>();
+        }
+    }
+
+    public DbSet<Showtime> Showtimes
+    {
+        get
+        {
+            return Set<Showtime>();
+        }
+    }
+
+    public DbSet<Seat> Seats
+    {
+        get
+        {
+            return Set<Seat>();
+        }
+    }
+
+    public DbSet<ConfirmedBooking> Bookings
+    {
+        get
+        {
+            return Set<ConfirmedBooking>();
+        }
+    }
+
+    public DbSet<BookedSeat> BookedSeats
+    {
+        get
+        {
+            return Set<BookedSeat>();
+        }
+    }
+
+    public DbSet<SeedHistory> SeedHistory
+    {
+        get
+        {
+            return Set<SeedHistory>();
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,8 +161,12 @@ public sealed class CinemaRDbContext(DbContextOptions<CinemaRDbContext> options)
 
         // Keep PostgreSQL identifiers readable without quoted PascalCase names.
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
             foreach (var property in entity.GetProperties())
+            {
                 property.SetColumnName(string.Concat(property.Name.Select((character, index) =>
                     char.IsUpper(character) && index > 0 ? "_" + char.ToLowerInvariant(character) : char.ToLowerInvariant(character).ToString())));
+            }
+        }
     }
 }

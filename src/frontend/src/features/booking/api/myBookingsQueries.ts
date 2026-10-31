@@ -20,13 +20,16 @@ export const myBookingsQueries = {
           '/api/account/bookings?page=' + page,
           { signal },
         );
-        if (!response.ok)
+
+        if (!response.ok) {
           throw new MyBookingsQueryError(
             response.status,
             response.status === 401
               ? 'Your session expired. Please sign in again.'
               : 'Couldn’t load your bookings. Please try again.',
           );
+        }
+
         return (await response.json()) as BookingHistory;
       },
       retry: false,

@@ -24,8 +24,18 @@ public static class SecurityExtensions
                 // Stamp refresh must not extend the agreed absolute eight-hour lifetime.
                 context.ShouldRenew = false;
             };
-            options.Events.OnRedirectToLogin = context => { context.Response.StatusCode = 401; return Task.CompletedTask; };
-            options.Events.OnRedirectToAccessDenied = context => { context.Response.StatusCode = 403; return Task.CompletedTask; };
+            options.Events.OnRedirectToLogin = context =>
+            {
+                context.Response.StatusCode = 401;
+
+                return Task.CompletedTask;
+            };
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = 403;
+
+                return Task.CompletedTask;
+            };
         });
         builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
         builder.Services.AddAuthorization(options => options.AddPolicy("Administrator", policy =>
@@ -53,14 +63,19 @@ public static class SecurityExtensions
             if (!HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method)
                 && !HttpMethods.IsOptions(context.Request.Method) && !HttpMethods.IsTrace(context.Request.Method))
             {
-                try { await context.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(context); }
+                try
+                {
+                    await context.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(context);
+                }
                 catch (AntiforgeryValidationException)
                 {
                     await Results.Problem(statusCode: 400, title: "Refresh your session and try again.",
                         extensions: new Dictionary<string, object?> { ["code"] = "csrf_invalid" }).ExecuteAsync(context);
+
                     return;
                 }
             }
+
             await next(context);
         });
     }

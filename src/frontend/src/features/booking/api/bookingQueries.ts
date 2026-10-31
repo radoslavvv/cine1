@@ -17,7 +17,11 @@ export const bookingQueries = {
           `/api/bookings/${encodeURIComponent(token)}`,
           { signal, cache: 'no-store' },
         );
-        if (!response.ok) throw new SeatMapError(response.status);
+
+        if (!response.ok) {
+          throw new SeatMapError(response.status);
+        }
+
         return (await response.json()) as BookingConfirmation;
       },
       retry: (count, error) =>
@@ -34,8 +38,13 @@ export const bookingQueries = {
             cache: 'no-store',
           },
         );
-        if (!response.ok) throw new SeatMapError(response.status);
+
+        if (!response.ok) {
+          throw new SeatMapError(response.status);
+        }
+
         const map = (await response.json()) as SeatMap;
+
         return {
           ...map,
           clockOffsetMs: Date.parse(map.serverNow) - Date.now(),
@@ -77,16 +86,19 @@ export async function confirmBooking(
       cache: 'no-store',
     },
   );
+
   if (!response.ok) {
     const problem = (await response.json().catch(() => ({}))) as {
       code?: string;
       title?: string;
     };
+
     throw new BookingError(
       response.status,
       problem.code ?? '',
       problem.title ?? 'Couldn’t confirm your booking.',
     );
   }
+
   return (await response.json()) as BookingConfirmation;
 }

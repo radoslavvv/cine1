@@ -9,11 +9,3 @@ export interface AdminMovie {
   isArchived: boolean;
   isUsed: boolean;
 }
-export interface MovieDraft {
-  title: string;
-  durationMinutes: number;
-  genres: string;
-  synopsis: string;
-  posterUrl: string;
-  backdropUrl: string;
-}

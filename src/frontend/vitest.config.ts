@@ -17,7 +17,7 @@ export default defineConfig({
       exclude: [
         '**/*.test.{ts,tsx}',
         '**/*.theme.ts',
-        '**/types.ts',
+        '**/types/**',
         '**/index.ts',
       ],
     },

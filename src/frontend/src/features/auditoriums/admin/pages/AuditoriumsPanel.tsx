@@ -12,9 +12,12 @@ export function AuditoriumsPanel() {
   const auditoriums = auditoriumsQuery.data ?? [];
 
   const editor = useAuditoriumEditor(auditoriums);
-  if (auditoriumsQuery.isPending && !auditoriumsQuery.data)
+
+  if (auditoriumsQuery.isPending && !auditoriumsQuery.data) {
     return <p role="status">Loading auditoriums…</p>;
-  if (auditoriumsQuery.isError && !auditoriumsQuery.data)
+  }
+
+  if (auditoriumsQuery.isError && !auditoriumsQuery.data) {
     return (
       <AdminNotice
         error={auditoriumsQuery.error?.message}
@@ -23,6 +26,8 @@ export function AuditoriumsPanel() {
         }}
       />
     );
+  }
+
   return (
     <>
       <AdminNotice
@@ -98,8 +103,9 @@ export function AuditoriumsPanel() {
                             confirm: `Permanently delete ${room.name} and its seating layout?`,
                           })
                           .then((saved) => {
-                            if (saved && editor.editing === room.id)
+                            if (saved && editor.editing === room.id) {
                               editor.clear();
+                            }
                           })
                       }
                     >

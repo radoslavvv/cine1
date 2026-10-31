@@ -18,16 +18,22 @@ export function getShowtimesMovies(
   showtimes: Showtime[] | undefined,
   now: number,
 ) {
-  if (showtimes === undefined) return undefined;
+  if (showtimes === undefined) {
+    return undefined;
+  }
+
   const movies = new Map(
     showtimes.map((showtime) => [showtime.movie.id, showtime.movie]),
   );
   const grouped = new Map<number, Showtime[]>();
+
   for (const showtime of showtimes) {
     const group = grouped.get(showtime.movie.id) ?? [];
+
     group.push(showtime);
     grouped.set(showtime.movie.id, group);
   }
+
   return [...movies.values()].map((movie) => ({
     ...movie,
     showtimes: grouped.get(movie.id)!.map((showtime) => ({

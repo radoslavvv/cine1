@@ -11,6 +11,7 @@ const initial: BookingFilters = {
   status: '',
   page: 1,
 };
+
 export function useAdminBookings() {
   const [draft, setDraft] = useState(initial);
   const [filters, setFilters] = useState(initial);
@@ -20,20 +21,24 @@ export function useAdminBookings() {
     ...bookingManagementQueries.adminDetail(selected),
     enabled: selected !== '',
   });
+
   function search(event: FormEvent) {
     event.preventDefault();
     setFilters({ ...draft, page: 1 });
     setSelected('');
   }
+
   function reset() {
     setDraft(initial);
     setFilters(initial);
     setSelected('');
   }
+
   function page(value: number) {
     setFilters({ ...filters, page: value });
     setSelected('');
   }
+
   return {
     draft,
     setDraft,

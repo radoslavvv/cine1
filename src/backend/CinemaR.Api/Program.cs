@@ -3,7 +3,9 @@ using CinemaR.Infrastructure;
 using CinemaR.Api;
 using CinemaR.Api.Security;
 
-var builder = WebApplication.CreateBuilder(args.Where(arg => arg != "setup-admin").ToArray());
+var builder = WebApplication.CreateBuilder(args
+    .Where(arg => arg != "setup-admin")
+    .ToArray());
 builder.AddCinemaRApi();
 builder.Services.AddCinemaRInfrastructure(builder.Configuration, builder.Environment.IsDevelopment());
 
@@ -26,6 +28,7 @@ if (app.Environment.IsDevelopment())
 if (args.Contains("setup-admin"))
 {
     Environment.ExitCode = await AdministratorSetup.RunAsync(app.Services);
+
     return;
 }
 app.Run();

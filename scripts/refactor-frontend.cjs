@@ -52,11 +52,12 @@ for (const [feature, hooks] of [
     ],
   ],
 ]) {
-  for (const hook of hooks)
+  for (const hook of hooks) {
     move(
       `features/${feature}/${hook}.ts`,
       `features/${feature}/hooks/${hook}.ts`,
     );
+  }
 }
 
 for (const component of ['Button', 'StatusMessage', 'Wordmark']) {
@@ -64,25 +65,31 @@ for (const component of ['Button', 'StatusMessage', 'Wordmark']) {
     `shared/ui/${component}.tsx`,
     `shared/components/${component}/${component}.tsx`,
   );
-  if (component !== 'Wordmark')
+
+  if (component !== 'Wordmark') {
     move(
       `shared/ui/${component}.theme.ts`,
       `shared/components/${component}/${component}.theme.ts`,
     );
+  }
 }
+
 move('shared/ui/usePageScrollLock.ts', 'shared/hooks/usePageScrollLock.ts');
 
 function files(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const fullPath = path.join(directory, entry.name);
+
     return entry.isDirectory() ? files(fullPath) : [fullPath];
   });
 }
 
 const originals = files(source).filter((file) => /\.(ts|tsx)$/.test(file));
+
 for (const file of originals) {
   const destination = moves.get(file) ?? file;
   let content = fs.readFileSync(file, 'utf8');
+
   content = content.replace(
     /((?:from\s+|import\s*)['"])(\.[^'"]+)(['"])/g,
     (match, prefix, specifier, quote) => {
@@ -96,13 +103,22 @@ for (const file of originals) {
         (candidate) =>
           fs.existsSync(candidate) && fs.statSync(candidate).isFile(),
       );
-      if (!target) return match;
+
+      if (!target) {
+        return match;
+      }
+
       const nextTarget = moves.get(target) ?? target;
       let relative = path
         .relative(path.dirname(destination), nextTarget)
         .replaceAll('\\', '/');
+
       relative = relative.replace(/\.(ts|tsx)$/, '');
-      if (!relative.startsWith('.')) relative = `./${relative}`;
+
+      if (!relative.startsWith('.')) {
+        relative = `./${relative}`;
+      }
+
       return `${prefix}${relative}${quote}`;
     },
   );
@@ -110,7 +126,9 @@ for (const file of originals) {
   fs.writeFileSync(destination, content);
 }
 
-for (const original of moves.keys()) fs.unlinkSync(original);
+for (const original of moves.keys()) {
+  fs.unlinkSync(original);
+}
 
 // All removals are explicitly scoped to repository test paths.
 for (const relative of [
@@ -119,17 +137,22 @@ for (const relative of [
   'scripts/verify-backend.ps1',
 ]) {
   const target = path.resolve(root, relative);
-  if (!target.startsWith(`${root}${path.sep}`))
+
+  if (!target.startsWith(`${root}${path.sep}`)) {
     throw new Error('Removal outside repository');
+  }
+
   fs.rmSync(target, { recursive: true, force: true });
 }
 
 const packagePath = path.join(root, 'src/frontend/package.json');
 const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+
 delete packageJson.scripts.test;
 fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
 const solutionPath = path.join(root, 'CinemaR.slnx');
+
 fs.writeFileSync(
   solutionPath,
   fs
@@ -139,9 +162,14 @@ fs.writeFileSync(
 
 function cleanEmptyDirectories(directory) {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    if (entry.isDirectory())
+    if (entry.isDirectory()) {
       cleanEmptyDirectories(path.join(directory, entry.name));
+    }
   }
-  if (fs.readdirSync(directory).length === 0) fs.rmdirSync(directory);
+
+  if (fs.readdirSync(directory).length === 0) {
+    fs.rmdirSync(directory);
+  }
 }
+
 cleanEmptyDirectories(source);

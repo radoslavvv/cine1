@@ -7,7 +7,9 @@ namespace CinemaR.Infrastructure.Data.MigrationHistory;
 #pragma warning disable EF1001
 public sealed class CinemaRHistoryRepository(HistoryRepositoryDependencies dependencies) : NpgsqlHistoryRepository(dependencies)
 {
-    public override string GetCreateIfNotExistsScript() => """
+    public override string GetCreateIfNotExistsScript()
+    {
+        return """
         DO $history$
         BEGIN
             PERFORM pg_advisory_xact_lock(73190423);
@@ -20,5 +22,6 @@ public sealed class CinemaRHistoryRepository(HistoryRepositoryDependencies depen
             END IF;
         END $history$;
         """ + Environment.NewLine + base.GetCreateIfNotExistsScript();
+    }
 }
 #pragma warning restore EF1001

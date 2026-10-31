@@ -4,6 +4,7 @@ let csrfToken: string | null = null;
 
 export async function loadSession(): Promise<{ customer: Customer | null }> {
   let response: Response;
+
   try {
     response = await fetch('/api/account/session', {
       cache: 'no-store',
@@ -12,13 +13,18 @@ export async function loadSession(): Promise<{ customer: Customer | null }> {
   } catch {
     throw new Error('The cinema service is unavailable. Please try again.');
   }
-  if (!response.ok)
+
+  if (!response.ok) {
     throw new Error('The cinema service is unavailable. Please try again.');
+  }
+
   const session = (await response.json()) as {
     customer: Customer | null;
     csrfToken: string;
   };
+
   csrfToken = session.csrfToken;
+
   return session;
 }
 
@@ -26,24 +32,36 @@ export async function securityFetch(url: string, init: RequestInit = {}) {
   const unsafe = !['GET', 'HEAD', 'OPTIONS'].includes(
     (init.method ?? 'GET').toUpperCase(),
   );
-  if (unsafe && !csrfToken) await loadSession();
+
+  if (unsafe && !csrfToken) {
+    await loadSession();
+  }
+
   const send = () => {
     const headers = new Headers(init.headers);
-    if (unsafe) headers.set('X-CSRF-Token', csrfToken!);
+
+    if (unsafe) {
+      headers.set('X-CSRF-Token', csrfToken!);
+    }
+
     return fetch(url, { ...init, headers, cache: 'no-store' });
   };
+
   let response = await send();
+
   // A rejected CSRF check runs before the action, so this retry cannot duplicate a write.
   if (unsafe && response.status === 400) {
     const problem = (await response
       .clone()
       .json()
       .catch(() => ({}))) as { code?: string };
+
     if (problem.code === 'csrf_invalid') {
       await loadSession();
       response = await send();
     }
   }
+
   return response;
 }
 
@@ -58,7 +76,8 @@ export async function accountAction(path: string, body: object = {}) {
     title?: string;
     errors?: Record<string, string[]>;
   };
-  if (!response.ok)
+
+  if (!response.ok) {
     throw new Error(
       response.status === 429
         ? 'Too many attempts. Please wait a minute and try again.'
@@ -68,5 +87,7 @@ export async function accountAction(path: string, body: object = {}) {
             result.title ||
             'Something went wrong. Please try again.',
     );
+  }
+
   return result.message ?? 'Done.';
 }

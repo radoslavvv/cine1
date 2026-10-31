@@ -8,10 +8,17 @@ export const showtimesQueries = {
       queryKey: ['showtimes', date, genre, format],
       queryFn: async ({ signal }): Promise<Showtime[]> => {
         const params = new URLSearchParams({ date, format });
-        if (genre) params.set('genre', genre);
+
+        if (genre) {
+          params.set('genre', genre);
+        }
+
         const response = await fetch(`/api/showtimes?${params}`, { signal });
-        if (!response.ok)
+
+        if (!response.ok) {
           throw new Error(`Showtimes request failed (${response.status}).`);
+        }
+
         return response.json() as Promise<Showtime[]>;
       },
       staleTime: 30_000,

@@ -5,7 +5,11 @@ import { accountNavTheme as theme } from './AccountNav.theme';
 export function AccountNav() {
   const { customer, busy, failure, hidden, signInUrl, signOut } =
     useAccountNavigation();
-  if (hidden) return null;
+
+  if (hidden) {
+    return null;
+  }
+
   return (
     <div className="text-sm">
       <nav className={theme.navigation} aria-label="Account navigation">

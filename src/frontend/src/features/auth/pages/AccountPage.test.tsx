@@ -15,6 +15,7 @@ const api = vi.hoisted(() => ({
   loadSession: vi.fn(),
   accountAction: vi.fn(),
 }));
+
 vi.mock('../api/authApi', () => api);
 vi.mock('../../../shared/components/MotionSurface/MotionSurface', () => ({
   MotionSurface: ({ children }: { children: React.ReactNode }) => (
@@ -88,7 +89,9 @@ describe('account pages within the cinema', () => {
     expect(
       screen.getByRole('navigation', { name: 'Account navigation' }),
     ).toHaveTextContent('Sign in');
+
     let recover!: (value: { customer: null }) => void;
+
     api.loadSession.mockImplementationOnce(
       () =>
         new Promise((resolve) => {

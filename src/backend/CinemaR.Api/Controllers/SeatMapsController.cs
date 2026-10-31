@@ -13,7 +13,12 @@ public sealed class SeatMapsController(ISeatMapService service) : ControllerBase
     public async Task<ActionResult<SeatMapResponse>> Get(int showtimeId, CancellationToken cancellationToken)
     {
         var map = await service.GetAsync(showtimeId, cancellationToken);
-        if (map is null) return Problem(statusCode: 404, title: "Showtime not found.");
+
+        if (map is null)
+        {
+            return Problem(statusCode: 404, title: "Showtime not found.");
+        }
+
         return Ok(map);
     }
 }

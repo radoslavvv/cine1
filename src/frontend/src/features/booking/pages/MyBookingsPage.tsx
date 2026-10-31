@@ -7,6 +7,7 @@ import { formatBookingDate } from '../model/bookingPresentation';
 
 export function MyBookingsPage() {
   const { query, page, setPage } = useMyBookings();
+
   return (
     <AccountLayout title="My bookings.">
       {query.isPending && (

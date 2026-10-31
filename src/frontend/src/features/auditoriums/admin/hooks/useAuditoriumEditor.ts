@@ -32,6 +32,7 @@ export function useAuditoriumEditor(rooms: AdminAuditorium[]) {
               }),
             ),
         ).flat();
+
   function edit(value: AdminAuditorium) {
     setEditing(value.id);
     setDraft({
@@ -42,12 +43,15 @@ export function useAuditoriumEditor(rooms: AdminAuditorium[]) {
     action.reset();
     document.getElementById('auditorium-form-title')?.focus();
   }
+
   function clear() {
     setEditing(null);
     setDraft({ ...emptyAuditorium });
   }
+
   async function save(event: FormEvent) {
     event.preventDefault();
+
     if (
       await action.execute({
         path: editing === null ? 'auditoriums' : `auditoriums/${editing}`,
@@ -56,8 +60,10 @@ export function useAuditoriumEditor(rooms: AdminAuditorium[]) {
         message:
           editing === null ? 'Auditorium created.' : 'Auditorium updated.',
       })
-    )
+    ) {
       clear();
+    }
   }
+
   return { editing, draft, setDraft, room, preview, edit, clear, save, action };
 }

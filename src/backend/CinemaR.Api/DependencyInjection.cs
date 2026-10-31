@@ -23,6 +23,7 @@ public static class DependencyInjection
         builder.Services.AddScoped<IBookingManagementService, BookingManagementService>();
         builder.Services.AddScoped<IMyBookingsService, MyBookingsService>();
         builder.Services.AddSingleton(TimeProvider.System);
+
         return builder;
     }
 }

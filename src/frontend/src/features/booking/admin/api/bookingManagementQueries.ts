@@ -8,8 +8,13 @@ export const bookingManagementQueries = {
       queryKey: ['bookings', 'admin', filters],
       queryFn: ({ signal }) => {
         const params = new URLSearchParams();
-        for (const [key, value] of Object.entries(filters))
-          if (value !== '') params.set(key, String(value));
+
+        for (const [key, value] of Object.entries(filters)) {
+          if (value !== '') {
+            params.set(key, String(value));
+          }
+        }
+
         return adminRequest<BookingPage>('bookings?' + params, { signal });
       },
       retry: false,

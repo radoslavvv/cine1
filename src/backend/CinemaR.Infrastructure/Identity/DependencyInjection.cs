@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(1));
         services.AddScoped<AccountEmailSender>();
         services.AddScoped<IAccountService, AccountService>();
+
         return services;
     }
 }

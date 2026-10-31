@@ -12,7 +12,11 @@ public static class SeatLayoutSeed
 
     public static async Task RunAsync(CinemaRDbContext db, CancellationToken cancellationToken)
     {
-        if (await db.SeedHistory.AnyAsync(seed => seed.Name == Version, cancellationToken)) return;
+        if (await db.SeedHistory.AnyAsync(seed => seed.Name == Version, cancellationToken))
+        {
+            return;
+        }
+
         await using var transaction = db.Database.CurrentTransaction is null
             ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
 
@@ -21,13 +25,20 @@ public static class SeatLayoutSeed
         {
             var name = $"Auditorium {roomNumber}";
             var room = await db.Auditoriums.SingleOrDefaultAsync(room => room.Name == name, cancellationToken);
-            if (room is null || await db.Seats.AnyAsync(seat => seat.AuditoriumId == room.Id, cancellationToken)) continue;
+
+            if (room is null || await db.Seats.AnyAsync(seat => seat.AuditoriumId == room.Id, cancellationToken))
+            {
+                continue;
+            }
+
             var rows = 4 + roomNumber * 2;
             var seatsPerRow = 8 + roomNumber * 2;
+
             for (var row = 0; row < rows; row++)
             {
                 // Shorter front rows, a central aisle, and (in the largest room) a cross aisle.
                 var inset = row < 2 ? 1 : 0;
+
                 for (var column = inset; column < seatsPerRow - inset; column++)
                 {
                     db.Seats.Add(new Seat
@@ -41,8 +52,13 @@ public static class SeatLayoutSeed
                 }
             }
         }
+
         db.SeedHistory.Add(new SeedHistory { Name = Version, AppliedAt = DateTime.UtcNow });
         await db.SaveChangesAsync(cancellationToken);
-        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
     }
 }

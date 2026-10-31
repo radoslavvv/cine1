@@ -7,6 +7,7 @@ namespace CinemaR.Application.Booking.Services;
 public interface IBookingService
 {
     Task<BookingResult> ConfirmAsync(ConfirmBookingCommand command, CancellationToken cancellationToken);
+
     Task<BookingConfirmationResponse?> FindAsync(string confirmationToken, CancellationToken cancellationToken);
 }
 

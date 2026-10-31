@@ -38,6 +38,7 @@ export function ShowtimesPage() {
     searchParams,
     onSearchParamsChange: setSearchParams,
   });
+
   return (
     <div id="showtimes-top" className={theme.page}>
       <ProjectorAtmosphere />
@@ -238,6 +239,7 @@ export function ShowtimesPage() {
                                         </span>
                                       </>
                                     );
+
                                     return (
                                       <MotionItem
                                         key={showtime.id}

@@ -17,11 +17,16 @@ public sealed class BookingsController(IBookingService service, IAccountService 
     public async Task<ActionResult<BookingConfirmationResponse>> Confirm(int showtimeId, ConfirmBookingRequest request, CancellationToken cancellationToken)
     {
         var customer = await accounts.CurrentAsync();
+
         if (request.ExpectedCustomerId != customer?.Id)
+        {
             return Problem(statusCode: customer is null ? 401 : 409, title: "Your sign-in changed. Sign in again or explicitly continue as a guest.",
                 extensions: new Dictionary<string, object?> { ["code"] = "session_changed" });
+        }
+
         var result = await service.ConfirmAsync(new ConfirmBookingCommand(showtimeId, request.RequestId,
             customer?.Email ?? request.Email, request.SeatIds, customer?.Id), cancellationToken);
+
         return result.Outcome switch
         {
             BookingOutcome.Confirmed => Ok(result.Confirmation),
@@ -38,7 +43,9 @@ public sealed class BookingsController(IBookingService service, IAccountService 
     public async Task<ActionResult<BookingConfirmationResponse>> Get(string confirmationToken, CancellationToken cancellationToken)
     {
         Response.Headers["Referrer-Policy"] = "no-referrer";
+
         var booking = await service.FindAsync(confirmationToken, cancellationToken);
+
         return booking is null ? Problem(statusCode: 404, title: "Booking not found.") : Ok(booking);
     }
 
@@ -46,13 +53,23 @@ public sealed class BookingsController(IBookingService service, IAccountService 
     public async Task<IActionResult> GetTicketQr(string confirmationToken, int seatId, CancellationToken cancellationToken)
     {
         Response.Headers["Referrer-Policy"] = "no-referrer";
+
         var booking = await service.FindAsync(confirmationToken, cancellationToken);
         var ticket = booking?.Tickets.SingleOrDefault(item => item.SeatId == seatId);
-        if (booking?.IsCancelled == true) return Problem(statusCode: 410, title: "This screening has been cancelled. Its tickets are no longer valid.");
-        if (ticket is null) return Problem(statusCode: 404, title: "Ticket not found.");
+
+        if (booking?.IsCancelled == true)
+        {
+            return Problem(statusCode: 410, title: "This screening has been cancelled. Its tickets are no longer valid.");
+        }
+
+        if (ticket is null)
+        {
+            return Problem(statusCode: 404, title: "Ticket not found.");
+        }
 
         using var data = QRCodeGenerator.GenerateQrCode(ticket.TicketCode, QRCodeGenerator.ECCLevel.M);
         using var qr = new PngByteQRCode(data);
+
         return File(qr.GetGraphic(8), "image/png");
     }
 }

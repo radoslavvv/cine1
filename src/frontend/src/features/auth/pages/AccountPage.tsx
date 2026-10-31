@@ -23,7 +23,8 @@ export function AccountPage() {
     returnQuery,
     submit,
   } = useAccountPage(action, params);
-  if (!title)
+
+  if (!title) {
     return (
       <AccountLayout title="Page not found.">
         <Link className={accountTheme.link} to="/account/sign-in">
@@ -31,6 +32,8 @@ export function AccountPage() {
         </Link>
       </AccountLayout>
     );
+  }
+
   return (
     <AccountLayout title={title}>
       <form onSubmit={submit} className="grid gap-5" aria-busy={busy}>

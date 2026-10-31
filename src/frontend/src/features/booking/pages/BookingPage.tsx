@@ -39,6 +39,7 @@ export function BookingPage() {
     checkout,
   } = useBookingPage(showtimeId);
   const { isError, isPaused, isFetching } = query;
+
   return (
     <div className={theme.page} id="booking-top">
       <ProjectorAtmosphere />

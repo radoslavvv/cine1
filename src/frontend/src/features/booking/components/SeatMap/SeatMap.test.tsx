@@ -13,6 +13,7 @@ describe('seat map accessibility and interaction', () => {
   it('names seats, exposes selection and blocks taken seats', () => {
     const seats = seatMap().seats;
     const onToggle = vi.fn();
+
     render(
       <SeatMap
         seats={prepareSeats(seats, [seats[0]], true)}
@@ -22,11 +23,15 @@ describe('seat map accessibility and interaction', () => {
     expect(
       screen.getByRole('button', { name: 'Row A, seat 1' }),
     ).toHaveAttribute('aria-pressed', 'true');
+
     const available = screen.getByRole('button', { name: 'Row A, seat 2' });
+
     expect(available).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(available);
     expect(onToggle).toHaveBeenCalledWith(2);
+
     const taken = screen.getByRole('button', { name: 'Row A, seat 10, taken' });
+
     expect(taken).toBeDisabled();
     fireEvent.click(taken);
     expect(onToggle).toHaveBeenCalledTimes(1);
@@ -40,6 +45,7 @@ describe('seat map accessibility and interaction', () => {
         onToggle={vi.fn()}
       />,
     );
+
     expect(screen.getByRole('button', { name: 'Row A, seat 1' })).toBeEnabled();
     expect(
       screen.getByRole('button', { name: 'Row A, seat 9' }),
@@ -47,7 +53,9 @@ describe('seat map accessibility and interaction', () => {
     rerender(
       <SeatMap seats={prepareSeats(seats, [], false)} onToggle={vi.fn()} />,
     );
-    for (const button of screen.getAllByRole('button'))
+
+    for (const button of screen.getAllByRole('button')) {
       expect(button).toBeDisabled();
+    }
   });
 });

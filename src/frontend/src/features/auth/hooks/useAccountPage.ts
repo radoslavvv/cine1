@@ -24,14 +24,22 @@ export function useAccountPage(action: string, params: URLSearchParams) {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (busy) return;
-    setError('');
-    setMessage('');
-    if (needsPassword && newPassword && password !== confirmPassword) {
-      setError('Your passwords do not match.');
+
+    if (busy) {
       return;
     }
+
+    setError('');
+    setMessage('');
+
+    if (needsPassword && newPassword && password !== confirmPassword) {
+      setError('Your passwords do not match.');
+
+      return;
+    }
+
     setBusy(true);
+
     try {
       const result = await accountAction(action, {
         email: email.trim(),
@@ -39,21 +47,28 @@ export function useAccountPage(action: string, params: URLSearchParams) {
         userId: params.get('userId') ?? '',
         token: params.get('token') ?? '',
       });
+
       setMessage(result);
       setPassword('');
       setConfirmPassword('');
+
       if (action === 'sign-in') {
         await auth.refresh();
+
         if (typeof BroadcastChannel !== 'undefined') {
           const channel = new BroadcastChannel('cinemar-account');
+
           channel.postMessage('changed');
           channel.close();
         }
+
         navigate(destination, { replace: true });
       }
+
       // Remove credentials from browser history once a verification/reset link has been consumed.
-      if (verify || action === 'reset-password')
+      if (verify || action === 'reset-password') {
         navigate(`/account/${action}`, { replace: true });
+      }
     } catch (failure) {
       setError(
         failure instanceof Error ? failure.message : 'Please try again.',

@@ -17,30 +17,36 @@ function load(file, imports = {}, globals = {}) {
     },
   });
   const exports = {};
+
   vm.runInNewContext(
     outputText,
     {
       exports,
       require(name) {
         assert.ok(name in imports, `Unmocked import: ${name}`);
+
         return imports[name];
       },
       ...globals,
     },
     { filename: file },
   );
+
   return exports;
 }
 
 function environment() {
   const window = new EventTarget();
+
   window.scrollY = 0;
   window.scrollTo = ({ top }) => {
     window.scrollY = top;
   };
+
   const frames = new Map();
   let id = 0;
   let time = 0;
+
   return {
     window,
     frames,
@@ -50,6 +56,7 @@ function environment() {
       removeEventListener: window.removeEventListener.bind(window),
       requestAnimationFrame(callback) {
         frames.set(++id, callback);
+
         return id;
       },
       cancelAnimationFrame(frame) {
@@ -58,9 +65,12 @@ function environment() {
     },
     flush() {
       let remaining = 200;
+
       while (frames.size) {
         assert.ok(remaining-- > 0, 'Animation failed to settle');
+
         const callbacks = [...frames.values()];
+
         frames.clear();
         time += 16;
         callbacks.forEach((callback) => callback(time));
@@ -88,7 +98,9 @@ function journey(reduced = false) {
   const effects = [];
   const events = [];
   const media = new EventTarget();
+
   media.matches = reduced;
+
   const { useCinemaJourney } = load(
     'features/cinema-entrance/hooks/useCinemaJourney.ts',
     {
@@ -107,9 +119,13 @@ function journey(reduced = false) {
       },
     },
   );
+
   useCinemaJourney(() => events.push('complete'));
+
   const cleanup = effects[0]();
+
   env.flush();
+
   return {
     ...env,
     events,
@@ -127,6 +143,7 @@ for (const position of [1999.5, 2000, 2450]) {
     'navigates once at the end, including scroll overshoot ' + position,
     () => {
       const scene = journey();
+
       scene.scroll(1760);
       scene.flush();
       assert.deepEqual(scene.events, []);
@@ -144,6 +161,7 @@ for (const position of [1999.5, 2000, 2450]) {
 
 test('scroll can reverse before reaching the end', () => {
   const scene = journey();
+
   scene.scroll(1700);
   scene.flush();
   scene.scroll(0);
@@ -155,6 +173,7 @@ test('scroll can reverse before reaching the end', () => {
 
 test('reduced motion navigates at the bottom without zooming', () => {
   const scene = journey(true);
+
   scene.scroll(50);
   assert.deepEqual(scene.events, []);
   scene.scroll(100);
@@ -165,6 +184,7 @@ test('reduced motion navigates at the bottom without zooming', () => {
 
 test('unmount cancels an unfinished entrance', () => {
   const scene = journey();
+
   scene.scroll(2000);
   scene.dispose();
   scene.flush();
@@ -187,6 +207,7 @@ test('entrance navigation preserves URL filters', () => {
       useNavigate: () => (url) => navigations.push(url),
     },
   });
+
   useAppNavigation().completeEntrance();
   assert.deepEqual(navigations, ['/showtimes?genre=Sci-Fi&format=IMAX+3D']);
 });

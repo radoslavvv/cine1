@@ -21,6 +21,7 @@ export function ConfirmationPage() {
     retry: onRetry,
   } = useConfirmationPage();
   const { isError, isPaused } = query;
+
   return (
     <div className={page.page} id="confirmation-top">
       <ProjectorAtmosphere />

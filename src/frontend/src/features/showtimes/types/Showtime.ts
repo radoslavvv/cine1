@@ -1,4 +1,4 @@
-import type { Movie } from '../movies/types';
+import type { Movie } from '../../movies/types';
 
 export interface Showtime {
   id: number;

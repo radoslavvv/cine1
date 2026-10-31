@@ -8,10 +8,15 @@ export function useAccountNavigation() {
   const location = useLocation();
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState('');
+
   async function handleSignOut() {
-    if (busy) return;
+    if (busy) {
+      return;
+    }
+
     setBusy(true);
     setFailure('');
+
     try {
       await signOut();
     } catch {
@@ -20,6 +25,7 @@ export function useAccountNavigation() {
       setBusy(false);
     }
   }
+
   return {
     customer,
     busy,

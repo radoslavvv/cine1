@@ -35,7 +35,9 @@ function setup() {
       ),
     },
   );
+
   act(() => hook.result.current.onEmailChange(' customer@example.com '));
+
   return { ...hook, client, onConflict };
 }
 
@@ -46,12 +48,18 @@ describe('checkout requests', () => {
     'replays the original request after a %s failure, even after start',
     async (failure) => {
       const fetch = vi.fn();
-      if (failure === 'network')
+
+      if (failure === 'network') {
         fetch.mockRejectedValueOnce(new TypeError('Connection lost'));
-      else fetch.mockResolvedValueOnce(new Response('{}', { status: 503 }));
+      } else {
+        fetch.mockResolvedValueOnce(new Response('{}', { status: 503 }));
+      }
+
       const confirmation = { confirmationToken: 'private-token', tickets: [] };
+
       fetch.mockResolvedValueOnce(Response.json(confirmation));
       vi.stubGlobal('fetch', fetch);
+
       const { result, rerender, client } = setup();
 
       await act(() => result.current.onSubmit(event));
@@ -63,6 +71,7 @@ describe('checkout requests', () => {
 
       const first = JSON.parse(fetch.mock.calls[0][1].body);
       const retry = JSON.parse(fetch.mock.calls[1][1].body);
+
       expect(first).toEqual({
         requestId: expect.any(String),
         email: 'customer@example.com',
@@ -82,9 +91,12 @@ describe('checkout requests', () => {
         complete = resolve;
       }),
     );
+
     vi.stubGlobal('fetch', fetch);
+
     const { result } = setup();
     let submission!: Promise<void>;
+
     act(() => {
       submission = result.current.onSubmit(event);
     });
@@ -108,8 +120,11 @@ describe('checkout requests', () => {
             Response.json({ code, title: 'Choose again' }, { status: 409 }),
           ),
         );
+
       vi.stubGlobal('fetch', fetch);
+
       const { result, onConflict } = setup();
+
       await act(() => result.current.onSubmit(event));
       expect(onConflict).toHaveBeenCalledWith('Choose again');
       expect(result.current.inputsDisabled).toBe(false);
@@ -122,8 +137,11 @@ describe('checkout requests', () => {
 
   it('does not submit a new booking after the showtime closes', async () => {
     const fetch = vi.fn();
+
     vi.stubGlobal('fetch', fetch);
+
     const { result, rerender } = setup();
+
     rerender({ isOpen: false });
     await act(() => result.current.onSubmit(event));
     expect(fetch).not.toHaveBeenCalled();

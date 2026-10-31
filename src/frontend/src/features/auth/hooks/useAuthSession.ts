@@ -14,10 +14,16 @@ export function useAuthSession(): AuthState {
   const channel = useRef<BroadcastChannel | null>(null);
   const refresh = useCallback(async () => {
     const request = ++generation.current;
+
     setRefreshing(true);
+
     try {
       const session = await loadSession();
-      if (request !== generation.current) return;
+
+      if (request !== generation.current) {
+        return;
+      }
+
       if (previousId.current !== (session.customer?.id ?? null)) {
         const privateQueries = {
           predicate: (query: { queryKey: readonly unknown[] }) =>
@@ -25,20 +31,26 @@ export function useAuthSession(): AuthState {
               String(query.queryKey[0]),
             ),
         };
+
         await queryClient.cancelQueries(privateQueries);
         queryClient.removeQueries(privateQueries);
       }
-      if (request !== generation.current) return;
+
+      if (request !== generation.current) {
+        return;
+      }
+
       previousId.current = session.customer?.id ?? null;
       setCustomer(session.customer);
       setError('');
     } catch (failure) {
-      if (request === generation.current)
+      if (request === generation.current) {
         setError(
           failure instanceof Error
             ? failure.message
             : 'Couldn’t check your sign-in.',
         );
+      }
     } finally {
       if (request === generation.current) {
         setLoading(false);
@@ -49,15 +61,20 @@ export function useAuthSession(): AuthState {
 
   useEffect(() => {
     void refresh();
+
     const focus = () => {
       void refresh();
     };
+
     window.addEventListener('focus', focus);
+
     const timer = window.setInterval(focus, 60_000);
+
     if (typeof BroadcastChannel !== 'undefined') {
       channel.current = new BroadcastChannel('cinemar-account');
       channel.current.onmessage = focus;
     }
+
     return () => {
       window.removeEventListener('focus', focus);
       window.clearInterval(timer);

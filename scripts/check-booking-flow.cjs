@@ -18,34 +18,42 @@ function load(file, imports = {}, globals = {}) {
     },
   });
   const exports = {};
+
   vm.runInNewContext(
     outputText,
     {
       exports,
       require(name) {
         assert.ok(name in imports, `Unmocked import: ${name}`);
+
         return imports[name];
       },
       ...globals,
     },
     { filename: file },
   );
+
   return exports;
 }
 
 function hooks() {
   const slots = [];
   let cursor = 0;
+
   return {
     render(render) {
       cursor = 0;
+
       return render();
     },
     react: {
       useState(initial) {
         const slot = cursor++;
-        if (!(slot in slots))
+
+        if (!(slot in slots)) {
           slots[slot] = typeof initial === 'function' ? initial() : initial;
+        }
+
         return [
           slots[slot],
           (value) => {
@@ -56,7 +64,11 @@ function hooks() {
       },
       useRef(initial) {
         const slot = cursor++;
-        if (!(slot in slots)) slots[slot] = { current: initial };
+
+        if (!(slot in slots)) {
+          slots[slot] = { current: initial };
+        }
+
         return slots[slot];
       },
       useEffect() {},
@@ -109,6 +121,7 @@ function checkout(confirmBooking) {
     isOpen: true,
     onConflict: async (message) => conflicts.push(message),
   };
+
   return {
     props,
     navigations,
@@ -126,14 +139,21 @@ test('uncertain retry preserves request identity, email and seats even after sho
   const confirmation = { confirmationToken: 'private-token' };
   const flow = checkout(async (showtimeId, request) => {
     requests.push({ showtimeId, request });
-    if (requests.length === 1) throw new Error('Connection lost');
+
+    if (requests.length === 1) {
+      throw new Error('Connection lost');
+    }
+
     return confirmation;
   });
+
   flow.render().onEmailChange(' guest@example.com ');
   await flow.render().onSubmit(event);
   flow.props.isOpen = false;
   flow.props.seats = [{ id: 99 }];
+
   let state = flow.render();
+
   assert.equal(state.inputsDisabled, true);
   assert.equal(state.submitDisabled, false);
   assert.equal(state.submitLabel, 'Retry confirmation');
@@ -157,12 +177,14 @@ test('concurrent submission is guarded synchronously before rerender', async () 
     calls = 0;
   const flow = checkout(() => {
     calls++;
+
     return new Promise((resolve) => {
       release = resolve;
     });
   });
   const state = flow.render();
   const pending = state.onSubmit(event);
+
   await state.onSubmit(event);
   assert.equal(calls, 1);
   assert.equal(flow.render().pending, true);
@@ -176,6 +198,7 @@ test('closed showtime blocks a new attempt', async () => {
   const flow = checkout(async () => {
     calls++;
   });
+
   flow.props.isOpen = false;
   assert.equal(flow.render().submitDisabled, true);
   await flow.render().onSubmit(event);
@@ -191,6 +214,7 @@ for (const [status, code] of [
     const flow = checkout(async () => {
       throw new BookingError(status, code, 'Select again');
     });
+
     await flow.render().onSubmit(event);
     assert.deepEqual(flow.conflicts, ['Select again']);
     assert.equal(flow.render().inputsDisabled, false);
@@ -202,8 +226,10 @@ test('validation failure permits a changed payload with a fresh request ID', asy
   const requests = [];
   const flow = checkout(async (_, request) => {
     requests.push(request);
+
     throw new BookingError(400, 'invalid_email', 'Invalid email');
   });
+
   flow.render().onEmailChange('bad');
   await flow.render().onSubmit(event);
   assert.equal(flow.render().error, 'Invalid email');
@@ -214,6 +240,7 @@ test('validation failure permits a changed payload with a fresh request ID', asy
 });
 
 const presentation = load('model/bookingPresentation.ts');
+
 test('seat flags permit deselection at the limit and block taken, excess and closed seats', () => {
   const seats = Array.from({ length: 10 }, (_, id) => ({
     id,
@@ -221,6 +248,7 @@ test('seat flags permit deselection at the limit and block taken, excess and clo
   }));
   const selected = seats.slice(0, presentation.MAX_SEATS);
   const prepared = presentation.prepareSeats(seats, selected, true);
+
   assert.equal(prepared[0].selected, true);
   assert.equal(prepared[0].disabled, false);
   assert.equal(prepared[8].disabled, true);
@@ -247,6 +275,7 @@ test('conflict recovery clears selection, refreshes availability, then exits che
       useQueryClient: () => ({
         invalidateQueries: (options) => {
           calls.push(options);
+
           return new Promise((resolve) => {
             completeRefresh = resolve;
           });
@@ -274,11 +303,17 @@ test('conflict recovery clears selection, refreshes availability, then exits che
     },
   });
   const map = { showtimeId: 42, startsAt: '2026-10-28T12:00:00Z', seats: [] };
-  const render = () => runtime.render(() => useBookingPage('42'));
+
+  const render = () => {
+    return runtime.render(() => useBookingPage('42'));
+  };
+
   render().beginCheckout();
   assert.equal(render().checkoutSeats[0].id, 7);
   calls.length = 0;
+
   const recovery = render().checkout.onConflict?.('Seat no longer available');
+
   assert.equal(render().notice, 'Seat no longer available');
   assert.equal(calls[0], 'clear');
   assert.deepEqual(Array.from(calls[1].queryKey), ['seat-map', '42']);
@@ -295,13 +330,17 @@ test('returning to selection resets checkout before a new seat choice', async ()
   const requests = [];
   const flow = checkout(async (_, request) => {
     requests.push(request);
+
     throw new BookingError(400, 'invalid_email', 'Invalid email');
   });
+
   flow.render().onEmailChange('old@example.com');
   await flow.render().onSubmit(event);
   flow.render().reset();
   flow.props.seats = [{ id: 9 }];
+
   const fresh = flow.render();
+
   assert.equal(fresh.email, '');
   assert.equal(fresh.error, '');
   assert.equal(fresh.pending, false);
@@ -317,6 +356,7 @@ test('the page cannot submit while checkout is inactive', async () => {
   const flow = checkout(async () => {
     calls++;
   });
+
   flow.props.active = false;
   await flow.render().onSubmit(event);
   assert.equal(calls, 0);

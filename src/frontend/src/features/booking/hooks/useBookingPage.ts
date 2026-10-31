@@ -29,29 +29,40 @@ export function useBookingPage(showtimeId: string) {
   );
   const [checkoutSeats, setCheckoutSeats] = useState<Seat[] | null>(null);
   const [notice, setNotice] = useState('');
+
   useEffect(() => {
-    if (!map || restored.current) return;
+    if (!map || restored.current) {
+      return;
+    }
+
     restored.current = true;
+
     if (draft?.checkout && map.selectionOpen) {
       const available = map.seats.filter(
         (seat) => !seat.taken && draft.seatIds.includes(seat.id),
       );
-      if (available.length === draft.seatIds.length && available.length > 0)
+
+      if (available.length === draft.seatIds.length && available.length > 0) {
         setCheckoutSeats(available);
-      else
+      } else {
         setNotice(
           'Some selected seats are no longer available. Please review your selection.',
         );
+      }
     }
   }, [map, draft]);
   useEffect(() => {
-    if (!map || !restored.current) return;
+    if (!map || !restored.current) {
+      return;
+    }
+
     saveBookingDraft(
       showtimeId,
       selectedSeats.map((seat) => seat.id),
       checkoutSeats !== null,
     );
   }, [showtimeId, map, selectedSeats, checkoutSeats]);
+
   const { reset: resetCheckout, ...checkout } = useCheckout({
     showtimeId: Number(showtimeId),
     seats: checkoutSeats ?? [],
@@ -69,7 +80,10 @@ export function useBookingPage(showtimeId: string) {
   }
 
   function beginCheckout() {
-    if (!isOpen || selectedSeats.length === 0) return;
+    if (!isOpen || selectedSeats.length === 0) {
+      return;
+    }
+
     resetCheckout();
     setNotice('');
     setCheckoutSeats(selectedSeats);

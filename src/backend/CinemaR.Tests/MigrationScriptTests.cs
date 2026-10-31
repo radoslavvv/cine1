@@ -19,10 +19,15 @@ public sealed class MigrationScriptTests
         var script = db.GetService<IMigrator>().GenerateScript(options: MigrationsSqlGenerationOptions.Idempotent);
         var relocation = script.IndexOf("ALTER TABLE catalog.__ef_migrations_history SET SCHEMA \"cinemaR\"", StringComparison.Ordinal);
         var historyRead = script.IndexOf("SELECT 1 FROM \"cinemaR\".__ef_migrations_history", StringComparison.Ordinal);
+
         Assert.True(relocation >= 0 && historyRead > relocation);
         Assert.Contains("Both legacy and cinemaR migration histories exist", script);
+
         foreach (var table in new[] { "movies", "auditoriums", "seats", "showtimes", "seed_history" })
+        {
             Assert.Contains($"ALTER TABLE catalog.{table} SET SCHEMA \"cinemaR\"", script);
+        }
+
         Assert.DoesNotContain("DROP TABLE", script);
         Assert.Equal("cinemaR", db.Model.GetDefaultSchema());
     }

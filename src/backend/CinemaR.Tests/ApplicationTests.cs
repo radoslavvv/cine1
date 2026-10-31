@@ -28,6 +28,7 @@ public sealed class ApplicationTests
         var repository = new TestShowtimesRepository();
         var result = await new ShowtimesService(repository).GetForDateAsync(
             new GetShowtimesQuery(date is null ? null : DateOnly.Parse(date), null, format), CancellationToken.None);
+
         Assert.NotNull(result.ValidationError);
         Assert.False(repository.Called);
     }
@@ -41,6 +42,7 @@ public sealed class ApplicationTests
         using var cancellation = new CancellationTokenSource();
         var result = await new ShowtimesService(repository).GetForDateAsync(
             new GetShowtimesQuery(new DateOnly(year, month, day), " Drama ", "2D"), cancellation.Token);
+
         Assert.Null(result.ValidationError);
         Assert.Equal(TimeSpan.FromHours(hours), repository.End - repository.Start);
         Assert.Equal(DateTimeKind.Utc, repository.Start.Kind);
@@ -60,6 +62,7 @@ public sealed class ApplicationTests
         var repository = new TestBookingRepository();
         var result = await new BookingService(repository).ConfirmAsync(
             new ConfirmBookingCommand(1, Guid.NewGuid(), "customer@example.com", seats), CancellationToken.None);
+
         Assert.Equal(BookingOutcome.InvalidSeats, result.Outcome);
         Assert.False(repository.Called);
     }
@@ -69,6 +72,7 @@ public sealed class ApplicationTests
     {
         var repository = new TestBookingRepository();
         var requestId = Guid.NewGuid();
+
         await new BookingService(repository).ConfirmAsync(
             new ConfirmBookingCommand(42, requestId, " customer@example.com ", [2, 3]), CancellationToken.None);
         Assert.Equal(42, repository.ShowtimeId);
@@ -83,6 +87,7 @@ public sealed class ApplicationTests
     public void Admin_rejects_skipped_or_ambiguous_Kyiv_start_times(string date)
     {
         var error = Assert.Throws<AdminRuleException>(() => AdminValidation.Starts(new SaveShowtimesCommand(1, 1, "2D", "03:30", [date])));
+
         Assert.Equal(AdminFailure.Validation, error.Failure);
     }
 
@@ -90,6 +95,7 @@ public sealed class ApplicationTests
     public void Admin_normalizes_movie_commands()
     {
         var movie = AdminValidation.Movie(new SaveMovieCommand(" Example ", 100, [" Drama ", "Drama", " "], " Synopsis ", " ", null));
+
         Assert.Equal("Example", movie.Title);
         Assert.Equal(new[] { "Drama" }, movie.Genres);
         Assert.Null(movie.PosterUrl);
@@ -101,6 +107,7 @@ public sealed class ApplicationTests
     {
         var now = new DateTimeOffset(2026, 10, 30, 12, 0, 0, TimeSpan.Zero);
         var map = await new SeatMapService(new TestSeatMapRepository(now.UtcDateTime), new FixedTimeProvider(now)).GetAsync(1, CancellationToken.None);
+
         Assert.NotNull(map);
         Assert.Equal(now.UtcDateTime, map!.ServerNow);
         Assert.False(map.SelectionOpen);

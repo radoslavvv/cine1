@@ -12,9 +12,12 @@ export function MoviesPanel() {
   const movies = moviesQuery.data ?? [];
 
   const editor = useMovieEditor();
-  if (moviesQuery.isPending && !moviesQuery.data)
+
+  if (moviesQuery.isPending && !moviesQuery.data) {
     return <p role="status">Loading movies…</p>;
-  if (moviesQuery.isError && !moviesQuery.data)
+  }
+
+  if (moviesQuery.isError && !moviesQuery.data) {
     return (
       <AdminNotice
         error={moviesQuery.error?.message}
@@ -23,6 +26,8 @@ export function MoviesPanel() {
         }}
       />
     );
+  }
+
   return (
     <>
       <AdminNotice
@@ -94,8 +99,9 @@ export function MoviesPanel() {
                             confirm: `Permanently delete “${movie.title}”?`,
                           })
                           .then((saved) => {
-                            if (saved && editor.editing === movie.id)
+                            if (saved && editor.editing === movie.id) {
                               editor.clear();
+                            }
                           })
                       }
                     >

@@ -1,8 +1,4 @@
-export interface Customer {
-  id: string;
-  email: string;
-  isAdministrator: boolean;
-}
+import type { Customer } from './Customer';
 
 export interface AuthState {
   customer: Customer | null;

@@ -15,9 +15,11 @@ export function useConfirmationPage() {
     (query.error instanceof SeatMapError && query.error.status === 404);
   const booking = query.data;
   const url = window.location.origin + '/booking/confirmation/' + token;
+
   function copyLink() {
     void navigator.clipboard.writeText(url).catch(() => {});
   }
+
   return {
     query,
     missing,

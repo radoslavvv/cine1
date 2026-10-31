@@ -25,6 +25,7 @@ export function useShowtimeEditor(
   const formats =
     rooms.find((a) => String(a.id) === draft.auditoriumId)?.supportedFormats ??
     [];
+
   function edit(screening: AdminShowtime) {
     setEditing(screening.id);
     setDraft({
@@ -37,13 +38,16 @@ export function useShowtimeEditor(
     action.reset();
     document.getElementById('showtime-form-title')?.focus();
   }
+
   function clear() {
     setEditing(null);
     setDraft(emptyShowtime());
   }
+
   function chooseRoom(value: string) {
     const supported =
       rooms.find((a) => String(a.id) === value)?.supportedFormats ?? [];
+
     setDraft({
       ...draft,
       auditoriumId: value,
@@ -52,15 +56,19 @@ export function useShowtimeEditor(
         : (supported[0] ?? '2D'),
     });
   }
+
   function addDate() {
-    if (additionalDate)
+    if (additionalDate) {
       setDraft({
         ...draft,
         dates: [...new Set([...draft.dates, additionalDate])].sort(),
       });
+    }
   }
+
   async function save(event: FormEvent) {
     event.preventDefault();
+
     if (
       await action.execute({
         path: editing === null ? 'showtimes' : `showtimes/${editing}`,
@@ -82,6 +90,7 @@ export function useShowtimeEditor(
       clear();
     }
   }
+
   async function cancel(screening: AdminShowtime) {
     if (
       (await action.execute({
@@ -90,14 +99,17 @@ export function useShowtimeEditor(
         confirm: `Cancel “${screening.movieTitle}” at ${timeInKyiv(screening.startsAt)}? All ${screening.bookingCount} booking(s) will be invalidated. No email will be sent.`,
       })) &&
       editing === screening.id
-    )
+    ) {
       clear();
+    }
   }
+
   const screenings = query.data?.filter(
     (s) =>
       (!filterMovie || String(s.movieId) === filterMovie) &&
       (!filterRoom || String(s.auditoriumId) === filterRoom),
   );
+
   return {
     date,
     setDate,

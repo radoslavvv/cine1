@@ -24,43 +24,142 @@ internal sealed class TestAdminRepository(DateTimeOffset now) : IMovieRepository
     public bool RemainingMovieShowtimes, AuditoriumHasBookings, DeletedSeats, QueriedInsideTransaction;
     public int WriteCount;
     private bool inTransaction;
+
     public async Task<T> ExecuteWriteAsync<T>(Func<Task<T>> action, CancellationToken ct)
     {
         WriteCount++;
         inTransaction = true;
-        try { return await action(); }
+
+        try
+        {
+            return await action();
+        }
         finally { inTransaction = false; }
     }
-    public Task<Movie?> FindMovieAsync(int id, CancellationToken ct) => Task.FromResult<Movie?>(Movie);
-    public Task<Auditorium?> FindAuditoriumAsync(int id, CancellationToken ct) => Task.FromResult<Auditorium?>(Room);
-    public Task<Showtime?> FindShowtimeAsync(int id, CancellationToken ct) => Task.FromResult<Showtime?>(Showtime);
+
+    public Task<Movie?> FindMovieAsync(int id, CancellationToken ct)
+    {
+        return Task.FromResult<Movie?>(Movie);
+    }
+
+    public Task<Auditorium?> FindAuditoriumAsync(int id, CancellationToken ct)
+    {
+        return Task.FromResult<Auditorium?>(Room);
+    }
+
+    public Task<Showtime?> FindShowtimeAsync(int id, CancellationToken ct)
+    {
+        return Task.FromResult<Showtime?>(Showtime);
+    }
+
     public Task<bool> HasRemainingMovieShowtimesAsync(int id, DateTime now, CancellationToken ct)
     {
         QueriedInsideTransaction = inTransaction;
+
         return Task.FromResult(RemainingMovieShowtimes);
     }
+
     public Task<bool> HasAuditoriumBookingsAsync(int id, CancellationToken ct)
     {
         QueriedInsideTransaction = inTransaction;
+
         return Task.FromResult(AuditoriumHasBookings);
     }
-    public Task DeleteSeatsAsync(int id, CancellationToken ct) { DeletedSeats = true; return Task.CompletedTask; }
-    public Task<bool> HasUnsupportedRemainingShowtimesAsync(int id, string[] formats, DateTime now, CancellationToken ct) => Task.FromResult(false);
-    public Task<IReadOnlyList<ShowtimeConflictReadModel>> FindOverlapsAsync(int? id, int auditoriumId, DateTime start, DateTime end, CancellationToken ct) => Task.FromResult(Overlaps);
-    public void Add(Showtime showtime) => AddedShowtimes.Add(showtime);
-    public Task SaveChangesAsync(CancellationToken ct) => Task.CompletedTask;
-    public Task<IReadOnlyList<AdminMovieResponse>> MoviesAsync(CancellationToken ct) => throw new NotSupportedException();
-    public Task<IReadOnlyList<AdminAuditoriumResponse>> AuditoriumsAsync(CancellationToken ct) => throw new NotSupportedException();
-    public Task<IReadOnlyList<AdminShowtimeResponse>> ShowtimesAsync(DateOnly date, CancellationToken ct) => throw new NotSupportedException();
-    public Task<BookingPageResponse> BookingsAsync(GetBookingsQuery filters, CancellationToken ct) => throw new NotSupportedException();
-    public Task<AdminBookingResponse> BookingAsync(Guid id, CancellationToken ct) => throw new NotSupportedException();
-    public void Add(Movie movie) => throw new NotSupportedException();
-    public void Add(Auditorium auditorium) => throw new NotSupportedException();
-    public void Add(Seat seat) => throw new NotSupportedException();
-    public void Remove(Movie movie) => throw new NotSupportedException();
-    public void Remove(Auditorium auditorium) => throw new NotSupportedException();
-    public Task<bool> HasMovieShowtimesAsync(int id, CancellationToken ct) => throw new NotSupportedException();
-    public Task<bool> HasAuditoriumShowtimesAsync(int id, CancellationToken ct) => throw new NotSupportedException();
-    public Task<bool> HasRemainingAuditoriumShowtimesAsync(int id, DateTime now, CancellationToken ct) => throw new NotSupportedException();
-    public Task<bool> HasShowtimeBookingsAsync(int id, CancellationToken ct) => throw new NotSupportedException();
+
+    public Task DeleteSeatsAsync(int id, CancellationToken ct)
+    {
+        DeletedSeats = true;
+
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> HasUnsupportedRemainingShowtimesAsync(int id, string[] formats, DateTime now, CancellationToken ct)
+    {
+        return Task.FromResult(false);
+    }
+
+    public Task<IReadOnlyList<ShowtimeConflictReadModel>> FindOverlapsAsync(int? id, int auditoriumId, DateTime start, DateTime end, CancellationToken ct)
+    {
+        return Task.FromResult(Overlaps);
+    }
+
+    public void Add(Showtime showtime)
+    {
+        AddedShowtimes.Add(showtime);
+    }
+
+    public Task SaveChangesAsync(CancellationToken ct)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<AdminMovieResponse>> MoviesAsync(CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<IReadOnlyList<AdminAuditoriumResponse>> AuditoriumsAsync(CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<IReadOnlyList<AdminShowtimeResponse>> ShowtimesAsync(DateOnly date, CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<BookingPageResponse> BookingsAsync(GetBookingsQuery filters, CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<AdminBookingResponse> BookingAsync(Guid id, CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void Add(Movie movie)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void Add(Auditorium auditorium)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void Add(Seat seat)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void Remove(Movie movie)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void Remove(Auditorium auditorium)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<bool> HasMovieShowtimesAsync(int id, CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<bool> HasAuditoriumShowtimesAsync(int id, CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<bool> HasRemainingAuditoriumShowtimesAsync(int id, DateTime now, CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<bool> HasShowtimeBookingsAsync(int id, CancellationToken ct)
+    {
+        throw new NotSupportedException();
+    }
 }

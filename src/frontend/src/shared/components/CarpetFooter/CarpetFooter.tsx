@@ -4,6 +4,7 @@ import { useCinemaMotion } from '../../hooks/useCinemaMotion';
 
 export function CarpetFooter({ topId }: { topId: string }) {
   const animation = useCinemaMotion();
+
   return (
     <motion.footer
       layout="position"

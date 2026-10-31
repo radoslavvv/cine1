@@ -12,8 +12,12 @@ describe('seat selection', () => {
 
   it('limits selection to eight available seats and allows deselection', () => {
     const { result } = renderHook(() => useSeatSelection(seatMap(), 0));
+
     act(() => {
-      for (let id = 1; id <= 10; id++) result.current.toggle(id);
+      for (let id = 1; id <= 10; id++) {
+        result.current.toggle(id);
+      }
+
       result.current.toggle(999);
     });
     expect(result.current.selectedSeats.map((seat) => seat.id)).toEqual([
@@ -28,6 +32,7 @@ describe('seat selection', () => {
 
   it('closes exactly at the server-adjusted start and clears the active selection', () => {
     const { result } = renderHook(() => useSeatSelection(seatMap(), 30_000));
+
     act(() => result.current.toggle(1));
     act(() => vi.advanceTimersByTime(29_999));
     expect(result.current.isOpen).toBe(true);
@@ -44,6 +49,7 @@ describe('seat selection', () => {
       ({ map }) => useSeatSelection(map, 0),
       { initialProps: { map } },
     );
+
     act(() => result.current.toggle(1));
     rerender({
       map: {
@@ -65,6 +71,7 @@ describe('seat selection', () => {
     const { result } = renderHook(() =>
       useSeatSelection({ ...seatMap(), selectionOpen: false }, 0),
     );
+
     act(() => result.current.toggle(1));
     expect(result.current.isOpen).toBe(false);
     expect(result.current.selectedSeats).toEqual([]);

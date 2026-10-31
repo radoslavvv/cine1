@@ -16,6 +16,7 @@ const state = vi.hoisted(() => ({
   signOut: vi.fn(),
   confirm: vi.fn(),
 }));
+
 vi.mock('../../auth/hooks/useAuth', () => ({ useAuth: () => state }));
 vi.mock('../api/bookingQueries', async (importOriginal) => ({
   ...(await importOriginal<object>()),
@@ -28,8 +29,10 @@ const owner: Customer = {
   isAdministrator: false,
 };
 const event = { preventDefault() {} } as FormEvent<HTMLFormElement>;
+
 function setup() {
   const client = new QueryClient();
+
   return renderHook(
     () =>
       useCheckout({
@@ -47,6 +50,7 @@ function setup() {
     },
   );
 }
+
 beforeEach(() => {
   vi.clearAllMocks();
   state.customer = owner;
@@ -58,6 +62,7 @@ beforeEach(() => {
 describe('checkout identity boundaries', () => {
   it('uses the verified email and includes the expected owner in confirmation', async () => {
     const { result } = setup();
+
     act(() => result.current.onEmailChange('different@example.test'));
     await act(() => result.current.onSubmit(event));
     expect(state.confirm).toHaveBeenCalledWith(
@@ -72,6 +77,7 @@ describe('checkout identity boundaries', () => {
 
   it('requires an explicit choice when the account disappears, then permits guest checkout', async () => {
     const { result, rerender } = setup();
+
     state.customer = null;
     rerender();
     expect(result.current.sessionChanged).toBe(true);
@@ -80,13 +86,16 @@ describe('checkout identity boundaries', () => {
     await act(() => result.current.onContinueAsGuest());
     act(() => result.current.onEmailChange('guest@example.test'));
     await act(() => result.current.onSubmit(event));
+
     const request = state.confirm.mock.calls[0][1];
+
     expect(request.email).toBe('guest@example.test');
     expect(request.expectedCustomerId).toBeUndefined();
   });
 
   it('does not silently adopt a different account signed in through another tab', async () => {
     const { result, rerender } = setup();
+
     state.customer = { ...owner, id: 'other', email: 'other@example.test' };
     rerender();
     expect(result.current.submitDisabled).toBe(true);
@@ -102,7 +111,9 @@ describe('checkout identity boundaries', () => {
     state.confirm.mockRejectedValue(
       new BookingError(401, 'session_changed', 'Your sign-in changed.'),
     );
+
     const { result } = setup();
+
     await act(() => result.current.onSubmit(event));
     expect(state.refresh).toHaveBeenCalledTimes(1);
     expect(result.current.sessionChanged).toBe(true);
@@ -112,9 +123,13 @@ describe('checkout identity boundaries', () => {
 
   it('keeps an uncertain confirmation bound to its original account through expiry and sign-in', async () => {
     state.confirm.mockRejectedValueOnce(new TypeError('Connection lost'));
+
     const { result, rerender } = setup();
+
     await act(() => result.current.onSubmit(event));
+
     const original = state.confirm.mock.calls[0][1];
+
     state.customer = null;
     rerender();
     expect(result.current.canContinueAsGuest).toBe(false);

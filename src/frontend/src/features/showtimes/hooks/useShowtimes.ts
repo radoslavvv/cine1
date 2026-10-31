@@ -34,7 +34,10 @@ export function useShowtimes({
 
   // Warm the other format choices after the visible request has completed.
   useEffect(() => {
-    if (!query.isSuccess || query.isPlaceholderData) return;
+    if (!query.isSuccess || query.isPlaceholderData) {
+      return;
+    }
+
     for (const candidate of SHOWTIME_FORMATS) {
       if (candidate !== format) {
         void queryClient.prefetchQuery(
@@ -54,12 +57,18 @@ export function useShowtimes({
   function updateFilters(values: Record<string, string>) {
     onSearchParamsChange((previous) => {
       const next = new URLSearchParams(previous);
+
       next.set('date', selectedDate.key);
       next.set('format', format);
+
       for (const [key, value] of Object.entries(values)) {
-        if (value) next.set(key, value);
-        else next.delete(key);
+        if (value) {
+          next.set(key, value);
+        } else {
+          next.delete(key);
+        }
       }
+
       return next;
     });
   }

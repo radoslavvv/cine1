@@ -27,6 +27,7 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("CinemaR")
                 ?? throw new InvalidOperationException("Set ConnectionStrings: CinemaR before starting the API."),
                 postgres => postgres.MigrationsHistoryTable("__ef_migrations_history", "cinemaR"));
+
             if (isDevelopment)
             {
                 options.UseSeeding((context, _) => CinemaRSeed.RunAsync((CinemaRDbContext)context, CancellationToken.None).GetAwaiter().GetResult());
@@ -42,12 +43,14 @@ public static class DependencyInjection
         services.AddScoped<IShowtimeManagementRepository, ShowtimeManagementRepository>();
         services.AddScoped<IBookingManagementRepository, BookingManagementRepository>();
         services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("postgresql", tags: ["ready"]);
+
         return services;
     }
 
     public static async Task InitializeDatabaseAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         await using var scope = services.CreateAsyncScope();
+
         await scope.ServiceProvider.GetRequiredService<CinemaRDbContext>().Database.MigrateAsync(cancellationToken);
     }
 }

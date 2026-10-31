@@ -12,5 +12,6 @@ export function accountSignInUrl(pathname: string, search: string) {
   const returnTo = pathname.startsWith('/account/')
     ? (new URLSearchParams(search).get('returnTo') ?? '/account/bookings')
     : pathname + search;
+
   return '/account/sign-in?' + new URLSearchParams({ returnTo });
 }

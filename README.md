@@ -27,14 +27,16 @@ Open [cinemaR](http://localhost:5173) or [the showtimes](http://localhost:5173/s
 
 ## Formatting
 
-Format the repository in one pass (Prettier for frontend/configuration/docs and the .NET formatter for C#):
+Follow the [project readability convention](.cursor/rules/readable-code.mdc) for explicit bodies, braces, and blank lines between logical steps, with concise LINQ and anonymous callbacks preserved.
+
+Format the repository in one pass (readable TypeScript/JavaScript formatting, Prettier for frontend/configuration/docs, and the .NET style and whitespace formatters for C#):
 
 ```powershell
 ./scripts/format.ps1
 ./scripts/format.ps1 -Check
 ```
 
-Run `npm ci --prefix src/frontend` first if dependencies are not installed. For frontend-only formatting, run `npm run format --prefix src/frontend`. VS Code and Cursor workspace settings use the same Prettier configuration on save and paste; install the recommended Prettier extension if prompted. Run the repository formatter after bulk edits or generated changes so files are formatted without opening each one.
+Run `npm ci --prefix src/frontend` first if dependencies are not installed. For frontend and JavaScript script formatting, run `npm run format --prefix src/frontend`. VS Code and Cursor workspace settings use the same Prettier configuration on save and paste; install the recommended Prettier extension if prompted. Run the repository formatter after bulk edits or generated changes so explicit bodies, braces, and logical spacing are applied without opening each file.
 
 ## PostgreSQL
 

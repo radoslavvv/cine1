@@ -10,7 +10,8 @@ src/
   features/
     cinema-entrance/            # Entrance journey
     movies/
-      types.ts                 # Public movie contract
+      types/Movie.ts           # Public movie contract
+      types/index.ts           # Public type exports
       api/moviesQueries.ts     # Movie management reads
       admin/                   # Movie form, editor, panel and types
     auditoriums/
@@ -38,6 +39,8 @@ src/
 `app` composes features and installs providers. `App.tsx` declares routes; `useAppNavigation` owns route scroll positioning, focus, document titles, and navigation from the entrance. Pages live under `pages/`; supporting UI lives under `components/`, with themes beside their owners. Hooks live directly in their owner’s `hooks/` folder without per-hook subfolders. Keep JSX expanded and separate logical blocks with blank lines. `CinemaEntrance` renders the auditorium and knows nothing about movie data. Showtimes owns its screening response types and dated query. MovieArtwork and its local assets are shared by Showtimes and Booking. Movies owns movie contracts and management; Showtimes composes movie data into browsing results. Shared UI must not import features or app code. Keep dependencies in one direction; compose features in the app and expose a small public interface when needed.
 
 This is pragmatic feature-folder organization, not the formal Feature-Sliced Design layer system. Do not add empty booking/admin directories, generic repositories, or extra layers before there is code that needs them. The imports are conventions, not currently enforced by a lint rule. Substantial Tailwind class groups and visual variants live in adjacent `Component.theme.ts` files and are imported as named theme objects. Global tokens and atmospheric utilities remain in `app/theme.css`; runtime camera values remain inline CSS properties. Tailwind scans the complete utility strings in these TypeScript files.
+
+Each feature's contracts live in its own `types/` folder, with one named type per file and type-only exports from `types/index.ts`. Administration contracts follow the same pattern inside each feature's `admin/types/` folder. Import from the owning `types` folder; the index keeps those paths stable. Shared runtime values such as `cinemaFormats` have their own file and a regular value export.
 
 ## Pages, components, hooks, and pure functions
 

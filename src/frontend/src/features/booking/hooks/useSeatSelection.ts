@@ -16,9 +16,16 @@ export function useSeatSelection(
   const isOpen = !!map?.selectionOpen && now + clockOffsetMs < startsAt;
 
   useEffect(() => {
-    if (!Number.isFinite(startsAt)) return;
-    const update = () => setNow(Date.now());
+    if (!Number.isFinite(startsAt)) {
+      return;
+    }
+
+    const update = () => {
+      return setNow(Date.now());
+    };
+
     update();
+
     const interval = window.setInterval(update, 1_000);
     const timeout = window.setTimeout(
       update,
@@ -27,8 +34,10 @@ export function useSeatSelection(
         Math.min(2_147_483_647, startsAt - Date.now() - clockOffsetMs),
       ),
     );
+
     window.addEventListener('focus', update);
     document.addEventListener('visibilitychange', update);
+
     return () => {
       window.clearInterval(interval);
       window.clearTimeout(timeout);
@@ -44,14 +53,22 @@ export function useSeatSelection(
 
   const toggle = (id: number) => {
     const currentTime = Date.now();
+
     setNow(currentTime);
-    if (!map || !map.selectionOpen || currentTime + clockOffsetMs >= startsAt)
+
+    if (!map || !map.selectionOpen || currentTime + clockOffsetMs >= startsAt) {
       return;
-    if (!map.seats.some((seat) => seat.id === id && !seat.taken)) return;
+    }
+
+    if (!map.seats.some((seat) => seat.id === id && !seat.taken)) {
+      return;
+    }
+
     setSelectedIds((previous) => {
       const available = previous.filter((selected) =>
         map.seats.some((seat) => seat.id === selected && !seat.taken),
       );
+
       return available.includes(id)
         ? available.filter((selected) => selected !== id)
         : available.length < MAX_SEATS

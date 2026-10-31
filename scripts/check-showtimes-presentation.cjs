@@ -18,28 +18,39 @@ function load(name) {
     },
   });
   const exports = {};
+
   vm.runInNewContext(outputText, {
     exports,
     require: (dependency) => load(dependency),
   });
+
   return exports;
 }
 
-const { getShowtimesMovies, getShowtimesGenres } = load('showtimesPresentation');
-const movie = (id, genres = []) => ({
-  id,
-  title: `Movie ${id}`,
-  genres,
-  durationMinutes: 90,
-  synopsis: '',
-});
-const showtime = (id, film, startsAt) => ({
-  id,
-  movie: film,
-  startsAt,
-  format: '2D',
-  auditorium: { id: 1, name: 'One' },
-});
+const { getShowtimesMovies, getShowtimesGenres } = load(
+  'showtimesPresentation',
+);
+
+const movie = (id, genres = []) => {
+  return {
+    id,
+    title: `Movie ${id}`,
+    genres,
+    durationMinutes: 90,
+    synopsis: '',
+  };
+};
+
+const showtime = (id, film, startsAt) => {
+  return {
+    id,
+    movie: film,
+    startsAt,
+    format: '2D',
+    auditorium: { id: 1, name: 'One' },
+  };
+};
+
 const now = Date.parse('2026-10-28T12:00:00Z');
 
 test('loading and loaded empty results remain distinct', () => {
@@ -56,6 +67,7 @@ test('interleaved showtimes group by movie without reordering movies or their sc
     showtime(10, first, '2026-10-28T15:00:00Z'),
   ];
   const output = getShowtimesMovies(input, now);
+
   assert.equal(
     JSON.stringify(
       output.map((film) => [
@@ -74,7 +86,11 @@ test('interleaved showtimes group by movie without reordering movies or their sc
 
 test('status changes exactly at screening start and runtime end, and labels use Kyiv time', () => {
   const input = [showtime(1, movie(1), '2026-10-28T12:00:00Z')];
-  const screening = (time) => getShowtimesMovies(input, time)[0].showtimes[0];
+
+  const screening = (time) => {
+    return getShowtimesMovies(input, time)[0].showtimes[0];
+  };
+
   assert.equal(screening(now - 1).status, 'Upcoming');
   assert.equal(screening(now).status, 'Started');
   assert.equal(screening(now + 90 * 60000 - 1).status, 'Started');
@@ -86,6 +102,7 @@ test('genre options stay unique and keep the selected genre when results omit it
   const input = [
     showtime(1, movie(1, ['Drama', 'Comedy', 'Drama']), '2026-10-28T12:00:00Z'),
   ];
+
   assert.equal(
     JSON.stringify(getShowtimesGenres(input, 'Sci-Fi')),
     '["Comedy","Drama","Sci-Fi"]',
