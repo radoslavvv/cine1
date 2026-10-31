@@ -1,4 +1,5 @@
-using CinemaR.Application.Movies.Contracts;
+using CinemaR.Infrastructure.Data.Contexts;
+using CinemaR.Application.Movies.Responses;
 using CinemaR.Application.Admin.Results;
 using CinemaR.Domain.Movies;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,9 @@ namespace CinemaR.Infrastructure.Data.Repositories;
 
 public sealed class MovieRepository(CinemaRDbContext db) : CinemaWriteRepository(db), IMovieRepository
 {
-    public async Task<IReadOnlyList<AdminMovie>> MoviesAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<AdminMovieResponse>> MoviesAsync(CancellationToken ct)
     {
-        var movies = await Db.Movies.AsNoTracking().OrderBy(m => m.Title).Select(m => new AdminMovie(
+        var movies = await Db.Movies.AsNoTracking().OrderBy(m => m.Title).Select(m => new AdminMovieResponse(
             m.Id, m.Title, m.DurationMinutes, m.Genres, m.Synopsis, m.PosterUrl, m.BackdropUrl, m.IsArchived,
             Db.Showtimes.Any(s => s.MovieId == m.Id))).ToListAsync(ct);
         return movies;

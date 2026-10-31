@@ -1,5 +1,6 @@
+using CinemaR.Application.Showtimes.Queries;
 using CinemaR.Application.Showtimes.Results;
-using CinemaR.Application.Showtimes.Contracts;
+using CinemaR.Application.Showtimes.Responses;
 
 namespace CinemaR.Application.Showtimes.Services;
 

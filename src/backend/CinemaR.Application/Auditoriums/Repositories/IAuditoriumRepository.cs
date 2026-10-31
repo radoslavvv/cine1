@@ -1,11 +1,11 @@
-using CinemaR.Application.Auditoriums.Contracts;
+using CinemaR.Application.Auditoriums.Responses;
 using CinemaR.Domain.Auditoriums;
 
 namespace CinemaR.Application.Auditoriums.Repositories;
 
 public interface IAuditoriumRepository : CinemaR.Application.Persistence.IWriteTransaction
 {
-    Task<IReadOnlyList<AdminAuditorium>> AuditoriumsAsync(CancellationToken ct);
+    Task<IReadOnlyList<AdminAuditoriumResponse>> AuditoriumsAsync(CancellationToken ct);
     Task<Auditorium?> FindAuditoriumAsync(int id, CancellationToken ct);
     void Add(Auditorium auditorium);
     void Add(Seat seat);

@@ -1,3 +1,4 @@
+using CinemaR.Application.Admin.Exceptions;
 using CinemaR.Application.Movies.Commands;
 using CinemaR.Application.Auditoriums.Commands;
 using CinemaR.Application.Showtimes.Commands;

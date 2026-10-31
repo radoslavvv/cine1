@@ -1,3 +1,4 @@
+using CinemaR.Application.Admin.Exceptions;
 using CinemaR.Application.Admin.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

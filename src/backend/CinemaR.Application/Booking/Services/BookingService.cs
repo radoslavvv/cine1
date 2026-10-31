@@ -1,5 +1,5 @@
 using CinemaR.Application.Booking.Results;
-using CinemaR.Application.Booking.Contracts;
+using CinemaR.Application.Booking.Responses;
 using CinemaR.Application.Booking.Commands;
 using CinemaR.Application.Booking.Repositories;
 
@@ -16,6 +16,6 @@ public sealed class BookingService(IBookingRepository repository) : IBookingServ
         return repository.ConfirmAsync(command.ShowtimeId, command.RequestId, command.Email.Trim(), command.SeatIds, cancellationToken, command.CustomerId);
     }
 
-    public Task<BookingConfirmation?> FindAsync(string confirmationToken, CancellationToken cancellationToken) =>
+    public Task<BookingConfirmationResponse?> FindAsync(string confirmationToken, CancellationToken cancellationToken) =>
         repository.FindAsync(confirmationToken, cancellationToken);
 }

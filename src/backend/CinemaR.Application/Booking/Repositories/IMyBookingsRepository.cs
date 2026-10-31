@@ -1,7 +1,7 @@
-using CinemaR.Application.Booking.Contracts;
+using CinemaR.Application.Booking.Responses;
 namespace CinemaR.Application.Booking.Repositories;
 
 public interface IMyBookingsRepository
 {
-    Task<BookingHistory> FindForCustomerAsync(string customerId, int page, CancellationToken cancellationToken);
+    Task<BookingHistoryResponse> FindForCustomerAsync(string customerId, int page, CancellationToken cancellationToken);
 }

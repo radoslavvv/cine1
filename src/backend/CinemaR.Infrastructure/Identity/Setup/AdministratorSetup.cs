@@ -1,7 +1,7 @@
+using CinemaR.Infrastructure.Data.Contexts;
 using CinemaR.Application.Identity.Services;
 using CinemaR.Infrastructure.Identity.Entities;
 using CinemaR.Infrastructure.Identity.Services;
-using CinemaR.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

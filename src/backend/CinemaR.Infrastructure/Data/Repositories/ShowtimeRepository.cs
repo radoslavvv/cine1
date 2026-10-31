@@ -1,3 +1,4 @@
+using CinemaR.Infrastructure.Data.Contexts;
 using CinemaR.Domain.Auditoriums;
 using CinemaR.Application.Showtimes.ReadModels;
 using CinemaR.Application.Showtimes.Repositories;

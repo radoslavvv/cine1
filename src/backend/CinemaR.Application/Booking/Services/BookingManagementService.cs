@@ -1,4 +1,6 @@
-using CinemaR.Application.Booking.Contracts;
+using CinemaR.Application.Admin.Exceptions;
+using CinemaR.Application.Booking.Queries;
+using CinemaR.Application.Booking.Responses;
 using CinemaR.Application.Admin.Results;
 using CinemaR.Application.Admin.Validation;
 
@@ -8,9 +10,9 @@ namespace CinemaR.Application.Booking.Services;
 
 public sealed class BookingManagementService(IBookingManagementRepository repository) : IBookingManagementService
 {
-    public Task<AdminBooking> BookingAsync(Guid id, CancellationToken ct) => repository.BookingAsync(id, ct);
+    public Task<AdminBookingResponse> BookingAsync(Guid id, CancellationToken ct) => repository.BookingAsync(id, ct);
 
-    public Task<BookingPage> BookingsAsync(BookingFilters filters, CancellationToken ct)
+    public Task<BookingPageResponse> BookingsAsync(GetBookingsQuery filters, CancellationToken ct)
     {
         if (filters.Page < 1 || filters.Page > 1000000) throw new AdminRuleException("Invalid page number.", AdminFailure.Validation);
         if (filters.Status is not (null or "" or "active" or "cancelled")) throw new AdminRuleException("Unknown booking status.", AdminFailure.Validation);

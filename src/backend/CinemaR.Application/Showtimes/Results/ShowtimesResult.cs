@@ -1,4 +1,4 @@
-using CinemaR.Application.Showtimes.Contracts;
+using CinemaR.Application.Showtimes.Responses;
 
 namespace CinemaR.Application.Showtimes.Results;
 

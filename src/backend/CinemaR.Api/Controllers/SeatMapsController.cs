@@ -1,5 +1,5 @@
-using CinemaR.Application.Booking.Contracts;
-using CinemaR.Application.Booking.Services;
+using CinemaR.Application.SeatMaps.Responses;
+using CinemaR.Application.SeatMaps.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CinemaR.Api.Controllers;

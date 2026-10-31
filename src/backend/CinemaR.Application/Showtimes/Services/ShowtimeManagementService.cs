@@ -1,4 +1,5 @@
-using CinemaR.Application.Showtimes.Contracts;
+using CinemaR.Application.Admin.Exceptions;
+using CinemaR.Application.Showtimes.Responses;
 using CinemaR.Application.Showtimes.Commands;
 using CinemaR.Application.Admin.Results;
 using CinemaR.Application.Admin.Validation;
@@ -11,7 +12,7 @@ namespace CinemaR.Application.Showtimes.Services;
 public sealed class ShowtimeManagementService(IShowtimeManagementRepository repository, TimeProvider clock) : IShowtimeManagementService
 {
     private DateTime Now => clock.GetUtcNow().UtcDateTime;
-    public Task<IReadOnlyList<AdminShowtime>> ShowtimesAsync(string date, CancellationToken ct) => repository.ShowtimesAsync(AdminValidation.Date(date), ct);
+    public Task<IReadOnlyList<AdminShowtimeResponse>> ShowtimesAsync(string date, CancellationToken ct) => repository.ShowtimesAsync(AdminValidation.Date(date), ct);
 
     public Task<int[]> SaveShowtimesAsync(int? id, SaveShowtimesCommand input, CancellationToken ct)
     {

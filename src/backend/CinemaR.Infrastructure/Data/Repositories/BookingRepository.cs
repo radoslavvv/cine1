@@ -1,8 +1,10 @@
+using CinemaR.Infrastructure.Data.Transactions;
+using CinemaR.Infrastructure.Data.Contexts;
 using CinemaR.Domain.Auditoriums;
 using CinemaR.Application.Booking.Results;
 using System.Security.Cryptography;
 using CinemaR.Domain.Booking;
-using CinemaR.Application.Booking.Contracts;
+using CinemaR.Application.Booking.Responses;
 using CinemaR.Application.Booking.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -63,7 +65,7 @@ public sealed class BookingRepository(CinemaRDbContext db, TimeProvider clock) :
         return new(BookingOutcome.Confirmed, await FindAsync(booking.ConfirmationToken, cancellationToken));
     }
 
-    public async Task<BookingConfirmation?> FindAsync(string confirmationToken, CancellationToken cancellationToken)
+    public async Task<BookingConfirmationResponse?> FindAsync(string confirmationToken, CancellationToken cancellationToken)
     {
         if (confirmationToken.Length != 64 || !confirmationToken.All(Uri.IsHexDigit)) return null;
         var booking = await LoadAsync().SingleOrDefaultAsync(item => item.ConfirmationToken == confirmationToken, cancellationToken);
@@ -80,7 +82,7 @@ public sealed class BookingRepository(CinemaRDbContext db, TimeProvider clock) :
         && booking.Seats.Select(seat => seat.SeatId).Order().SequenceEqual(seatIds.Order())
             ? new(BookingOutcome.Confirmed, ToConfirmation(booking)) : new(BookingOutcome.RequestConflict);
 
-    internal static BookingConfirmation ToConfirmation(ConfirmedBooking booking) => new(
+    internal static BookingConfirmationResponse ToConfirmation(ConfirmedBooking booking) => new(
         booking.ConfirmationToken, booking.ConfirmedAt, booking.Email, booking.ShowtimeId,
         booking.Showtime.StartsAt, booking.Showtime.Movie.Title, booking.Showtime.Auditorium.Name,
         booking.Seats.OrderBy(item => item.Seat.GridRow).ThenBy(item => item.Seat.GridColumn)

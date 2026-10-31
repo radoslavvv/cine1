@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using CinemaR.Api.Requests;
+using CinemaR.Api.Requests.Identity;
 
 namespace CinemaR.Api.Controllers;
 

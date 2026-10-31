@@ -1,7 +1,6 @@
-using CinemaR.Application.Identity.Contracts;
+using CinemaR.Application.Identity.Responses;
 using CinemaR.Application.Identity.Results;
 using CinemaR.Application.Identity.Services;
-using CinemaR.Infrastructure.Identity.Email;
 using CinemaR.Infrastructure.Identity.Entities;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +13,7 @@ namespace CinemaR.Infrastructure.Identity.Services;
 public sealed class AccountService(UserManager<CinemaRUser> users, SignInManager<CinemaRUser> signIn,
     IHttpContextAccessor http, AccountEmailSender emails, IConfiguration configuration) : IAccountService
 {
-    public async Task<CustomerSession?> CurrentAsync()
+    public async Task<CustomerSessionResponse?> CurrentAsync()
     {
         if (http.HttpContext?.User.Identity?.IsAuthenticated != true) return null;
         var user = await users.GetUserAsync(http.HttpContext.User);

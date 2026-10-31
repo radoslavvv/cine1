@@ -1,6 +1,6 @@
-using CinemaR.Domain.Auditoriums;
-using CinemaR.Application.Booking.ReadModels;
-using CinemaR.Application.Booking.Repositories;
+using CinemaR.Application.SeatMaps.Repositories;
+using CinemaR.Infrastructure.Data.Contexts;
+using CinemaR.Application.SeatMaps.ReadModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace CinemaR.Infrastructure.Data.Repositories;

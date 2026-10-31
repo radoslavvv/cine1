@@ -1,4 +1,5 @@
-using CinemaR.Application.Auditoriums.Contracts;
+using CinemaR.Infrastructure.Data.Contexts;
+using CinemaR.Application.Auditoriums.Responses;
 using CinemaR.Domain.Auditoriums;
 using CinemaR.Application.Admin.Results;
 using CinemaR.Domain.Showtimes;
@@ -10,14 +11,14 @@ namespace CinemaR.Infrastructure.Data.Repositories;
 
 public sealed class AuditoriumRepository(CinemaRDbContext db) : CinemaWriteRepository(db), IAuditoriumRepository
 {
-    public async Task<IReadOnlyList<AdminAuditorium>> AuditoriumsAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<AdminAuditoriumResponse>> AuditoriumsAsync(CancellationToken ct)
     {
-        var rooms = await Db.Auditoriums.AsNoTracking().OrderBy(a => a.Name).Select(a => new AdminAuditorium(
+        var rooms = await Db.Auditoriums.AsNoTracking().OrderBy(a => a.Name).Select(a => new AdminAuditoriumResponse(
             a.Id, a.Name, a.SupportedFormats, a.IsRetired,
             Db.Bookings.Any(b => b.Showtime.AuditoriumId == a.Id),
             Db.Showtimes.Any(s => s.AuditoriumId == a.Id),
             Db.Seats.Where(s => s.AuditoriumId == a.Id).OrderBy(s => s.GridRow).ThenBy(s => s.GridColumn)
-                .Select(s => new AdminSeat(s.RowLabel, s.Number, s.GridRow, s.GridColumn)).ToList())).ToListAsync(ct);
+                .Select(s => new AdminSeatResponse(s.RowLabel, s.Number, s.GridRow, s.GridColumn)).ToList())).ToListAsync(ct);
         return rooms;
     }
 

@@ -1,10 +1,10 @@
-using CinemaR.Application.Identity.Contracts;
+using CinemaR.Application.Identity.Responses;
 using CinemaR.Application.Identity.Results;
 namespace CinemaR.Application.Identity.Services;
 
 public interface IAccountService
 {
-    Task<CustomerSession?> CurrentAsync();
+    Task<CustomerSessionResponse?> CurrentAsync();
     Task<AccountResult> RegisterAsync(string email, string password);
     Task<AccountResult> SignInAsync(string email, string password);
     Task SignOutAsync();

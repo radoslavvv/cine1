@@ -1,4 +1,5 @@
-using CinemaR.Application.Showtimes.Contracts;
+using CinemaR.Application.Showtimes.Queries;
+using CinemaR.Application.Showtimes.Responses;
 using CinemaR.Application.Showtimes.Services;
 using Microsoft.AspNetCore.Mvc;
 

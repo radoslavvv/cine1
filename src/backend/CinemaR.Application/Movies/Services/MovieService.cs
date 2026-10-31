@@ -1,4 +1,5 @@
-using CinemaR.Application.Movies.Contracts;
+using CinemaR.Application.Admin.Exceptions;
+using CinemaR.Application.Movies.Responses;
 using CinemaR.Application.Movies.Commands;
 using CinemaR.Application.Admin.Results;
 using CinemaR.Application.Admin.Validation;
@@ -11,7 +12,7 @@ namespace CinemaR.Application.Movies.Services;
 public sealed class MovieService(IMovieRepository repository, TimeProvider clock) : IMovieService
 {
     private DateTime Now => clock.GetUtcNow().UtcDateTime;
-    public Task<IReadOnlyList<AdminMovie>> MoviesAsync(CancellationToken ct) => repository.MoviesAsync(ct);
+    public Task<IReadOnlyList<AdminMovieResponse>> MoviesAsync(CancellationToken ct) => repository.MoviesAsync(ct);
     public Task<int> SaveMovieAsync(int? id, SaveMovieCommand command, CancellationToken ct)
     {
         var input = AdminValidation.Movie(command);

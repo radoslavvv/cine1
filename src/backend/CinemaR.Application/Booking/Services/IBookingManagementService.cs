@@ -1,9 +1,10 @@
-using CinemaR.Application.Booking.Contracts;
+using CinemaR.Application.Booking.Queries;
+using CinemaR.Application.Booking.Responses;
 
 namespace CinemaR.Application.Booking.Services;
 
 public interface IBookingManagementService
 {
-    Task<AdminBooking> BookingAsync(Guid id, CancellationToken ct);
-    Task<BookingPage> BookingsAsync(BookingFilters filters, CancellationToken ct);
+    Task<AdminBookingResponse> BookingAsync(Guid id, CancellationToken ct);
+    Task<BookingPageResponse> BookingsAsync(GetBookingsQuery filters, CancellationToken ct);
 }

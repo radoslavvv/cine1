@@ -1,4 +1,7 @@
-using CinemaR.Application.Booking.Contracts;
+using CinemaR.Application.Admin.Exceptions;
+using CinemaR.Application.Booking.Queries;
+using CinemaR.Infrastructure.Data.Contexts;
+using CinemaR.Application.Booking.Responses;
 using CinemaR.Domain.Auditoriums;
 using CinemaR.Application.Admin.Results;
 using CinemaR.Application.Admin.Validation;
@@ -13,7 +16,7 @@ namespace CinemaR.Infrastructure.Data.Repositories;
 
 public sealed class BookingManagementRepository(CinemaRDbContext db) : IBookingManagementRepository
 {
-    public async Task<BookingPage> BookingsAsync(BookingFilters filters, CancellationToken ct)
+    public async Task<BookingPageResponse> BookingsAsync(GetBookingsQuery filters, CancellationToken ct)
     {
         var query = db.Bookings.AsNoTracking();
         if (!string.IsNullOrWhiteSpace(filters.Search))
@@ -37,11 +40,11 @@ public sealed class BookingManagementRepository(CinemaRDbContext db) : IBookingM
         return new(filters.Page, 25, total, items);
     }
 
-    public async Task<AdminBooking> BookingAsync(Guid id, CancellationToken ct) =>
+    public async Task<AdminBookingResponse> BookingAsync(Guid id, CancellationToken ct) =>
         await BookingDetails(db.Bookings.AsNoTracking().Where(b => b.Id == id)).SingleOrDefaultAsync(ct) ?? throw Missing();
 
-    private static IQueryable<AdminBooking> BookingDetails(IQueryable<ConfirmedBooking> query) => query.Select(b =>
-        new AdminBooking(b.Id, b.Email, b.ConfirmedAt, b.ShowtimeId, b.Showtime.Movie.Title,
+    private static IQueryable<AdminBookingResponse> BookingDetails(IQueryable<ConfirmedBooking> query) => query.Select(b =>
+        new AdminBookingResponse(b.Id, b.Email, b.ConfirmedAt, b.ShowtimeId, b.Showtime.Movie.Title,
             b.Showtime.Auditorium.Name, b.Showtime.StartsAt, b.Showtime.CancelledAt != null,
             b.Seats.OrderBy(s => s.Seat.GridRow).ThenBy(s => s.Seat.GridColumn)
                 .Select(s => s.Seat.RowLabel + s.Seat.Number).ToList()));

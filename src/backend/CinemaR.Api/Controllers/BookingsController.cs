@@ -1,10 +1,10 @@
 using CinemaR.Application.Identity.Services;
 using CinemaR.Application.Booking.Results;
-using CinemaR.Application.Booking.Contracts;
+using CinemaR.Application.Booking.Responses;
 using CinemaR.Application.Booking.Services;
 using Microsoft.AspNetCore.Mvc;
 using QRCoder;
-using CinemaR.Api.Requests;
+using CinemaR.Api.Requests.Booking;
 using CinemaR.Application.Booking.Commands;
 
 namespace CinemaR.Api.Controllers;
@@ -14,7 +14,7 @@ namespace CinemaR.Api.Controllers;
 public sealed class BookingsController(IBookingService service, IAccountService accounts) : ControllerBase
 {
     [HttpPost("api/showtimes/{showtimeId:int}/bookings")]
-    public async Task<ActionResult<BookingConfirmation>> Confirm(int showtimeId, ConfirmBookingRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<BookingConfirmationResponse>> Confirm(int showtimeId, ConfirmBookingRequest request, CancellationToken cancellationToken)
     {
         var customer = await accounts.CurrentAsync();
         if (request.ExpectedCustomerId != customer?.Id)
@@ -35,7 +35,7 @@ public sealed class BookingsController(IBookingService service, IAccountService 
     }
 
     [HttpGet("api/bookings/{confirmationToken}")]
-    public async Task<ActionResult<BookingConfirmation>> Get(string confirmationToken, CancellationToken cancellationToken)
+    public async Task<ActionResult<BookingConfirmationResponse>> Get(string confirmationToken, CancellationToken cancellationToken)
     {
         Response.Headers["Referrer-Policy"] = "no-referrer";
         var booking = await service.FindAsync(confirmationToken, cancellationToken);

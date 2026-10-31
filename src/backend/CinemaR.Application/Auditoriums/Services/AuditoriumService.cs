@@ -1,4 +1,5 @@
-using CinemaR.Application.Auditoriums.Contracts;
+using CinemaR.Application.Admin.Exceptions;
+using CinemaR.Application.Auditoriums.Responses;
 using CinemaR.Application.Auditoriums.Commands;
 using CinemaR.Domain.Auditoriums;
 using CinemaR.Application.Admin.Results;
@@ -11,7 +12,7 @@ namespace CinemaR.Application.Auditoriums.Services;
 public sealed class AuditoriumService(IAuditoriumRepository repository, TimeProvider clock) : IAuditoriumService
 {
     private DateTime Now => clock.GetUtcNow().UtcDateTime;
-    public Task<IReadOnlyList<AdminAuditorium>> AuditoriumsAsync(CancellationToken ct) => repository.AuditoriumsAsync(ct);
+    public Task<IReadOnlyList<AdminAuditoriumResponse>> AuditoriumsAsync(CancellationToken ct) => repository.AuditoriumsAsync(ct);
     public Task<int> SaveAuditoriumAsync(int? id, SaveAuditoriumCommand command, CancellationToken ct)
     {
         var input = AdminValidation.Auditorium(command);

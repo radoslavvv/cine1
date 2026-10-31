@@ -5,8 +5,6 @@
     <Project Path="src/backend/CinemaR.Domain/CinemaR.Domain.csproj" />
     <Project Path="src/backend/CinemaR.Application/CinemaR.Application.csproj" />
     <Project Path="src/backend/CinemaR.Infrastructure/CinemaR.Infrastructure.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/CinemaR.Tests/CinemaR.Tests.csproj" />
+    <Project Path="src/backend/CinemaR.Tests/CinemaR.Tests.csproj" />
   </Folder>
 </Solution>

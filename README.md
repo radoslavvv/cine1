@@ -93,7 +93,7 @@ Backend tests cover application rules, project dependency boundaries, controller
 - src/backend/CinemaR.Application: use-case services, commands/queries, response/read models, and repository interfaces; references Domain only.
 - src/backend/CinemaR.Infrastructure: EF context, migrations, repositories, seeding, readiness, and transaction/locking details; implements Application interfaces.
 - src/backend/CinemaR.Api: HTTP request validation, request-to-command mapping, controllers, error responses, and dependency wiring.
-- tests/CinemaR.Tests: application and architecture regression tests.
+- src/backend/CinemaR.Tests: application and architecture regression tests.
 - [Backend guide](docs/backend.md): project dependencies, request flow, conventions, and migration commands.
 - src/frontend/src/features/showtimes: dated queries and showtimes presentation.
 - src/frontend/src/shared/components/MovieArtwork: shared movie illustrations and optional local artwork files.

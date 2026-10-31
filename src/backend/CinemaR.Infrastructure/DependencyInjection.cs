@@ -1,10 +1,15 @@
+using CinemaR.Application.SeatMaps.Repositories;
+using CinemaR.Infrastructure.Data.MigrationHistory;
+using CinemaR.Infrastructure.Data.HealthChecks;
+using CinemaR.Infrastructure.Data.Seeding;
+using CinemaR.Infrastructure.Data.Contexts;
 using Microsoft.EntityFrameworkCore.Migrations;
 using CinemaR.Application.Movies.Repositories;
 using CinemaR.Application.Auditoriums.Repositories;
 using CinemaR.Application.Showtimes.Repositories;
 using CinemaR.Application.Booking.Repositories;
-using CinemaR.Infrastructure.Data;
 using CinemaR.Infrastructure.Data.Repositories;
+using CinemaR.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +18,9 @@ namespace CinemaR.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, bool isDevelopment)
+    public static IServiceCollection AddCinemaRInfrastructure(this IServiceCollection services, IConfiguration configuration, bool isDevelopment)
     {
+        services.AddCinemaRIdentity();
         services.AddDbContext<CinemaRDbContext>(options =>
         {
             options.ReplaceService<IHistoryRepository, CinemaRHistoryRepository>();

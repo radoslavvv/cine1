@@ -1,8 +1,9 @@
-using CinemaR.Application.Movies.Contracts;
-using CinemaR.Application.Auditoriums.Contracts;
+using CinemaR.Application.Showtimes.Queries;
+using CinemaR.Application.Movies.Responses;
+using CinemaR.Application.Auditoriums.Responses;
 using CinemaR.Application.Showtimes.Results;
 using CinemaR.Domain.Showtimes;
-using CinemaR.Application.Showtimes.Contracts;
+using CinemaR.Application.Showtimes.Responses;
 using CinemaR.Application.Showtimes.Repositories;
 
 namespace CinemaR.Application.Showtimes.Services;
