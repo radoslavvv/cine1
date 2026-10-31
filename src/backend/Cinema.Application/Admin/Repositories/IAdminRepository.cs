@@ -1,3 +1,4 @@
+using Cinema.Application.Admin.Contracts;
 using Cinema.Application.Admin.ReadModels;
 using Cinema.Domain.Movies;
 using Cinema.Domain.Schedule;

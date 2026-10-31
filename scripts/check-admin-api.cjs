@@ -1,17 +1,51 @@
 // Run only against a disposable database: this test intentionally preserves booking history.
 // node scripts/check-admin-api.cjs http://localhost:5081 --allow-writes
+// Set CINEMAR_ADMIN_EMAIL and CINEMAR_ADMIN_PASSWORD to a verified test administrator.
 const assert = require('node:assert/strict');
 const { randomUUID } = require('node:crypto');
 const base = process.argv[2];
 if (!base || !process.argv.includes('--allow-writes'))
   throw new Error('Provide a disposable API URL and --allow-writes.');
 const label = `Admin check ${randomUUID().slice(0, 8)}`;
-async function request(path, method = 'GET', body, status = 200) {
+const sessions = {
+  guest: { cookies: new Map(), csrf: null },
+  admin: { cookies: new Map(), csrf: null },
+};
+function storeCookies(session, response) {
+  for (const cookie of response.headers.getSetCookie()) {
+    const [name, ...value] = cookie.split(';')[0].split('=');
+    session.cookies.set(name, value.join('='));
+  }
+}
+const cookieHeader = (session) =>
+  [...session.cookies].map(([name, value]) => `${name}=${value}`).join('; ');
+async function refreshSession(session) {
+  const response = await fetch(base + '/api/account/session', {
+    headers: { Cookie: cookieHeader(session) },
+  });
+  assert.equal(response.status, 200);
+  storeCookies(session, response);
+  session.csrf = (await response.json()).csrfToken;
+}
+async function request(
+  path,
+  method = 'GET',
+  body,
+  status = 200,
+  sessionName = path.startsWith('/api/admin/') ? 'admin' : 'guest',
+) {
+  const session = sessions[sessionName];
+  if (method !== 'GET' && !session.csrf) await refreshSession(session);
   const response = await fetch(base + path, {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: {
+      Cookie: cookieHeader(session),
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...(method !== 'GET' ? { 'X-CSRF-Token': session.csrf } : {}),
+    },
     body: body ? JSON.stringify(body) : undefined,
   });
+  storeCookies(session, response);
   const result = await response.json().catch(() => null);
   assert.equal(
     response.status,
@@ -26,6 +60,20 @@ const day = (offset) =>
   new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
 
 (async () => {
+  const email = process.env.CINEMAR_ADMIN_EMAIL;
+  const password = process.env.CINEMAR_ADMIN_PASSWORD;
+  assert.ok(
+    email && password,
+    'Provide verified disposable administrator credentials through CINEMAR_ADMIN_EMAIL and CINEMAR_ADMIN_PASSWORD.',
+  );
+  await request(
+    '/api/account/sign-in',
+    'POST',
+    { email, password },
+    200,
+    'admin',
+  );
+  await refreshSession(sessions.admin);
   const initial = await admin('catalog');
   assert(
     initial.auditoriums.every((a) => a.supportedFormats.length > 0),

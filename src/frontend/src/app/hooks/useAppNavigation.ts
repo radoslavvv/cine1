@@ -25,13 +25,17 @@ export function useAppNavigation() {
     document.title =
       pathname === '/schedule'
         ? 'Movie schedule · cinemaR'
-        : pathname.startsWith('/admin')
-          ? 'Administration · cinemaR'
-        : pathname.startsWith('/booking/confirmation/')
-          ? 'Booking confirmed · cinemaR'
-          : pathname.startsWith('/booking/')
-            ? 'Choose seats · cinemaR'
-            : 'cinemaR';
+        : pathname === '/account/bookings'
+          ? 'My bookings · cinemaR'
+          : pathname.startsWith('/account/')
+            ? 'Your account · cinemaR'
+            : pathname.startsWith('/admin')
+              ? 'Administration · cinemaR'
+              : pathname.startsWith('/booking/confirmation/')
+                ? 'Booking confirmed · cinemaR'
+                : pathname.startsWith('/booking/')
+                  ? 'Choose seats · cinemaR'
+                  : 'cinemaR';
   }, []);
 
   return {

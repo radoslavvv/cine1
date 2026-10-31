@@ -8,6 +8,7 @@ import { appTheme as theme } from './App.theme';
 import { RouteTransition } from './components/RouteTransition/RouteTransition';
 import { Suspense } from 'react';
 import { AdminRoute } from '../features/admin/AdminRoute';
+import { AccountPage, MyBookingsPage, RequireAccount } from '../features/auth';
 
 export function App() {
   const location = useLocation();
@@ -15,7 +16,8 @@ export function App() {
   const { mainRef, completeEntrance, arrive } = useAppNavigation();
 
   return (
-    <main ref={mainRef} tabIndex={-1} className={theme.main}>
+    <>
+      <main ref={mainRef} tabIndex={-1} className={theme.main}>
         <RouteTransition key={pathname} pathname={pathname} onEnter={arrive}>
           <Routes location={location}>
             <Route
@@ -24,6 +26,18 @@ export function App() {
             />
 
             <Route path="/schedule" element={<SchedulePage />} />
+            <Route
+              path="/account/bookings"
+              element={
+                <RequireAccount>
+                  <MyBookingsPage />
+                </RequireAccount>
+              }
+            />
+            <Route
+              path="/account/:action"
+              element={<AccountPage key={pathname} />}
+            />
             {AdminRoute && (
               <Route
                 path="/admin/*"
@@ -35,7 +49,9 @@ export function App() {
                       </p>
                     }
                   >
-                    <AdminRoute />
+                    <RequireAccount administrator>
+                      <AdminRoute />
+                    </RequireAccount>
                   </Suspense>
                 }
               />
@@ -52,6 +68,7 @@ export function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </RouteTransition>
-    </main>
+      </main>
+    </>
   );
 }

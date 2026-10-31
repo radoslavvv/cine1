@@ -96,6 +96,10 @@ function checkout(confirmBooking) {
             navigations.push(args),
       },
       '../api/bookingQueries': { BookingError, confirmBooking },
+      '../../auth/hooks/useAuth': {
+        useAuth: () => ({ customer: null, loading: false, error: '' }),
+      },
+      '../model/bookingDraft': { saveBookingDraft() {} },
     },
     { crypto: { randomUUID: () => `request-${++id}` } },
   );
@@ -234,6 +238,10 @@ test('conflict recovery clears selection, refreshes availability, then exits che
   let completeRefresh;
   const { useBookingPage } = load('hooks/useBookingPage.ts', {
     react: runtime.react,
+    '../model/bookingDraft': {
+      readBookingDraft: () => null,
+      saveBookingDraft() {},
+    },
     '@tanstack/react-query': {
       useQuery: () => ({ data: map }),
       useQueryClient: () => ({

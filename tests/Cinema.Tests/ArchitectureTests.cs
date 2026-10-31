@@ -1,5 +1,5 @@
+using Cinema.Application.Admin.Services;
 using Cinema.Api.Controllers;
-using Cinema.Application.Admin;
 using Cinema.Domain.Movies;
 using Cinema.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +41,7 @@ public sealed class ArchitectureTests
         {
             "20261027181852_InitialCatalog", "20261027193409_AuditoriumSeatLayouts",
             "20261027222120_ConfirmedBookings", "20261027230727_TicketQrCodes",
-            "20261027233011_ShowtimeFormats", "20261030163818_Administration"
+            "20261027233011_ShowtimeFormats", "20261030163818_Administration", "20261031002743_CustomerIdentity"
         }, db.Database.GetMigrations());
         Assert.Equal(typeof(CinemaRDbContext).Assembly, db.GetService<IMigrationsAssembly>().Assembly);
     }

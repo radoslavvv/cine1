@@ -8,6 +8,22 @@ A cinema offers scheduled screenings of movies. Customers select seats for a scr
 A customer who purchases tickets without registering or signing into an account.
 _Avoid_: Anonymous user, registered customer
 
+**Registered customer**:
+A customer with an account who can sign into the cinema app. Customers can also purchase tickets as guests.
+_Avoid_: Guest customer, administrator
+
+**Administrator**:
+The person authorized to manage the cinema through its administration area. The cinema currently has one administrator.
+_Avoid_: Customer, ticket agent
+
+**My bookings**:
+A registered customer's personal collection of bookings and their tickets.
+_Avoid_: All bookings, administration booking list
+
+**Booking owner**:
+The registered customer who made a booking while signed in. A guest booking has no booking owner, even when its contact email matches a registered customer's email.
+_Avoid_: Contact email, ticket holder
+
 **Movie**:
 A film in the cinema's catalog, independent of when or where it is screened.
 _Avoid_: Showtime, screening
@@ -81,7 +97,7 @@ A customer's record for selected seats at one showtime. Only a confirmed booking
 _Avoid_: Hold, ticket, reservation
 
 **Checkout**:
-The step where a guest customer reviews selected seats and supplies an email address before confirming a booking.
+The step where a customer reviews selected seats and confirms a contact email before confirming a booking. Registered customers use their verified account email; guest customers supply a contact email.
 _Avoid_: Payment, hold
 
 **Taken seat**:

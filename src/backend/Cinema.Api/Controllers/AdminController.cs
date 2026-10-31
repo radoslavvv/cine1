@@ -1,11 +1,14 @@
-using Cinema.Application.Admin;
-using Cinema.Api.Admin;
+using Cinema.Api.Admin.Filters;
+using Cinema.Application.Admin.Commands;
+using Cinema.Application.Admin.Contracts;
+using Cinema.Application.Admin.Services;
 using Cinema.Api.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cinema.Api.Controllers;
 
 [ApiController]
+[Microsoft.AspNetCore.Authorization.Authorize(Policy = "Administrator")]
 [Route("api/admin")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 [TypeFilter(typeof(AdminExceptionFilter))]

@@ -1,10 +1,10 @@
 # Admin section design
 
-Status: individual decisions agreed; implementation awaits confirmation of the complete design.
+Status: implemented. Authentication and administrator access are now covered by [the authentication design](authentication-design.md).
 
 ## Agreed scope
 
-- Provide an `/admin` section. Accounts and authentication are deferred. Both the page and admin endpoints are enabled only in development until authentication exists.
+- Provide an `/admin` section. The page and admin endpoints require the verified administrator account in every environment. This supersedes the initial Development-only access restriction.
 - Support creating and updating movies, showtimes, and auditoriums.
 - Booking management is view-only. Screening cancellation is the sole agreed operation that indirectly cancels bookings.
 - Once a showtime has confirmed bookings, prevent changing its movie, start time, or auditorium. Allow an explicit screening cancellation flow that also cancels its bookings.
@@ -17,10 +17,6 @@ Status: individual decisions agreed; implementation awaits confirmation of the c
 - Movie title, synopsis, genres, and artwork edits update wherever displayed. Runtime changes apply only to newly created screenings; existing screenings retain their scheduled runtime and turnaround. A different film requires a separate movie record.
 - Booking lists support email/booking-ID search; screening-date, movie, auditorium, and active/cancelled filters; pagination; and read-only details. Show email, screening, seats, confirmation time, and status.
 - Each auditorium specifies supported formats from 2D, 3D, IMAX 2D, and IMAX 3D. Restrict new screenings accordingly and prevent removing a format used by upcoming screenings.
-
-## Review before implementation
-
-The complete scope must be confirmed by the user before implementation, as required by the invoked grilling workflow. No outstanding interview decisions remain.
 
 ## Existing constraints
 

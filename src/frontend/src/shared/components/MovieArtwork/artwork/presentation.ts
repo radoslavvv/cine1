@@ -14,7 +14,7 @@ const assets = import.meta.glob<string>('./assets/*.{jpg,jpeg,png,webp,avif}', {
 
 function localArtwork(name: string): string | undefined {
   return Object.entries(assets).find(
-    ([path]) => path.replace('./assets/', '').replace(/\.[^.]+$/, '') === name,
+    ([path]) => path.replace('./assets', '').replace(/\.[^.]+$/, '') === name,
   )?.[1];
 }
 

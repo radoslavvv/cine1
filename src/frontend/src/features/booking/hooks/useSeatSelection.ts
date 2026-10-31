@@ -8,8 +8,9 @@ export { MAX_SEATS } from '../model/bookingPresentation';
 export function useSeatSelection(
   map: SeatMap | undefined,
   clockOffsetMs: number,
+  initialSelectedIds: number[] = [],
 ) {
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>(initialSelectedIds);
   const [now, setNow] = useState(Date.now);
   const startsAt = map ? Date.parse(map.startsAt) : NaN;
   const isOpen = !!map?.selectionOpen && now + clockOffsetMs < startsAt;

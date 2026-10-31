@@ -1,6 +1,6 @@
 # cinemaR
 
-React + TypeScript cinema schedule and seat selection backed by ASP.NET Core 10, EF Core, and PostgreSQL. Movie details, auditoriums, screenings, and seat layouts come from the database. Artwork remains local. The API supports schedule and seat reads, confirmed bookings and ticket QR codes, plus local Development-only administration.
+React + TypeScript cinema schedule and seat selection backed by ASP.NET Core 10, EF Core, and PostgreSQL. Movie details, auditoriums, screenings, and seat layouts come from the database. Artwork remains local. Customer accounts support email verification, password recovery, and personal booking history; guests can still book. Administration requires the single administrator's verified account in every environment.
 
 ## Requirements and startup
 
@@ -37,6 +37,8 @@ Format the repository in one pass (Prettier for frontend/configuration/docs and 
 Run `npm ci --prefix src/frontend` first if dependencies are not installed. For frontend-only formatting, run `npm run format --prefix src/frontend`. VS Code and Cursor workspace settings use the same Prettier configuration on save and paste; install the recommended Prettier extension if prompted. Run the repository formatter after bulk edits or generated changes so files are formatted without opening each one.
 
 ## PostgreSQL
+
+Compose also starts [Mailpit's local email inbox](http://localhost:8025), with SMTP on loopback port 1025. Account verification and password-reset messages appear there. Register at `/account/register`, verify the email, and sign in. To provision the single administrator, run `dotnet run --project src/backend/Cinema.Api --no-launch-profile -- setup-admin --environment Development` and supply its email/password at the prompts. Then verify its email in Mailpit. See [authentication setup and behavior](docs/authentication-design.md) for session rules, configuration, and isolated live checks.
 
 Compose publishes the database on **127.0.0.1:5433**, avoiding the usual host PostgreSQL port. Database/user: `cinemar`; password: `cinemar_local`. These are local development credentials, also configured in src/backend/Cinema.Api/appsettings.Development.json. Override the API connection with `ConnectionStrings__Cinema` when needed. The postgres:18 image keeps durable data in the named cinemar_postgres_data volume mounted at /var/lib/postgresql.
 

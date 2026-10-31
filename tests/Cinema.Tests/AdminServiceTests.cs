@@ -1,4 +1,6 @@
-using Cinema.Application.Admin;
+using Cinema.Application.Admin.Commands;
+using Cinema.Application.Admin.Results;
+using Cinema.Application.Admin.Services;
 using Xunit;
 
 namespace Cinema.Tests;

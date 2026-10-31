@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Cinema.Tests;
 
@@ -25,7 +26,7 @@ public sealed class ApiTests
     {
         using var factory = new ApiFactory();
         using var client = factory.CreateClient();
-        var response = await client.PostAsJsonAsync("/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email, seatIds = seats });
+        var response = await PostAsync(client, "/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email, seatIds = seats });
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
@@ -43,7 +44,7 @@ public sealed class ApiTests
         using var factory = new ApiFactory();
         factory.Repository.Outcome = outcome;
         using var client = factory.CreateClient();
-        var response = await client.PostAsJsonAsync("/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email = "customer@example.com", seatIds = new[] { 1 } });
+        var response = await PostAsync(client, "/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email = "customer@example.com", seatIds = new[] { 1 } });
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
@@ -67,12 +68,42 @@ public sealed class ApiTests
 
     [Theory]
     [InlineData("/api/admin/catalog")]
-    [InlineData("/admin")]
-    public async Task Administration_is_hidden_in_production(string url)
+    [InlineData("/api/account/bookings")]
+    public async Task Private_endpoints_require_sign_in_in_production(string url)
     {
         using var factory = new ApiFactory();
         using var client = factory.CreateClient();
-        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(url)).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(url)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Guest_writes_require_a_valid_csrf_token()
+    {
+        using var factory = new ApiFactory();
+        using var client = factory.CreateClient();
+        var response = await client.PostAsJsonAsync("/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email = "customer@example.com", seatIds = new[] { 1 } });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("csrf_invalid", problem.GetProperty("code").GetString());
+        Assert.False(factory.Repository.Called);
+    }
+
+    [Fact]
+    public async Task Expired_or_forged_customer_cannot_silently_create_a_guest_booking()
+    {
+        using var factory = new ApiFactory();
+        using var client = factory.CreateClient();
+        var response = await PostAsync(client, "/api/showtimes/1/bookings", new { requestId = Guid.NewGuid(), email = "customer@example.com", seatIds = new[] { 1 }, expectedCustomerId = "another-customer" });
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.False(factory.Repository.Called);
+    }
+
+    private static async Task<HttpResponseMessage> PostAsync(HttpClient client, string url, object body)
+    {
+        var session = await client.GetFromJsonAsync<JsonElement>("/api/account/session");
+        client.DefaultRequestHeaders.Remove("X-CSRF-Token");
+        client.DefaultRequestHeaders.Add("X-CSRF-Token", session.GetProperty("csrfToken").GetString());
+        return await client.PostAsJsonAsync(url, body);
     }
 
     [Fact]
@@ -88,6 +119,7 @@ public sealed class ApiTests
 
     private sealed class ApiFactory : WebApplicationFactory<Program>
     {
+        public ApiFactory() { ClientOptions.BaseAddress = new Uri("https://localhost"); }
         public BookingRepositoryStub Repository { get; } = new();
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -98,7 +130,11 @@ public sealed class ApiTests
             {
                 ["ConnectionStrings:Cinema"] = "Host=localhost;Database=unused;Username=unused;Password=unused"
             }));
-            builder.ConfigureServices(services => services.Replace(ServiceDescriptor.Singleton<IBookingRepository>(Repository)));
+            builder.ConfigureServices(services =>
+            {
+                services.Replace(ServiceDescriptor.Singleton<IBookingRepository>(Repository));
+                services.AddDataProtection().UseEphemeralDataProtectionProvider();
+            });
         }
     }
 
@@ -107,7 +143,7 @@ public sealed class ApiTests
         public BookingOutcome Outcome { get; set; } = BookingOutcome.Confirmed;
         public bool Called { get; private set; }
 
-        public Task<BookingResult> ConfirmAsync(int id, Guid requestId, string email, int[] seats, CancellationToken ct)
+        public Task<BookingResult> ConfirmAsync(int id, Guid requestId, string email, int[] seats, CancellationToken ct, string? customerId = null)
         {
             Called = true;
             return Task.FromResult(new BookingResult(Outcome));

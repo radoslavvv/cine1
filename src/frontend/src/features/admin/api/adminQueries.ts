@@ -1,4 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
+import { securityFetch } from '../../auth/api/authApi';
 import type {
   AdminBooking,
   AdminCatalog,
@@ -11,7 +12,7 @@ export async function adminRequest<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`/api/admin/${path}`, {
+  const response = await securityFetch(`/api/admin/${path}`, {
     ...init,
     cache: 'no-store',
   });

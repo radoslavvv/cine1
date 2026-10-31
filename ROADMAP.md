@@ -46,7 +46,7 @@ This completes the scaffold only. The full first milestone below remains open.
 
 ### 1. Build a usable vertical slice — 3–4 weeks
 
-The frontend includes a reversible layered-auditorium entrance and a seven-day schedule with date navigation. Movies, displayed metadata, auditoriums, and showtimes now come from PostgreSQL through EF Core GET endpoints. Docker Compose, migrations, one-time development seeding, database readiness, and backend integration checks are implemented. Administration, identity, availability, and CI remain open. Reduced-motion and skip-link alternatives are implemented. See `docs/frontend.md` and `docs/adr/0002-persistent-catalog.md`.
+The frontend includes a reversible layered-auditorium entrance and a seven-day schedule with date navigation. Movies, displayed metadata, auditoriums, and showtimes now come from PostgreSQL through EF Core GET endpoints. Docker Compose, migrations, one-time development seeding, database readiness, and backend integration checks are implemented. Administration, customer/administrator identity, account booking history, and confirmed-seat availability are implemented. Temporary seat holds remain a later milestone. Reduced-motion and skip-link alternatives are implemented. See `docs/frontend.md` and `docs/adr/0002-persistent-catalog.md`.
 
 - [x] Add PostgreSQL in Docker Compose, EF Core migrations, and one-time catalog/showtime seeding.
 - [x] Replace generated frontend times and local movie text with database-backed reads.
@@ -54,8 +54,8 @@ The frontend includes a reversible layered-auditorium entrance and a seven-day s
 - [ ] Complete milestone 1 and its acceptance criteria.
 - [ ] Set up React, the .NET API, PostgreSQL, migrations, Docker Compose, and CI.
 - [ ] Implement movie/showtime administration and customer browsing.
-- [ ] Add accounts using ASP.NET Core Identity and secure cookie authentication, with CSRF protection and customer/admin authorization.
-- [ ] Build a simple seat map and booking history.
+- [x] Add accounts using ASP.NET Core Identity and secure cookie authentication, with CSRF protection and customer/admin authorization.
+- [x] Build a simple seat map and booking history.
 - [ ] Establish request validation, consistent API errors, structured logs, and cancellation handling.
 
 **Done when:** a fresh checkout runs using documented commands, migrations create the database, and a customer can complete a basic simulated booking.

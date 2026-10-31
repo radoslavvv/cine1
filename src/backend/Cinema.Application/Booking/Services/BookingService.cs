@@ -13,7 +13,7 @@ public sealed class BookingService(IBookingRepository repository) : IBookingServ
             || command.SeatIds.Any(id => id <= 0) || command.SeatIds.Distinct().Count() != command.SeatIds.Length)
             return Task.FromResult(new BookingResult(BookingOutcome.InvalidSeats));
 
-        return repository.ConfirmAsync(command.ShowtimeId, command.RequestId, command.Email.Trim(), command.SeatIds, cancellationToken);
+        return repository.ConfirmAsync(command.ShowtimeId, command.RequestId, command.Email.Trim(), command.SeatIds, cancellationToken, command.CustomerId);
     }
 
     public Task<BookingConfirmation?> FindAsync(string confirmationToken, CancellationToken cancellationToken) =>

@@ -1,5 +1,4 @@
 using Cinema.Application.Admin.Repositories;
-using Cinema.Application.Admin;
 using Cinema.Application.Booking.Repositories;
 using Cinema.Application.Schedule.Repositories;
 using Cinema.Infrastructure.Data;

@@ -1,10 +1,15 @@
-using Cinema.Application.Admin;
+using Cinema.Application.Admin.Services;
+using Cinema.Infrastructure.Identity.Setup;
 using Cinema.Application.Booking.Services;
 using Cinema.Application.Schedule.Services;
 using Cinema.Infrastructure;
+using Cinema.Api;
+using Cinema.Infrastructure.Identity;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args.Where(arg => arg != "setup-admin").ToArray());
 builder.Services.AddControllers();
+builder.Services.AddCinemaIdentity();
+builder.AddCinemaSecurity();
 builder.Services.AddProblemDetails();
 builder.Services.AddInfrastructure(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
@@ -15,17 +20,11 @@ builder.Services.AddSingleton(TimeProvider.System);
 
 var app = builder.Build();
 app.UseExceptionHandler();
-// Unauthenticated administration must never be reachable outside local development.
-app.Use(async (context, next) =>
-{
-    if (!app.Environment.IsDevelopment() &&
-        (context.Request.Path.StartsWithSegments("/api/admin") || context.Request.Path.StartsWithSegments("/admin")))
-    {
-        context.Response.StatusCode = StatusCodes.Status404NotFound;
-        return;
-    }
-    await next(context);
-});
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseRateLimiter();
+app.UseCinemaCsrf();
 app.MapHealthChecks("/health", new() { Predicate = _ => false });
 app.MapHealthChecks("/health/ready");
 app.MapControllers();
@@ -34,6 +33,11 @@ app.MapControllers();
 if (app.Environment.IsDevelopment())
 {
     await app.Services.InitializeDatabaseAsync();
+}
+if (args.Contains("setup-admin"))
+{
+    Environment.ExitCode = await AdministratorSetup.RunAsync(app.Services);
+    return;
 }
 app.Run();
 

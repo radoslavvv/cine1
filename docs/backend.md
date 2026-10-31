@@ -19,13 +19,17 @@ Booking confirmation flows through `ConfirmBookingRequest → ConfirmBookingComm
 
 Administration flows through HTTP request models to `SaveMovieCommand`, `SaveAuditoriumCommand`, or `SaveShowtimesCommand`, then `IAdminService`. The service normalizes input and applies business rules. `IAdminRepository.ExecuteWriteAsync` executes the service's write callback under a transaction and exclusive catalog lock, so availability checks and updates remain atomic. Entities returned by repository write methods are tracked only inside that operation. Materialized read/response models serve queries. The service may flush changes to obtain generated IDs; Infrastructure commits only after the entire callback succeeds. A failed batch rolls back all changes.
 
-Infrastructure translates known PostgreSQL write conflicts into application failures. The API maps validation, missing records, and conflicts to HTTP 400, 404, and 409. Application errors do not carry HTTP status codes. Administration remains available only in Development.
+Infrastructure translates known PostgreSQL write conflicts into application failures. The API maps validation, missing records, and conflicts to HTTP 400, 404, and 409. Application errors do not carry HTTP status codes. Administration requires the verified administrator account in every environment.
+
+Accounts flow through `AccountsController → IAccountService → AccountService`, backed by ASP.NET Core Identity in Infrastructure and the `identity` schema. Cookies, CSRF validation, API challenges, authorization policies, and account rate limits are configured in `Cinema.Api/Security.cs`. Customer booking history is filtered by the authenticated customer's ID through `IMyBookingsService`; no email-based claiming occurs. See [authentication](authentication-design.md) for setup and session/ownership rules.
 
 ## File organization
 
 Keep one C# type per file, with the filename matching the type name. This includes classes, interfaces, records, enums, commands, requests, responses, and read models. Keep related files together in their feature folder. `Repositories` in Application contains repository interfaces only. Persistence read models belong in the feature’s `ReadModels` folder; operation outcomes and result records belong in `Results`. Infrastructure’s `Data/Repositories` contains the EF implementations. The EF context is named `CinemaRDbContext`.
 
 Test helpers live in individual files under `tests/Cinema.Tests/Support`. EF-generated migration and designer files retain their tooling conventions.
+
+Admin groups its application types into `Commands`, `Contracts`, `Services`, `Validation`, `Results`, `Repositories`, and `ReadModels`. Identity uses `Contracts`, `Results`, and `Services` in Application; Infrastructure separates `Authentication`, `Email`, `Entities`, `Services`, and `Setup`, with feature registration at its root. Namespaces follow these folders. HTTP exception filters live under `Cinema.Api/Admin/Filters`.
 
 ## Adding a feature
 

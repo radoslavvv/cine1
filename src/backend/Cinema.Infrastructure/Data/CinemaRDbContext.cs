@@ -1,11 +1,15 @@
+using Cinema.Infrastructure.Identity.Entities;
 using Cinema.Domain.Movies;
 using Cinema.Domain.Booking;
 using Cinema.Domain.Schedule;
 using Microsoft.EntityFrameworkCore;
+using Cinema.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Cinema.Infrastructure.Data;
 
-public sealed class CinemaRDbContext(DbContextOptions<CinemaRDbContext> options) : DbContext(options)
+public sealed class CinemaRDbContext(DbContextOptions<CinemaRDbContext> options) : IdentityUserContext<CinemaUser>(options)
 {
     public DbSet<Movie> Movies => Set<Movie>();
     public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
@@ -17,6 +21,16 @@ public sealed class CinemaRDbContext(DbContextOptions<CinemaRDbContext> options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<CinemaUser>(entity =>
+        {
+            entity.ToTable("users", "identity");
+            entity.HasIndex(user => user.NormalizedEmail).IsUnique();
+            entity.HasIndex(user => user.IsAdministrator).IsUnique().HasFilter("is_administrator = true");
+        });
+        modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("user_claims", "identity");
+        modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("user_logins", "identity");
+        modelBuilder.Entity<IdentityUserToken<string>>().ToTable("user_tokens", "identity");
         modelBuilder.HasDefaultSchema("catalog");
         modelBuilder.HasPostgresExtension("btree_gist");
         modelBuilder.Entity<Movie>(entity =>
@@ -73,6 +87,7 @@ public sealed class CinemaRDbContext(DbContextOptions<CinemaRDbContext> options)
             entity.HasKey(booking => booking.Id);
             entity.Property(booking => booking.Id).ValueGeneratedNever();
             entity.Property(booking => booking.Email).HasMaxLength(254).IsRequired();
+            entity.HasOne<CinemaUser>().WithMany().HasForeignKey(booking => booking.CustomerId).OnDelete(DeleteBehavior.Restrict);
             entity.Property(booking => booking.ConfirmationToken).HasMaxLength(64).IsRequired();
             entity.HasIndex(booking => booking.ConfirmationToken).IsUnique();
             entity.HasOne(booking => booking.Showtime).WithMany().HasForeignKey(booking => booking.ShowtimeId).OnDelete(DeleteBehavior.Restrict);

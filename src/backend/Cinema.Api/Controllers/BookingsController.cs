@@ -1,3 +1,4 @@
+using Cinema.Application.Identity.Services;
 using Cinema.Application.Booking.Results;
 using Cinema.Application.Booking.Contracts;
 using Cinema.Application.Booking.Services;
@@ -10,12 +11,17 @@ namespace Cinema.Api.Controllers;
 
 [ApiController]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-public sealed class BookingsController(IBookingService service) : ControllerBase
+public sealed class BookingsController(IBookingService service, IAccountService accounts) : ControllerBase
 {
     [HttpPost("api/showtimes/{showtimeId:int}/bookings")]
     public async Task<ActionResult<BookingConfirmation>> Confirm(int showtimeId, ConfirmBookingRequest request, CancellationToken cancellationToken)
     {
-        var result = await service.ConfirmAsync(new ConfirmBookingCommand(showtimeId, request.RequestId, request.Email, request.SeatIds), cancellationToken);
+        var customer = await accounts.CurrentAsync();
+        if (request.ExpectedCustomerId != customer?.Id)
+            return Problem(statusCode: customer is null ? 401 : 409, title: "Your sign-in changed. Sign in again or explicitly continue as a guest.",
+                extensions: new Dictionary<string, object?> { ["code"] = "session_changed" });
+        var result = await service.ConfirmAsync(new ConfirmBookingCommand(showtimeId, request.RequestId,
+            customer?.Email ?? request.Email, request.SeatIds, customer?.Id), cancellationToken);
         return result.Outcome switch
         {
             BookingOutcome.Confirmed => Ok(result.Confirmation),

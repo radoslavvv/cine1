@@ -2,7 +2,7 @@
 
 ## Organize by feature
 
-Product areas own their code. The app routes between an auditorium entrance, a schedule, and seat selection. Schedule owns dated browsing; Booking owns the showtime seat-map query and local selection. Admin can become a sibling feature when needed.
+Product areas own their code. The app routes between an auditorium entrance, a schedule, and seat selection. Schedule owns dated browsing; Booking owns the showtime seat-map query and local selection. Admin owns cinema management; Auth owns account forms, session state, and personal booking history.
 
 ```text
 src/
@@ -50,6 +50,33 @@ src/
       model/bookingPresentation.ts
       booking.theme.ts
       api/bookingQueries.ts
+    auth/
+      pages/
+        AccountPage.tsx
+        MyBookingsPage.tsx
+      components/
+        AccountHeader/
+        AccountLayout/
+        AccountNav/
+        RequireAccount/
+      hooks/
+        useAccountPage.ts
+        useAccountNavigation.ts
+        useAuth.ts
+        useAuthSession.ts
+        useMyBookings.ts
+      api/
+        authApi.ts
+        accountQueries.ts
+      model/
+        accountNavigation.ts
+        accountPresentation.ts
+      providers/
+        AuthProvider.tsx
+        authContext.ts
+      auth.theme.ts
+      types.ts
+      index.ts
   shared/
     components/
       MovieArtwork/

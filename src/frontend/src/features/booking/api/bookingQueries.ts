@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { BookingConfirmation, SeatMap } from '../types';
+import { securityFetch } from '../../auth/api/authApi';
 
 export class SeatMapError extends Error {
   constructor(public readonly status: number) {
@@ -60,14 +61,22 @@ export class BookingError extends Error {
 
 export async function confirmBooking(
   showtimeId: number,
-  request: { requestId: string; email: string; seatIds: number[] },
+  request: {
+    requestId: string;
+    email: string;
+    seatIds: number[];
+    expectedCustomerId?: string | null;
+  },
 ) {
-  const response = await fetch(`/api/showtimes/${showtimeId}/bookings`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-    cache: 'no-store',
-  });
+  const response = await securityFetch(
+    `/api/showtimes/${showtimeId}/bookings`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      cache: 'no-store',
+    },
+  );
   if (!response.ok) {
     const problem = (await response.json().catch(() => ({}))) as {
       code?: string;

@@ -10,7 +10,7 @@ namespace Cinema.Infrastructure.Data.Repositories;
 
 public sealed class BookingRepository(CinemaRDbContext db, TimeProvider clock) : IBookingRepository
 {
-    public async Task<BookingResult> ConfirmAsync(int showtimeId, Guid requestId, string email, int[] seatIds, CancellationToken cancellationToken)
+    public async Task<BookingResult> ConfirmAsync(int showtimeId, Guid requestId, string email, int[] seatIds, CancellationToken cancellationToken, string? customerId = null)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         await CatalogWriteLock.SharedAsync(db, cancellationToken);
@@ -20,7 +20,7 @@ public sealed class BookingRepository(CinemaRDbContext db, TimeProvider clock) :
         if (showtime is null) return new(BookingOutcome.NotFound);
 
         var existing = await LoadAsync().SingleOrDefaultAsync(booking => booking.Id == requestId, cancellationToken);
-        if (existing is not null) return Replay(existing, showtimeId, email, seatIds);
+        if (existing is not null) return Replay(existing, showtimeId, email, seatIds, customerId);
         if (showtime.CancelledAt is not null) return new(BookingOutcome.Cancelled);
         if (showtime.StartsAt <= clock.GetUtcNow().UtcDateTime) return new(BookingOutcome.Started);
 
@@ -34,6 +34,7 @@ public sealed class BookingRepository(CinemaRDbContext db, TimeProvider clock) :
             Id = requestId,
             ConfirmationToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant(),
             Email = email,
+            CustomerId = customerId,
             ShowtimeId = showtimeId,
             ConfirmedAt = clock.GetUtcNow().UtcDateTime,
             Seats = seatIds.Select(id => new BookedSeat
@@ -56,7 +57,7 @@ public sealed class BookingRepository(CinemaRDbContext db, TimeProvider clock) :
             await transaction.RollbackAsync(cancellationToken);
             db.ChangeTracker.Clear();
             var replay = await LoadAsync().SingleOrDefaultAsync(item => item.Id == requestId, cancellationToken);
-            return replay is null ? new(BookingOutcome.SeatsTaken) : Replay(replay, showtimeId, email, seatIds);
+            return replay is null ? new(BookingOutcome.SeatsTaken) : Replay(replay, showtimeId, email, seatIds, customerId);
         }
         return new(BookingOutcome.Confirmed, await FindAsync(booking.ConfirmationToken, cancellationToken));
     }
@@ -73,12 +74,12 @@ public sealed class BookingRepository(CinemaRDbContext db, TimeProvider clock) :
         .Include(booking => booking.Showtime).ThenInclude(showtime => showtime.Auditorium)
         .Include(booking => booking.Seats).ThenInclude(seat => seat.Seat);
 
-    private static BookingResult Replay(ConfirmedBooking booking, int showtimeId, string email, int[] seatIds) =>
-        booking.ShowtimeId == showtimeId && booking.Email == email
+    private static BookingResult Replay(ConfirmedBooking booking, int showtimeId, string email, int[] seatIds, string? customerId) =>
+        booking.ShowtimeId == showtimeId && booking.Email == email && booking.CustomerId == customerId
         && booking.Seats.Select(seat => seat.SeatId).Order().SequenceEqual(seatIds.Order())
             ? new(BookingOutcome.Confirmed, ToConfirmation(booking)) : new(BookingOutcome.RequestConflict);
 
-    private static BookingConfirmation ToConfirmation(ConfirmedBooking booking) => new(
+    internal static BookingConfirmation ToConfirmation(ConfirmedBooking booking) => new(
         booking.ConfirmationToken, booking.ConfirmedAt, booking.Email, booking.ShowtimeId,
         booking.Showtime.StartsAt, booking.Showtime.Movie.Title, booking.Showtime.Auditorium.Name,
         booking.Seats.OrderBy(item => item.Seat.GridRow).ThenBy(item => item.Seat.GridColumn)

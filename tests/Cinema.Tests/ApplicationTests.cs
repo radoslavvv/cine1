@@ -1,5 +1,7 @@
+using Cinema.Application.Admin.Commands;
+using Cinema.Application.Admin.Results;
+using Cinema.Application.Admin.Validation;
 using Cinema.Application.Booking.Results;
-using Cinema.Application.Admin;
 using Cinema.Application.Booking.Commands;
 using Cinema.Application.Booking.Services;
 using Cinema.Application.Schedule.Contracts;

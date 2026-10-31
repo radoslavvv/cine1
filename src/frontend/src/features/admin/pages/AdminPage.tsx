@@ -7,12 +7,14 @@ import { ShowtimesPanel } from './ShowtimesPanel';
 import { BookingsPanel } from './BookingsPanel';
 import { AdminNotice } from '../components/AdminNotice';
 import { adminTheme as t } from '../admin.theme';
+import { AccountHeader } from '../../auth/components/AccountHeader/AccountHeader';
 
 export function AdminPage() {
   const catalog = useQuery(adminQueries.catalog());
   return (
     <div className={t.page}>
       <div className={t.container}>
+        <AccountHeader />
         <header className={t.header}>
           <div>
             <p className={t.eyebrow}>cinemaR / administration</p>
@@ -26,7 +28,7 @@ export function AdminPage() {
             <Link className={t.link} to="/schedule">
               View public schedule ↗
             </Link>
-            <span className={t.badge}>Local development</span>
+            <span className={t.badge}>Administrator</span>
           </div>
         </header>
         <nav className={t.tabs} aria-label="Admin sections">
