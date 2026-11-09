@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, expect, it, vi } from 'vitest';
-import { useShowtimes } from './useShowtimes';
+import { useShowtimes } from '@/features/showtimes/hooks/useShowtimes';
 
 afterEach(() => {
   vi.unstubAllGlobals();

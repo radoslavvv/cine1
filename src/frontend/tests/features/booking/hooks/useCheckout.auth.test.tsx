@@ -3,10 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FormEvent, ReactNode } from 'react';
-import type { Customer } from '../../auth/types';
-import { seatMap } from '../../../test/bookingFixtures';
-import { useCheckout } from './useCheckout';
-import { BookingError } from '../api/bookingQueries';
+import type { Customer } from '@/features/auth/types';
+import { seatMap } from '../../../bookingFixtures';
+import { useCheckout } from '@/features/booking/hooks/useCheckout';
+import { BookingError } from '@/features/booking/api/bookingQueries';
 
 const state = vi.hoisted(() => ({
   customer: null as Customer | null,
@@ -17,8 +17,8 @@ const state = vi.hoisted(() => ({
   confirm: vi.fn(),
 }));
 
-vi.mock('../../auth/hooks/useAuth', () => ({ useAuth: () => state }));
-vi.mock('../api/bookingQueries', async (importOriginal) => ({
+vi.mock('@/features/auth/hooks/useAuth', () => ({ useAuth: () => state }));
+vi.mock('@/features/booking/api/bookingQueries', async (importOriginal) => ({
   ...(await importOriginal<object>()),
   confirmBooking: state.confirm,
 }));

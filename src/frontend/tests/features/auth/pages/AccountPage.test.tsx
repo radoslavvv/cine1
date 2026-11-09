@@ -8,27 +8,26 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AccountPage } from './AccountPage';
-import { AuthProvider } from '../providers/AuthProvider';
+import { AccountPage } from '@/features/auth/pages/AccountPage';
+import { AuthProvider } from '@/features/auth/providers/AuthProvider';
 
 const api = vi.hoisted(() => ({
   loadSession: vi.fn(),
   accountAction: vi.fn(),
 }));
 
-vi.mock('../api/authApi', () => api);
-vi.mock('../../../shared/components/MotionSurface/MotionSurface', () => ({
+vi.mock('@/features/auth/api/authApi', () => api);
+vi.mock('@/shared/components/MotionSurface/MotionSurface', () => ({
   MotionSurface: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
 }));
-vi.mock('../../../shared/hooks/useCinemaMotion', () => ({
+vi.mock('@/shared/hooks/useCinemaMotion', () => ({
   useCinemaMotion: () => ({ transition: {} }),
 }));
-vi.mock(
-  '../../../shared/components/ProjectorAtmosphere/ProjectorAtmosphere',
-  () => ({ ProjectorAtmosphere: () => null }),
-);
+vi.mock('@/shared/components/ProjectorAtmosphere/ProjectorAtmosphere', () => ({
+  ProjectorAtmosphere: () => null,
+}));
 
 function showAccount(path = '/account/register') {
   render(

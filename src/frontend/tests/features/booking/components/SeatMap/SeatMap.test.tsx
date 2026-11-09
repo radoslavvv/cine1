@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { seatMap } from '../../../../test/bookingFixtures';
-import { prepareSeats } from '../../model/bookingPresentation';
-import { SeatMap } from './SeatMap';
+import { seatMap } from '../../../../bookingFixtures';
+import { prepareSeats } from '@/features/booking/model/bookingPresentation';
+import { SeatMap } from '@/features/booking/components/SeatMap/SeatMap';
 
 // Motion preference is irrelevant to seat interaction; keep the real DOM component.
-vi.mock('../../../../shared/hooks/useCinemaMotion', () => ({
+vi.mock('@/shared/hooks/useCinemaMotion', () => ({
   useCinemaMotion: () => ({ initial: false, animate: { transition: {} } }),
 }));
 

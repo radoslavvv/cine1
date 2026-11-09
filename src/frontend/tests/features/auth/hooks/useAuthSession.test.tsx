@@ -2,11 +2,11 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
-import { moviesQueries } from '../../movies/api/moviesQueries';
-import { auditoriumsQueries } from '../../auditoriums/api/auditoriumsQueries';
-import { showtimeManagementQueries } from '../../showtimes/admin/api/showtimeManagementQueries';
-import { bookingManagementQueries } from '../../booking/admin/api/bookingManagementQueries';
-import { useAuthSession } from './useAuthSession';
+import { moviesQueries } from '@/features/movies/api/moviesQueries';
+import { auditoriumsQueries } from '@/features/auditoriums/api/auditoriumsQueries';
+import { showtimeManagementQueries } from '@/features/showtimes/admin/api/showtimeManagementQueries';
+import { bookingManagementQueries } from '@/features/booking/admin/api/bookingManagementQueries';
+import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 
 afterEach(() => vi.unstubAllGlobals());
 

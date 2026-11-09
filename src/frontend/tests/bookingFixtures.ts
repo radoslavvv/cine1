@@ -1,4 +1,4 @@
-import type { SeatMap } from '../features/booking/types';
+import type { SeatMap } from '@/features/booking/types';
 
 export function seatMap(): SeatMap {
   return {

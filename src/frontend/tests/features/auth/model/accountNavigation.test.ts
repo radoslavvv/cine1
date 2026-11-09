@@ -1,5 +1,8 @@
 import { expect, it } from 'vitest';
-import { accountSignInUrl, safeReturnTo } from './accountNavigation';
+import {
+  accountSignInUrl,
+  safeReturnTo,
+} from '@/features/auth/model/accountNavigation';
 
 it('sign-in preserves a booking round trip while rejecting external and recursive return destinations', () => {
   const url = accountSignInUrl('/booking/42', '?checkout=true');

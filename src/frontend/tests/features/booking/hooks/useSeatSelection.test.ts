@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { seatMap } from '../../../test/bookingFixtures';
-import { useSeatSelection } from './useSeatSelection';
+import { seatMap } from '../../../bookingFixtures';
+import { useSeatSelection } from '@/features/booking/hooks/useSeatSelection';
 
 describe('seat selection', () => {
   beforeEach(() => {

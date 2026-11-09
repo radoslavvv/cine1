@@ -3,11 +3,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import type { FormEvent, ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { seatMap } from '../../../test/bookingFixtures';
-import { useCheckout } from './useCheckout';
+import { seatMap } from '../../../bookingFixtures';
+import { useCheckout } from '@/features/booking/hooks/useCheckout';
 
 // CSRF transport has its own tests; these exercise booking retries and concurrency.
-vi.mock('../../auth/api/authApi', () => ({
+vi.mock('@/features/auth/api/authApi', () => ({
   securityFetch: (url: string, init: RequestInit) => fetch(url, init),
 }));
 

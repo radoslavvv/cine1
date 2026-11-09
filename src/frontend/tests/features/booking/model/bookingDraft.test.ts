@@ -1,5 +1,8 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { readBookingDraft, saveBookingDraft } from './bookingDraft';
+import {
+  readBookingDraft,
+  saveBookingDraft,
+} from '@/features/booking/model/bookingDraft';
 
 afterEach(() => {
   sessionStorage.clear();

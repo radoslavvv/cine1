@@ -14,7 +14,7 @@ describe('cookie authentication transport', () => {
 
     vi.stubGlobal('fetch', fetch);
 
-    const { accountAction } = await import('./authApi');
+    const { accountAction } = await import('@/features/auth/api/authApi');
 
     await accountAction('register', {
       email: 'guest@example.com',
@@ -42,7 +42,7 @@ describe('cookie authentication transport', () => {
 
     vi.stubGlobal('fetch', fetch);
 
-    const { accountAction } = await import('./authApi');
+    const { accountAction } = await import('@/features/auth/api/authApi');
 
     await accountAction('sign-out');
     expect(
@@ -63,7 +63,7 @@ describe('cookie authentication transport', () => {
 
     vi.stubGlobal('fetch', fetch);
 
-    const { accountAction } = await import('./authApi');
+    const { accountAction } = await import('@/features/auth/api/authApi');
 
     await expect(accountAction('sign-in')).rejects.toThrow('Unable to sign in');
     expect(fetch).toHaveBeenCalledTimes(2);

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, expect, it, vi } from 'vitest';
-import { MoviesPanel } from './MoviesPanel';
+import { MoviesPanel } from '@/features/movies/admin/pages/MoviesPanel';
 
 afterEach(() => vi.unstubAllGlobals());
 

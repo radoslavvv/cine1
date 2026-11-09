@@ -2,9 +2,9 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { FormEvent, ReactNode } from 'react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { useMovieEditor } from '../movies/admin/hooks/useMovieEditor';
-import { useAuditoriumEditor } from '../auditoriums/admin/hooks/useAuditoriumEditor';
-import { useShowtimeEditor } from '../showtimes/admin/hooks/useShowtimeEditor';
+import { useMovieEditor } from '@/features/movies/admin/hooks/useMovieEditor';
+import { useAuditoriumEditor } from '@/features/auditoriums/admin/hooks/useAuditoriumEditor';
+import { useShowtimeEditor } from '@/features/showtimes/admin/hooks/useShowtimeEditor';
 
 const event = { preventDefault() {} } as FormEvent;
 const requests: { url: string; init?: RequestInit }[] = [];
