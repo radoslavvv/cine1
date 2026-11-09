@@ -74,7 +74,7 @@ it('sign-out removes private feature caches and cancels in-flight administration
 
   await act(() => result.current.signOut());
 
-  expect(result.current.customer).toBeNull();
+  await waitFor(() => expect(result.current.customer).toBeNull());
 
   for (const queryKey of privateKeys) {
     expect(client.getQueryData(queryKey)).toBeUndefined();
@@ -83,5 +83,50 @@ it('sign-out removes private feature caches and cancels in-flight administration
   expect(pendingSignal?.aborted).toBe(true);
   await pending;
   expect(client.getQueryData(publicKey)).toEqual(['public screening']);
+  client.clear();
+});
+
+it('a session refresh supersedes an initial read that finishes after the account changes', async () => {
+  let finishInitial!: (response: Response) => void;
+  const fetch = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise<Response>((resolve) => {
+          finishInitial = resolve;
+        }),
+    )
+    .mockResolvedValueOnce(
+      Response.json({
+        customer: {
+          id: 'new-customer',
+          email: 'new@example.test',
+          isAdministrator: false,
+        },
+        csrfToken: 'new-token',
+      }),
+    );
+
+  vi.stubGlobal('fetch', fetch);
+  const client = new QueryClient();
+  const { result, unmount } = renderHook(() => useAuthSession(), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    ),
+  });
+
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  await act(() => result.current.refresh());
+  await waitFor(() => expect(result.current.customer?.id).toBe('new-customer'));
+
+  await act(async () => {
+    finishInitial(Response.json({ customer: null, csrfToken: 'old-token' }));
+  });
+
+  expect(result.current.customer?.id).toBe('new-customer');
+  expect(client.getQueryData(['account', 'session'])).toEqual({
+    customer: result.current.customer,
+  });
+  unmount();
   client.clear();
 });

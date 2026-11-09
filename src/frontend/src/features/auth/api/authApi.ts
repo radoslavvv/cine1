@@ -2,13 +2,17 @@ import type { Customer } from '../types';
 
 let csrfToken: string | null = null;
 
-export async function loadSession(): Promise<{ customer: Customer | null }> {
+export async function loadSession(
+  signal?: AbortSignal,
+): Promise<{ customer: Customer | null }> {
   let response: Response;
 
   try {
     response = await fetch('/api/account/session', {
       cache: 'no-store',
-      signal: AbortSignal.timeout(10_000),
+      signal: signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(10_000)])
+        : AbortSignal.timeout(10_000),
     });
   } catch {
     throw new Error('The cinema service is unavailable. Please try again.');
@@ -23,9 +27,10 @@ export async function loadSession(): Promise<{ customer: Customer | null }> {
     csrfToken: string;
   };
 
+  signal?.throwIfAborted();
   csrfToken = session.csrfToken;
 
-  return session;
+  return { customer: session.customer };
 }
 
 export async function securityFetch(url: string, init: RequestInit = {}) {

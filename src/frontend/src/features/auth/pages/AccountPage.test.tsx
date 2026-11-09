@@ -99,7 +99,9 @@ describe('account pages within the cinema', () => {
         }),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(screen.getByRole('button', { name: 'Retrying…' })).toBeDisabled();
+    expect(
+      await screen.findByRole('button', { name: 'Retrying…' }),
+    ).toBeDisabled();
     await act(async () => recover({ customer: null }));
     await waitFor(() =>
       expect(
@@ -108,5 +110,60 @@ describe('account pages within the cinema', () => {
         ),
       ).not.toBeInTheDocument(),
     );
+  });
+
+  it('shows pending and success states for registration and clears the password', async () => {
+    let complete!: (message: string) => void;
+    api.accountAction.mockImplementationOnce(
+      () =>
+        new Promise<string>((resolve) => {
+          complete = resolve;
+        }),
+    );
+    showAccount();
+    fireEvent.change(screen.getByLabelText('Email address'), {
+      target: { value: 'customer@example.test' },
+    });
+    fireEvent.change(screen.getByLabelText('Password', { exact: true }), {
+      target: { value: 'Example-Password-123' },
+    });
+    fireEvent.change(screen.getByLabelText('Confirm password'), {
+      target: { value: 'Example-Password-123' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+
+    expect(
+      await screen.findByRole('button', { name: 'Please wait…' }),
+    ).toBeDisabled();
+    expect(api.accountAction).toHaveBeenCalledTimes(1);
+    expect(api.accountAction).toHaveBeenCalledWith('register', {
+      email: 'customer@example.test',
+      password: 'Example-Password-123',
+      userId: '',
+      token: '',
+    });
+    await act(async () => complete('Check your inbox.'));
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Check your inbox.',
+    );
+    expect(screen.getByLabelText('Password', { exact: true })).toHaveValue('');
+  });
+
+  it('shows a failed sign-in without automatically retrying the credentials', async () => {
+    api.accountAction.mockRejectedValueOnce(new Error('Unable to sign in.'));
+    showAccount('/account/sign-in');
+    fireEvent.change(screen.getByLabelText('Email address'), {
+      target: { value: 'customer@example.test' },
+    });
+    fireEvent.change(screen.getByLabelText('Password', { exact: true }), {
+      target: { value: 'wrong-password' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Unable to sign in.',
+    );
+    expect(api.accountAction).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled();
   });
 });

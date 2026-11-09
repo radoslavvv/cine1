@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 import { accountAction } from '../api/authApi';
 import { safeReturnTo } from '../model/accountNavigation';
@@ -11,9 +12,7 @@ export function useAccountPage(action: string, params: URLSearchParams) {
   const [email, setEmail] = useState(params.get('email') ?? '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [validationError, setValidationError] = useState('');
   const needsPassword = ['sign-in', 'register', 'reset-password'].includes(
     action,
   );
@@ -22,33 +21,18 @@ export function useAccountPage(action: string, params: URLSearchParams) {
   const destination = safeReturnTo(params.get('returnTo'));
   const returnQuery = `?${new URLSearchParams({ returnTo: destination })}`;
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-
-    if (busy) {
-      return;
-    }
-
-    setError('');
-    setMessage('');
-
-    if (needsPassword && newPassword && password !== confirmPassword) {
-      setError('Your passwords do not match.');
-
-      return;
-    }
-
-    setBusy(true);
-
-    try {
-      const result = await accountAction(action, {
+  const mutation = useMutation({
+    // Keep passwords and email-link tokens out of the mutation's stored variables.
+    mutationFn: () =>
+      accountAction(action, {
         email: email.trim(),
         password,
         userId: params.get('userId') ?? '',
         token: params.get('token') ?? '',
-      });
-
-      setMessage(result);
+      }),
+    retry: false,
+    gcTime: 0,
+    onSuccess: async () => {
       setPassword('');
       setConfirmPassword('');
 
@@ -69,13 +53,26 @@ export function useAccountPage(action: string, params: URLSearchParams) {
       if (verify || action === 'reset-password') {
         navigate(`/account/${action}`, { replace: true });
       }
-    } catch (failure) {
-      setError(
-        failure instanceof Error ? failure.message : 'Please try again.',
-      );
-    } finally {
-      setBusy(false);
+    },
+  });
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+
+    if (mutation.isPending) {
+      return;
     }
+
+    setValidationError('');
+    mutation.reset();
+
+    if (needsPassword && newPassword && password !== confirmPassword) {
+      setValidationError('Your passwords do not match.');
+
+      return;
+    }
+
+    mutation.mutate();
   }
 
   return {
@@ -86,9 +83,9 @@ export function useAccountPage(action: string, params: URLSearchParams) {
     setPassword,
     confirmPassword,
     setConfirmPassword,
-    busy,
-    message,
-    error,
+    busy: mutation.isPending,
+    message: mutation.isSuccess ? mutation.data : '',
+    error: validationError || mutation.error?.message || '',
     needsPassword,
     newPassword,
     verify,
