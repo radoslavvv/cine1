@@ -91,6 +91,8 @@ Fast backend tests cover application rules, project dependency boundaries, contr
 
 ## Project and learning documents
 
+- [Booking load experiments](docs/booking-load-tests.md): isolated real-HTTP correctness and capacity tests, with [initial measured results](docs/booking-load-results.md).
+
 - src/backend/CinemaR.Domain: entities and cinema calendar rules; no framework or project dependencies.
 - src/backend/CinemaR.Application: use-case services, commands/queries, response/read models, and repository interfaces; references Domain only.
 - src/backend/CinemaR.Infrastructure: EF context, migrations, repositories, seeding, readiness, and transaction/locking details; implements Application interfaces.

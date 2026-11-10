@@ -55,6 +55,12 @@ Frontend regression tests additionally exercise private-cache removal and in-fli
 
 Two defects were reproduced and corrected while adding coverage: feature-first administration query keys escaped sign-out cleanup; a missing SQL statement terminator broke the idempotent deployment script. Historical migration IDs and data operations are unchanged; the migration edit only terminates the existing UPDATE statement inside the generated conditional block.
 
+## Manual booking load experiments
+
+Cross-application test suites live under [`tests`](../tests/README.md). The load suite owns its scenarios, shared k6 client, .NET fixture tool and runner under [`tests/load`](../tests/load/README.md). Frontend tests and existing backend test projects remain with their respective codebases.
+
+Run `./scripts/test-load.ps1` for the separate, disposable real-HTTP correctness and capacity experiments. This uses its own database and Release API, leaves the normal development environment untouched, and records HTTP metrics plus independent database checks. Heavy tests remain manual; the new concurrent replay and changed-payload correctness regressions run in the existing PostgreSQL CI job. See [booking load tests](booking-load-tests.md) for commands, workload definitions, results, and limitations.
+
 ## Where tests belong
 
 - **Frontend rules and interactions:** keep all frontend tests in `src/frontend/tests`, outside application source. Mirror feature paths under `tests/features`; shared setup and fixtures also belong under `tests`. Import application modules through the `@/` source alias. Vitest discovers tests only in this directory, and TypeScript checks them alongside application code. React Testing Library renders hooks and components. Seat-selection tests use a fixed clock and cover the eight-seat limit, refreshed availability, and the server-adjusted start boundary. Seat-map component tests check accessible names, pressed state, and disabled interactions. Checkout tests use real query providers and API request serialization, replacing only `fetch` to simulate lost responses, server failures, conflicts, and duplicate submissions.
@@ -65,7 +71,7 @@ Two defects were reproduced and corrected while adding coverage: feature-first a
 
 ## Remaining coverage to add
 
-The PostgreSQL suite establishes the core persistence behaviors above. Extend it with deterministic cancellation/layout-replacement races against booking, same-request concurrent replay on one screening, changed-email/seat replay conflicts, and customer-history page-boundary ordering. These remain distinct gaps; the suite is not a load test or evidence of all possible interleavings. Make the `postgres` job a required check when configuring branch protection.
+The PostgreSQL suite establishes the core persistence behaviors above, including concurrent same-request replay on one screening and changed-email/seat replay conflicts. Extend it with deterministic cancellation/layout-replacement races against booking and customer-history page-boundary ordering. These remain distinct gaps; the suite is not a load test or evidence of all possible interleavings. Make the `postgres` job a required check when configuring branch protection.
 
 Add a small Playwright suite against the built frontend and an API backed by a disposable database. Cover showtimes → seat selection → checkout → confirmation → reload, a second customer taking a selected seat, and administrator access being allowed only after authorized sign-in. Add one narrow/mobile seat-layout check and one reduced-motion journey. Use a fixed fixture clock/catalog, accessible locators, and condition-based waits. Keep visual choreography and scroll behavior in browser checks rather than jsdom assertions.
 

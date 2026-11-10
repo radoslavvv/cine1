@@ -17,6 +17,10 @@ jobs:
           global-json-file: global.json
       - run: dotnet restore CinemaR.slnx --locked-mode
       - run: dotnet test CinemaR.slnx --no-restore --configuration Release --logger trx --results-directory TestResults
+      - name: Build manual load-test fixture tool
+        run: |
+          dotnet restore tests/load/fixtures/CinemaR.LoadTests.csproj --locked-mode
+          dotnet build tests/load/fixtures/CinemaR.LoadTests.csproj --no-restore --configuration Release
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,11 +1,74 @@
 using CinemaR.Application.Booking.Results;
 using CinemaR.IntegrationTests.Support;
 using Xunit;
+using Microsoft.EntityFrameworkCore;
 
 namespace CinemaR.IntegrationTests;
 
 public sealed class BookingPersistenceTests
 {
+    [Fact]
+    public async Task Concurrent_identical_replays_return_one_booking_and_the_same_tickets()
+    {
+        await using var database = await PostgresDatabase.CreateAsync();
+        var cinema = new CinemaFixture(database);
+        await cinema.SeedAsync();
+        var requestId = Guid.NewGuid();
+        var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var attempts = Enumerable.Range(0, 20).Select(async index =>
+        {
+            await start.Task;
+            var seats = index % 2 == 0
+                ? new[] { cinema.SeatIds[0], cinema.SeatIds[1] }
+                : new[] { cinema.SeatIds[1], cinema.SeatIds[0] };
+            return await cinema.BookAsync(seats, requestId);
+        }).ToArray();
+
+        start.SetResult();
+        var results = await Task.WhenAll(attempts).WaitAsync(TimeSpan.FromSeconds(30));
+        var original = results[0].Confirmation!;
+        Assert.All(results, result =>
+        {
+            Assert.Equal(BookingOutcome.Confirmed, result.Outcome);
+            Assert.Equal(original.ConfirmationToken, result.Confirmation!.ConfirmationToken);
+            Assert.Equal(original.Tickets, result.Confirmation.Tickets);
+        });
+
+        await using var db = database.OpenContext();
+        Assert.Equal(1, await db.Bookings.CountAsync());
+        Assert.Equal(2, await db.BookedSeats.CountAsync());
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Concurrent_request_reuse_with_changed_email_or_seats_cannot_create_another_booking(bool changeEmail)
+    {
+        await using var database = await PostgresDatabase.CreateAsync();
+        var cinema = new CinemaFixture(database);
+        await cinema.SeedAsync();
+        var requestId = Guid.NewGuid();
+        var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        async Task<BookingResult> Submit(bool changed)
+        {
+            await start.Task;
+            return await cinema.BookAsync(
+                [cinema.SeatIds[changed && !changeEmail ? 1 : 0]], requestId,
+                changed && changeEmail ? "other@example.test" : "guest@example.test");
+        }
+
+        var attempts = new[] { Submit(false), Submit(true) };
+        start.SetResult();
+        var results = await Task.WhenAll(attempts).WaitAsync(TimeSpan.FromSeconds(30));
+        Assert.Single(results.Where(result => result.Outcome == BookingOutcome.Confirmed));
+        Assert.Single(results.Where(result => result.Outcome == BookingOutcome.RequestConflict));
+
+        await using var db = database.OpenContext();
+        Assert.Equal(1, await db.Bookings.CountAsync());
+        Assert.Equal(1, await db.BookedSeats.CountAsync());
+    }
+
     [Fact]
     public async Task Competing_customers_cannot_sell_the_same_seat_twice()
     {
